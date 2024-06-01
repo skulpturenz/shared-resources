@@ -64,7 +64,7 @@ func main() {
 				&compute.FirewallAllowArgs{
 					Protocol: pulumi.String("tcp"),
 					Ports: pulumi.StringArray{
-						pulumi.String("3301"),
+						pulumi.String("0-65535"),
 					},
 				},
 			},
