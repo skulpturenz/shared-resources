@@ -28,6 +28,9 @@ var (
 		// `export GOOGLE_SERVICE_ACCOUNT=$(cat credentials.json)`
 		String("GOOGLE_SERVICE_ACCOUNT", "Google service account credentials to obtain a signed url").
 		Required()
+	CLOUDFLARE_API_TOKEN = ferrite.
+				String("CLOUDFLARE_API_TOKEN", "Cloudflare API token").
+				Required()
 )
 
 func main() {
@@ -43,23 +46,84 @@ func main() {
 			return err
 		}
 
-		createdInstance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
+		cloudflareNetwork, err := compute.NewNetwork(ctx, "allow-cloudflare", &compute.NetworkArgs{
+			Name: pulumi.String("allow-cloudflare"),
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = compute.NewFirewall(ctx, "allow-cloudflare", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-cloudflare"),
+			Network:     cloudflareNetwork.Name,
+			Description: pulumi.StringPtr("Allow all traffic from Cloudflare"),
+			Allows: compute.FirewallAllowArray{
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("icmp"),
+				},
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("tcp"),
+					Ports: pulumi.StringArray{
+						pulumi.String("0"),
+					},
+				},
+			},
+			SourceRanges: pulumi.ToStringArray([]string{
+				"173.245.48.0/20",
+				"103.21.244.0/22",
+				"103.22.200.0/22",
+				"103.31.4.0/22",
+				"141.101.64.0/18",
+				"108.162.192.0/18",
+				"190.93.240.0/20",
+				"188.114.96.0/20",
+				"197.234.240.0/22",
+				"198.41.128.0/17",
+				"162.158.0.0/15",
+				"104.16.0.0/13",
+				"104.24.0.0/14",
+				"172.64.0.0/13",
+				"131.0.72.0/22",
+			},
+			),
+			TargetTags: pulumi.StringArray{
+				pulumi.String("allow-all-cloudflare"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
+			Name: pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
+		})
+		if err != nil {
+			return err
+		}
+
+		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
 			MachineType: pulumi.String("e2-micro"),
 			Zone:        pulumi.String("australia-southeast1-a"),
-			Tags:        pulumi.ToStringArray([]string{}),
-			// TODO: Allow all incoming and outgoing
+			Tags: pulumi.ToStringArray([]string{
+				"allow-all-cloudflare",
+				"lb-health-check",
+				"http-server",
+				"https-server",
+				"allow-ssh",
+			}),
 			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
 				&compute.InstanceNetworkInterfaceArgs{
 					AccessConfigs: compute.InstanceNetworkInterfaceAccessConfigArray{
-						nil,
+						&compute.InstanceNetworkInterfaceAccessConfigArgs{
+							NatIp: static.Address,
+						},
 					},
-					Network: pulumi.String("default"),
+					Network: cloudflareNetwork.Name,
 				},
 			},
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
 			// Signoz setup: https://signoz.io/docs/install/docker-swarm/
-			// TODO: Manual or maybe just build a docker image
 			// - https://signoz.io/docs/monitor-http-endpoints/
 			// - https://signoz.io/docs/userguide/otlp-http-enable-cors/
 			// - https://signoz.io/docs/operate/
@@ -76,8 +140,8 @@ func main() {
 				sudo docker stack deploy -c docker-swarm/clickhouse-setup/docker-compose.yaml signoz &&
 				sudo docker stack services signoz`, configPatchUrl.SignedUrl)),
 			Scheduling: compute.InstanceSchedulingArgs{
+				AutomaticRestart:  pulumi.Bool(true),
 				OnHostMaintenance: pulumi.String("MIGRATE"),
-				// TODO: Don't auto delete disk
 			},
 			DeletionProtection:     pulumi.Bool(false),
 			AllowStoppingForUpdate: pulumi.Bool(true),
@@ -86,7 +150,7 @@ func main() {
 					Image: pulumi.String("debian-12-bookworm-v20240515"),
 					Type:  pulumi.String("pd-standard"),
 				},
-				// TODO: Reuse disk
+				AutoDelete: pulumi.Bool(false),
 			},
 			ShieldedInstanceConfig: &compute.InstanceShieldedInstanceConfigArgs{
 				EnableIntegrityMonitoring: pulumi.Bool(true),
@@ -98,41 +162,22 @@ func main() {
 			return err
 		}
 
-		disk, err := compute.NewAttachedDisk(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AttachedDiskArgs{
-			Disk:     pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			Instance: createdInstance.SelfLink,
+		ctx.Export("uri", instance.SelfLink)
+		ctx.Export("status", instance.CurrentStatus)
+		ctx.Export("id", instance.ID())
+		ctx.Export("instanceId", instance.InstanceId)
+		ctx.Export("staticAddress", static.Address)
+
+		_, err = cloudflare.NewRecord(ctx, COMPUTE_INSTANCE_NAME.Value(), &cloudflare.RecordArgs{
+			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
+			Name:    pulumi.String("telemetry"),
+			Value:   static.Address,
+			Type:    pulumi.String("A"),
+			Proxied: pulumi.Bool(true),
 		})
 		if err != nil {
 			return err
 		}
-
-		ctx.Export("uri", createdInstance.SelfLink)
-		ctx.Export("id", createdInstance.ID())
-		ctx.Export("instanceId", createdInstance.InstanceId)
-		ctx.Export("disk", disk.ID())
-
-		createdInstance.SelfLink.ApplyT(func(selfLink string) error {
-			instance, err := compute.LookupInstance(ctx, &compute.LookupInstanceArgs{
-				SelfLink: &selfLink,
-			})
-			if err != nil {
-				return err
-			}
-
-			// TODO: Cloudflare API token
-			_, err = cloudflare.NewRecord(ctx, COMPUTE_INSTANCE_NAME.Value(), &cloudflare.RecordArgs{
-				ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
-				Name:    pulumi.String("telemetry"),
-				Value:   pulumi.String(instance.Hostname),
-				Type:    pulumi.String("A"),
-				Proxied: pulumi.Bool(true),
-			})
-			if err != nil {
-				return err
-			}
-
-			return nil
-		})
 
 		return nil
 	})
