@@ -1,0 +1,59 @@
+diff --git a/deploy/docker/clickhouse-setup/clickhouse-storage.xml b/deploy/docker/clickhouse-setup/clickhouse-storage.xml
+index 54ec4976..8c0b1bc6 100644
+--- a/deploy/docker/clickhouse-setup/clickhouse-storage.xml
++++ b/deploy/docker/clickhouse-setup/clickhouse-storage.xml
+@@ -13,15 +13,15 @@
+                 For GCS cold storage,
+                     endpoint should be https://storage.googleapis.com/<bucket-name>/data/
+                 -->
+-            <endpoint>https://BUCKET-NAME.s3-REGION-NAME.amazonaws.com/data/</endpoint>
+-            <access_key_id>ACCESS-KEY-ID</access_key_id>
+-            <secret_access_key>SECRET-ACCESS-KEY</secret_access_key>
++            <endpoint>https://storage.googleapis.com/skulpture-shared-telemetry/data/</endpoint>
++            <access_key_id>TODO</access_key_id>
++            <secret_access_key>TODO</secret_access_key>
+             <!-- In case of S3, uncomment the below configuration in case you want to read
+                 AWS credentials from the Environment variables if they exist. -->
+             <!-- <use_environment_credentials>true</use_environment_credentials> -->
+             <!-- In case of GCS, uncomment the below configuration, since GCS does
+                 not support batch deletion and result in error messages in logs. -->
+-            <!-- <support_batch_delete>false</support_batch_delete> -->
++            <support_batch_delete>false</support_batch_delete>
+         </s3>
+    </disks>
+    <policies>
+diff --git a/deploy/docker/clickhouse-setup/otel-collector-config.yaml b/deploy/docker/clickhouse-setup/otel-collector-config.yaml
+index 7a103d10..724452fb 100644
+--- a/deploy/docker/clickhouse-setup/otel-collector-config.yaml
++++ b/deploy/docker/clickhouse-setup/otel-collector-config.yaml
+@@ -1,4 +1,11 @@
+ receivers:
++  httpcheck:
++    targets:
++      - endpoint: "https://authn.skulpture.xyz/ping"
++        method: GET
++      - endpoint: "https://authz.skulpture.xyz/ping"
++        method: GET
++    collection_interval: 10s
+   tcplog/docker:
+     listen_address: "0.0.0.0:2255"
+     operators:
+@@ -24,6 +31,9 @@ receivers:
+         endpoint: 0.0.0.0:4317
+       http:
+         endpoint: 0.0.0.0:4318
++        cors:
++          allowed_origins:
++            - "*"
+   jaeger:
+     protocols:
+       grpc:
+@@ -151,7 +161,7 @@ service:
+       processors: [signozspanmetrics/cumulative, signozspanmetrics/delta, batch]
+       exporters: [clickhousetraces]
+     metrics:
+-      receivers: [otlp]
++      receivers: [otlp, httpcheck]
+       processors: [batch]
+       exporters: [clickhousemetricswrite]
+     metrics/generic:
