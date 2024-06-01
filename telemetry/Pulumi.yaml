@@ -1,0 +1,7 @@
+name: telemetry
+runtime: go
+description: Deploy telemetry tools
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: gcp-go
