@@ -67,9 +67,18 @@ func main() {
 			return err
 		}
 
+		disk, err := compute.NewAttachedDisk(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AttachedDiskArgs{
+			Disk:     pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
+			Instance: createdInstance.SelfLink,
+		})
+		if err != nil {
+			return err
+		}
+
 		ctx.Export("uri", createdInstance.SelfLink)
 		ctx.Export("id", createdInstance.ID())
 		ctx.Export("instanceId", createdInstance.InstanceId)
+		ctx.Export("disk", disk.ID())
 
 		createdInstance.SelfLink.ApplyT(func(selfLink string) error {
 			instance, err := compute.LookupInstance(ctx, &compute.LookupInstanceArgs{
