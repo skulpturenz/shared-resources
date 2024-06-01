@@ -26,6 +26,8 @@ var (
 )
 
 func main() {
+	ferrite.Init()
+
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		configPatchUrl, err := storage.GetObjectSignedUrl(ctx, &storage.GetObjectSignedUrlArgs{
 			Bucket: "skulpture-shared-telemetry",
