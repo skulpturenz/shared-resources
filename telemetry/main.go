@@ -95,7 +95,8 @@ func main() {
 		}
 
 		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
-			Name: pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
+			Name:   pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
+			Region: pulumi.String("australia-southeast1"),
 		})
 		if err != nil {
 			return err
