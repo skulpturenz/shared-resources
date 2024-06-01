@@ -64,7 +64,7 @@ func main() {
 				&compute.FirewallAllowArgs{
 					Protocol: pulumi.String("tcp"),
 					Ports: pulumi.StringArray{
-						pulumi.String("0"),
+						pulumi.String("3301"),
 					},
 				},
 			},
@@ -88,6 +88,30 @@ func main() {
 			),
 			TargetTags: pulumi.StringArray{
 				pulumi.String("allow-all-cloudflare"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = compute.NewFirewall(ctx, "allow-ssh", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-ssh"),
+			Network:     cloudflareNetwork.Name,
+			Description: pulumi.StringPtr("Allow SSH"),
+			Allows: compute.FirewallAllowArray{
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("tcp"),
+					Ports: pulumi.StringArray{
+						pulumi.String("22"),
+					},
+				},
+			},
+			SourceRanges: pulumi.ToStringArray([]string{
+				"0.0.0.0/0",
+			},
+			),
+			TargetTags: pulumi.StringArray{
+				pulumi.String("allow-ssh"),
 			},
 		})
 		if err != nil {
@@ -128,7 +152,8 @@ func main() {
 			// - https://signoz.io/docs/monitor-http-endpoints/
 			// - https://signoz.io/docs/userguide/otlp-http-enable-cors/
 			// - https://signoz.io/docs/operate/
-			MetadataStartupScript: pulumi.String(fmt.Sprintf(`sudo apt update &&
+			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
+				sudo apt update &&
 				sudo apt install git ca-certificates curl gnupg apt-transport-https gpg -y &&
 				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
 				echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
@@ -139,7 +164,8 @@ func main() {
 				git apply otel-collector-config.patch &&
 				sudo docker swarm init &&
 				sudo docker stack deploy -c docker-swarm/clickhouse-setup/docker-compose.yaml signoz &&
-				sudo docker stack services signoz`, configPatchUrl.SignedUrl)),
+				sudo docker stack services signoz
+				EOF`, configPatchUrl.SignedUrl)),
 			Scheduling: compute.InstanceSchedulingArgs{
 				AutomaticRestart:  pulumi.Bool(true),
 				OnHostMaintenance: pulumi.String("MIGRATE"),
@@ -152,11 +178,6 @@ func main() {
 					Type:  pulumi.String("pd-standard"),
 				},
 				AutoDelete: pulumi.Bool(false),
-			},
-			ShieldedInstanceConfig: &compute.InstanceShieldedInstanceConfigArgs{
-				EnableIntegrityMonitoring: pulumi.Bool(true),
-				EnableSecureBoot:          pulumi.Bool(true),
-				EnableVtpm:                pulumi.Bool(true),
 			},
 		})
 		if err != nil {
