@@ -40,6 +40,14 @@ func main() {
 			MachineType: pulumi.String("f1-micro"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags:        pulumi.ToStringArray([]string{}),
+			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
+				&compute.InstanceNetworkInterfaceArgs{
+					AccessConfigs: compute.InstanceNetworkInterfaceAccessConfigArray{
+						nil,
+					},
+					Network: pulumi.String("default"),
+				},
+			},
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
 			// Signoz setup: https://signoz.io/docs/install/docker-swarm/
 			// TODO: Manual or maybe just build a docker image
