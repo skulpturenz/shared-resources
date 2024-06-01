@@ -1,0 +1,35 @@
+diff --git a/deploy/docker/clickhouse-setup/otel-collector-config.yaml b/deploy/docker/clickhouse-setup/otel-collector-config.yaml
+index 7a103d10..724452fb 100644
+--- a/deploy/docker/clickhouse-setup/otel-collector-config.yaml
++++ b/deploy/docker/clickhouse-setup/otel-collector-config.yaml
+@@ -1,4 +1,11 @@
+ receivers:
++  httpcheck:
++    targets:
++      - endpoint: "https://authn.skulpture.xyz/ping"
++        method: GET
++      - endpoint: "https://authz.skulpture.xyz/ping"
++        method: GET
++    collection_interval: 10s
+   tcplog/docker:
+     listen_address: "0.0.0.0:2255"
+     operators:
+@@ -24,6 +31,9 @@ receivers:
+         endpoint: 0.0.0.0:4317
+       http:
+         endpoint: 0.0.0.0:4318
++        cors:
++          allowed_origins:
++            - "*"
+   jaeger:
+     protocols:
+       grpc:
+@@ -151,7 +161,7 @@ service:
+       processors: [signozspanmetrics/cumulative, signozspanmetrics/delta, batch]
+       exporters: [clickhousetraces]
+     metrics:
+-      receivers: [otlp]
++      receivers: [otlp, httpcheck]
+       processors: [batch]
+       exporters: [clickhousemetricswrite]
+     metrics/generic:

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/dogmatiq/ferrite"
 	"github.com/pulumi/pulumi-cloudflare/sdk/v5/go/cloudflare"
 	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/compute"
@@ -17,6 +19,9 @@ var (
 	CLOUDFLARE_ZONE_ID = ferrite.
 				String("CLOUDFLARE_ZONE_ID", "Cloudflare zone id").
 				Required()
+	SIGNOZ_PATCH = ferrite.
+			String("SIGNOZ_PATCH", "Signoz config patch").
+			Required()
 )
 
 func main() {
@@ -32,17 +37,18 @@ func main() {
 			// - https://signoz.io/docs/monitor-http-endpoints/
 			// - https://signoz.io/docs/userguide/otlp-http-enable-cors/
 			// - https://signoz.io/docs/operate/
-			MetadataStartupScript: pulumi.String(`sudo apt update &&
-				sudo apt upgrade -y &&
-				sudo apt install git ca-certificates curl gnupg apt-transport-https gpg &&
-				curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
-				echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" |tee /etc/apt/sources.list.d/docker.list > /dev/null &&
+			MetadataStartupScript: pulumi.String(fmt.Sprintf(`sudo apt update &&
+				sudo apt install git ca-certificates curl gnupg apt-transport-https gpg -y &&
+				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
+				echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
 				sudo apt update &&
-				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose &&
-				git clone -b main https://github.com/SigNoz/signoz.git && cd signoz/deploy/ &&
+				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose -y &&
+				git clone -b v0.46.0-389f22cf6 https://github.com/SigNoz/signoz.git && cd signoz/deploy/ &&
+				curl '%s' > otel-collector-config.patch &&
+				git apply otel-collector-config.patch &&
 				sudo docker swarm init &&
 				sudo docker stack deploy -c docker-swarm/clickhouse-setup/docker-compose.yaml signoz &&
-				sudo docker stack services signoz`),
+				sudo docker stack services signoz`, SIGNOZ_PATCH.Value())),
 			DeletionProtection:     pulumi.Bool(true),
 			AllowStoppingForUpdate: pulumi.Bool(true),
 			BootDisk: &compute.InstanceBootDiskArgs{
