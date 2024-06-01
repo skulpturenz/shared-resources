@@ -6,6 +6,7 @@ import (
 	"github.com/dogmatiq/ferrite"
 	"github.com/pulumi/pulumi-cloudflare/sdk/v5/go/cloudflare"
 	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/compute"
+	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/storage"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -26,6 +27,14 @@ var (
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
+		configPatchUrl, err := storage.GetObjectSignedUrl(ctx, &storage.GetObjectSignedUrlArgs{
+			Bucket: "skulpture-shared-telemetry",
+			Path:   fmt.Sprintf("patch/%s", SIGNOZ_PATCH.Value()),
+		})
+		if err != nil {
+			return err
+		}
+
 		createdInstance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
 			MachineType: pulumi.String("f1-micro"),
@@ -48,7 +57,7 @@ func main() {
 				git apply otel-collector-config.patch &&
 				sudo docker swarm init &&
 				sudo docker stack deploy -c docker-swarm/clickhouse-setup/docker-compose.yaml signoz &&
-				sudo docker stack services signoz`, SIGNOZ_PATCH.Value())),
+				sudo docker stack services signoz`, configPatchUrl.SignedUrl)),
 			DeletionProtection:     pulumi.Bool(true),
 			AllowStoppingForUpdate: pulumi.Bool(true),
 			BootDisk: &compute.InstanceBootDiskArgs{
