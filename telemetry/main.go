@@ -23,6 +23,11 @@ var (
 	SIGNOZ_PATCH = ferrite.
 			String("SIGNOZ_PATCH", "Signoz config patch").
 			Required()
+	GOOGLE_SERVICE_ACCOUNT = ferrite.
+		// See: https://www.pulumi.com/registry/packages/gcp/api-docs/storage/getobjectsignedurl/#credentials_go
+		// `export GOOGLE_SERVICE_ACCOUNT=$(cat credentials.json)`
+		String("GOOGLE_SERVICE_ACCOUNT", "Google service account credentials to obtain a signed url").
+		Required()
 )
 
 func main() {
@@ -30,8 +35,9 @@ func main() {
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		configPatchUrl, err := storage.GetObjectSignedUrl(ctx, &storage.GetObjectSignedUrlArgs{
-			Bucket: "skulpture-shared-telemetry",
-			Path:   fmt.Sprintf("patch/%s", SIGNOZ_PATCH.Value()),
+			Bucket:      "skulpture-shared-telemetry",
+			Path:        fmt.Sprintf("patch/%s", SIGNOZ_PATCH.Value()),
+			Credentials: pulumi.StringRef(GOOGLE_SERVICE_ACCOUNT.Value()),
 		})
 		if err != nil {
 			return err
@@ -39,9 +45,10 @@ func main() {
 
 		createdInstance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			MachineType: pulumi.String("f1-micro"),
+			MachineType: pulumi.String("e2-micro"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags:        pulumi.ToStringArray([]string{}),
+			// TODO: Allow all incoming and outgoing
 			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
 				&compute.InstanceNetworkInterfaceArgs{
 					AccessConfigs: compute.InstanceNetworkInterfaceAccessConfigArray{
@@ -68,13 +75,18 @@ func main() {
 				sudo docker swarm init &&
 				sudo docker stack deploy -c docker-swarm/clickhouse-setup/docker-compose.yaml signoz &&
 				sudo docker stack services signoz`, configPatchUrl.SignedUrl)),
-			DeletionProtection:     pulumi.Bool(true),
+			Scheduling: compute.InstanceSchedulingArgs{
+				OnHostMaintenance: pulumi.String("MIGRATE"),
+				// TODO: Don't auto delete disk
+			},
+			DeletionProtection:     pulumi.Bool(false),
 			AllowStoppingForUpdate: pulumi.Bool(true),
 			BootDisk: &compute.InstanceBootDiskArgs{
 				InitializeParams: &compute.InstanceBootDiskInitializeParamsArgs{
 					Image: pulumi.String("debian-12-bookworm-v20240515"),
 					Type:  pulumi.String("pd-standard"),
 				},
+				// TODO: Reuse disk
 			},
 			ShieldedInstanceConfig: &compute.InstanceShieldedInstanceConfigArgs{
 				EnableIntegrityMonitoring: pulumi.Bool(true),
@@ -107,6 +119,7 @@ func main() {
 				return err
 			}
 
+			// TODO: Cloudflare API token
 			_, err = cloudflare.NewRecord(ctx, COMPUTE_INSTANCE_NAME.Value(), &cloudflare.RecordArgs{
 				ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
 				Name:    pulumi.String("telemetry"),
