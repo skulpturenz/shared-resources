@@ -46,89 +46,15 @@ func main() {
 			return err
 		}
 
-		// TODO: Separate network out
-		// TODO: `pulumi down` and remove all created resources first
-		cloudflareNetwork, err := compute.NewNetwork(ctx, "allow-cloudflare", &compute.NetworkArgs{
-			Name: pulumi.String("allow-cloudflare"),
-		})
-		if err != nil {
-			return err
-		}
-
-		_, err = compute.NewFirewall(ctx, "allow-cloudflare", &compute.FirewallArgs{
-			Name:        pulumi.String("allow-cloudflare"),
-			Network:     cloudflareNetwork.Name,
-			Description: pulumi.StringPtr("Allow all traffic from Cloudflare"),
-			Allows: compute.FirewallAllowArray{
-				&compute.FirewallAllowArgs{
-					Protocol: pulumi.String("icmp"),
-				},
-				&compute.FirewallAllowArgs{
-					Protocol: pulumi.String("tcp"),
-					Ports: pulumi.StringArray{
-						pulumi.String("0-65535"),
-					},
-				},
-			},
-			SourceRanges: pulumi.ToStringArray([]string{
-				"173.245.48.0/20",
-				"103.21.244.0/22",
-				"103.22.200.0/22",
-				"103.31.4.0/22",
-				"141.101.64.0/18",
-				"108.162.192.0/18",
-				"190.93.240.0/20",
-				"188.114.96.0/20",
-				"197.234.240.0/22",
-				"198.41.128.0/17",
-				"162.158.0.0/15",
-				"104.16.0.0/13",
-				"104.24.0.0/14",
-				"172.64.0.0/13",
-				"131.0.72.0/22",
-			},
-			),
-			TargetTags: pulumi.StringArray{
-				pulumi.String("allow-all-cloudflare"),
-			},
-		})
-		if err != nil {
-			return err
-		}
-
-		_, err = compute.NewFirewall(ctx, "allow-ssh", &compute.FirewallArgs{
-			Name:        pulumi.String("allow-ssh"),
-			Network:     cloudflareNetwork.Name,
-			Description: pulumi.StringPtr("Allow SSH"),
-			Allows: compute.FirewallAllowArray{
-				&compute.FirewallAllowArgs{
-					Protocol: pulumi.String("tcp"),
-					Ports: pulumi.StringArray{
-						pulumi.String("22"),
-					},
-				},
-			},
-			SourceRanges: pulumi.ToStringArray([]string{
-				"0.0.0.0/0",
-			},
-			),
-			TargetTags: pulumi.StringArray{
-				pulumi.String("allow-ssh"),
-			},
-		})
-		if err != nil {
-			return err
-		}
-
 		_, err = compute.NewFirewall(ctx, "allow-collector", &compute.FirewallArgs{
 			Name:        pulumi.String("allow-collector"),
-			Network:     cloudflareNetwork.Name,
-			Description: pulumi.StringPtr("Allow access to collector from any address"),
+			Network:     pulumi.String("shared-resources-network"),
+			Description: pulumi.StringPtr("Allow access to OpenTelemetry collector"),
 			Allows: compute.FirewallAllowArray{
 				&compute.FirewallAllowArgs{
 					Protocol: pulumi.String("tcp"),
 					Ports: pulumi.StringArray{
-						pulumi.String("22"),
+						pulumi.String("4317"),
 					},
 				},
 			},
@@ -157,11 +83,9 @@ func main() {
 			MachineType: pulumi.String("e2-small"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
-				"allow-all-cloudflare",
-				"lb-health-check",
-				"http-server",
-				"https-server",
+				"allow-cloudflare",
 				"allow-ssh",
+				"allow-collector",
 			}),
 			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
 				&compute.InstanceNetworkInterfaceArgs{
@@ -170,7 +94,7 @@ func main() {
 							NatIp: static.Address,
 						},
 					},
-					Network: cloudflareNetwork.Name,
+					Network: pulumi.String("shared-resources-network"),
 				},
 			},
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
