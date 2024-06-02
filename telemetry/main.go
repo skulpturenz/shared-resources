@@ -53,9 +53,13 @@ func main() {
 			Allows: compute.FirewallAllowArray{
 				&compute.FirewallAllowArgs{
 					Protocol: pulumi.String("tcp"),
-					Ports: pulumi.StringArray{
-						pulumi.String("4317"),
+					Ports: pulumi.ToStringArray([]string{
+						"4317",
+						"4318",
+						"8880",
+						"13133",
 					},
+					),
 				},
 			},
 			SourceRanges: pulumi.ToStringArray([]string{
