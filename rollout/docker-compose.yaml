@@ -1,0 +1,35 @@
+services:
+    flipt:
+        image: docker.flipt.io/flipt/flipt:v1.43.0
+        deploy:
+            restart_policy:
+                condition: on-failure
+        volumes:
+            - ./flipt:/var/opt/flipt
+            - ./flipt/config.yaml:/etc/flipt/config.yaml
+        environment:
+            - FLIPT_DB_URL=${POSTGRES_CONNECTION_STRING}
+            - FLIPT_CORS_ALLOWED_ORIGINS=*
+            - FLIPT_CORS_ENABLED=true
+            - FLIPT_META_CHECK_FOR_UPDATES=true
+            - FLIPT_TELEMETRY_ENABLED=false
+            - FLIPT_SERVER_HTTP_PORT=80
+            # - FLIPT_AUTHENTICATION_REQUIRED=true # TODO
+            # - FLIPT_AUTHENTICATION_METHODS_OIDC_ENABLED=true # TODO
+            # - FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_ISSUER_URL="" # TODO
+            # - FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_CLIENT_ID="" # TODO
+            # - FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_CLIENT_SECRET="" # TODO
+            # - FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_REDIRECT_ADDRESS="https://rollout.skulpture.xyz"
+            # - FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_SCOPES="" # TODO
+            # - FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_USE_PKCE=true
+            - FLIPT_CACHE_ENABLED=true
+            - FLIPT_METRICS_EXPORTER=otlp
+            - FLIPT_METRICS_OTLP_ENDPOINT=telemetry.skulpture.xyz:4317
+            - FLIPT_TRACING_ENABLED=true
+            - FLIPT_TRACING_EXPORTER=otlp
+            - FLIPT_OTLP_ENDPOINT=telemetry.skulpture.xyz:4317
+            # - FLIPT_STORAGE_TYPE=object # TODO: Needs service account credentials
+            # - FLIPT_STORAGE_OBJECT_TYPE=googlecloud
+            # - FLIPT_STORAGE_OBJECT_GOOGLECLOUD_BUCKET=skulpture-shared-resources
+        ports:
+            - 80:80

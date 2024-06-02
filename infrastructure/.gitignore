@@ -196,6 +196,3 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-
-# Service account credentials
-gcp-credentials.json

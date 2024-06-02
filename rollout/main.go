@@ -20,8 +20,8 @@ var (
 	CLOUDFLARE_ZONE_ID = ferrite.
 				String("CLOUDFLARE_ZONE_ID", "Cloudflare zone id").
 				Required()
-	SIGNOZ_PATCH = ferrite.
-			String("SIGNOZ_PATCH", "Signoz config patch").
+	DOCKER_COMPOSE = ferrite.
+			String("DOCKER_COMPOSE", "Docker compose file").
 			Required()
 	GOOGLE_SERVICE_ACCOUNT = ferrite.
 		// See: https://www.pulumi.com/registry/packages/gcp/api-docs/storage/getobjectsignedurl/#credentials_go
@@ -37,38 +37,10 @@ func main() {
 	ferrite.Init()
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		configPatchUrl, err := storage.GetObjectSignedUrl(ctx, &storage.GetObjectSignedUrlArgs{
+		composeFile, err := storage.GetObjectSignedUrl(ctx, &storage.GetObjectSignedUrlArgs{
 			Bucket:      "skulpture-shared-resources",
-			Path:        fmt.Sprintf("telemetry/patch/%s", SIGNOZ_PATCH.Value()),
+			Path:        fmt.Sprintf("rollout/config/%s", DOCKER_COMPOSE.Value()),
 			Credentials: pulumi.StringRef(GOOGLE_SERVICE_ACCOUNT.Value()),
-		})
-		if err != nil {
-			return err
-		}
-
-		_, err = compute.NewFirewall(ctx, "allow-collector", &compute.FirewallArgs{
-			Name:        pulumi.String("allow-collector"),
-			Network:     pulumi.String("shared-resources-network"),
-			Description: pulumi.StringPtr("Allow access to OpenTelemetry collector"),
-			Allows: compute.FirewallAllowArray{
-				&compute.FirewallAllowArgs{
-					Protocol: pulumi.String("tcp"),
-					Ports: pulumi.ToStringArray([]string{
-						"4317",
-						"4318",
-						"8880",
-						"13133",
-					},
-					),
-				},
-			},
-			SourceRanges: pulumi.ToStringArray([]string{
-				"0.0.0.0/0",
-			},
-			),
-			TargetTags: pulumi.StringArray{
-				pulumi.String("allow-collector"),
-			},
 		})
 		if err != nil {
 			return err
@@ -84,12 +56,11 @@ func main() {
 
 		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			MachineType: pulumi.String("e2-small"),
+			MachineType: pulumi.String("e2-micro"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
 				"allow-ssh",
-				"allow-collector",
 			}),
 			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
 				&compute.InstanceNetworkInterfaceArgs{
@@ -113,13 +84,9 @@ func main() {
 				echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
 				sudo apt update &&
 				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose -y &&
-				git clone -b v0.46.0-389f22cf6 https://github.com/SigNoz/signoz.git && cd signoz/deploy/ &&
-				curl '%s' > otel-collector-config.patch &&
-				git apply otel-collector-config.patch &&
-				sudo docker swarm init &&
-				sudo docker stack deploy -c docker-swarm/clickhouse-setup/docker-compose.yaml signoz &&
-				sudo docker stack services signoz
-				EOF`, configPatchUrl.SignedUrl)),
+				curl '%s' > docker-compose.yaml &&
+				sudo docker compose up -d
+				EOF`, composeFile.SignedUrl)),
 			Scheduling: compute.InstanceSchedulingArgs{
 				AutomaticRestart:  pulumi.Bool(true),
 				OnHostMaintenance: pulumi.String("MIGRATE"),
@@ -130,9 +97,9 @@ func main() {
 				InitializeParams: &compute.InstanceBootDiskInitializeParamsArgs{
 					Image: pulumi.String("debian-12-bookworm-v20240515"),
 					Type:  pulumi.String("pd-standard"),
-					Size:  pulumi.Int(20),
+					Size:  pulumi.Int(10),
 				},
-				AutoDelete: pulumi.Bool(false),
+				AutoDelete: pulumi.Bool(true),
 			},
 		})
 		if err != nil {
@@ -147,7 +114,7 @@ func main() {
 
 		_, err = cloudflare.NewRecord(ctx, COMPUTE_INSTANCE_NAME.Value(), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
-			Name:    pulumi.String("telemetry"),
+			Name:    pulumi.String("rollout"),
 			Value:   static.Address,
 			Type:    pulumi.String("A"),
 			Proxied: pulumi.Bool(true),

@@ -197,5 +197,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Service account credentials
 gcp-credentials.json
