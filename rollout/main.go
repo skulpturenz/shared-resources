@@ -85,9 +85,7 @@ func main() {
 				sudo apt update &&
 				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose -y &&
 				curl '%s' > docker-compose.yaml &&
-				sudo docker swarm init &&
-				sudo docker stack deploy -c docker-compose.yaml rollout &&
-				sudo docker stack services rollout
+				sudo docker compose up
 				EOF`, composeFile.SignedUrl)),
 			Scheduling: compute.InstanceSchedulingArgs{
 				AutomaticRestart:  pulumi.Bool(true),
