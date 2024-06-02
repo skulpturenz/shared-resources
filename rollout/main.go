@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/dogmatiq/ferrite"
 	"github.com/pulumi/pulumi-cloudflare/sdk/v5/go/cloudflare"
@@ -32,10 +31,6 @@ var (
 	CLOUDFLARE_API_TOKEN = ferrite.
 				String("CLOUDFLARE_API_TOKEN", "Cloudflare API token").
 				Required()
-	FLIPT_AUTHENTICATION_SESSION_CSRF_KEY = ferrite.
-						String("FLIPT_AUTHENTICATION_SESSION_CSRF_KEY", "CSRF token").
-						WithDefault(fmt.Sprintf("%d", time.Now().UnixNano())).
-						Required()
 )
 
 func main() {
@@ -64,10 +59,7 @@ func main() {
 			MachineType: pulumi.String("e2-small"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
-				"allow-all-cloudflare",
-				"lb-health-check",
-				"http-server",
-				"https-server",
+				"allow-cloudflare",
 				"allow-ssh",
 			}),
 			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
@@ -77,7 +69,7 @@ func main() {
 							NatIp: static.Address,
 						},
 					},
-					Network: pulumi.String("allow-cloudflare"),
+					Network: pulumi.String("shared-resources-network"),
 				},
 			},
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
@@ -86,7 +78,6 @@ func main() {
 			// - https://signoz.io/docs/userguide/otlp-http-enable-cors/
 			// - https://signoz.io/docs/operate/
 			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
-				export FLIPT_AUTHENTICATION_SESSION_CSRF_KEY='%s'
 				sudo apt update &&
 				sudo apt install git ca-certificates curl gnupg apt-transport-https gpg -y &&
 				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
@@ -97,7 +88,7 @@ func main() {
 				sudo docker swarm init &&
 				sudo docker stack deploy -c docker-compose.yaml rollout &&
 				sudo docker stack services rollout
-				EOF`, FLIPT_AUTHENTICATION_SESSION_CSRF_KEY.Value(), composeFile.SignedUrl)),
+				EOF`, composeFile.SignedUrl)),
 			Scheduling: compute.InstanceSchedulingArgs{
 				AutomaticRestart:  pulumi.Bool(true),
 				OnHostMaintenance: pulumi.String("MIGRATE"),
@@ -110,7 +101,7 @@ func main() {
 					Type:  pulumi.String("pd-standard"),
 					Size:  pulumi.Int(10),
 				},
-				AutoDelete: pulumi.Bool(false),
+				AutoDelete: pulumi.Bool(true),
 			},
 		})
 		if err != nil {
