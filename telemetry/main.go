@@ -128,7 +128,7 @@ func main() {
 
 		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			MachineType: pulumi.String("e2-micro"),
+			MachineType: pulumi.String("e2-standard-2"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-all-cloudflare",
@@ -176,6 +176,7 @@ func main() {
 				InitializeParams: &compute.InstanceBootDiskInitializeParamsArgs{
 					Image: pulumi.String("debian-12-bookworm-v20240515"),
 					Type:  pulumi.String("pd-standard"),
+					Size:  pulumi.Int(20),
 				},
 				AutoDelete: pulumi.Bool(false),
 			},

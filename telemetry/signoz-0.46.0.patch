@@ -1,3 +1,16 @@
+diff --git a/deploy/docker-swarm/clickhouse-setup/docker-compose.yaml b/deploy/docker-swarm/clickhouse-setup/docker-compose.yaml
+index e6354bb3..8c49f43a 100644
+--- a/deploy/docker-swarm/clickhouse-setup/docker-compose.yaml
++++ b/deploy/docker-swarm/clickhouse-setup/docker-compose.yaml
+@@ -195,6 +195,8 @@ services:
+       - query-service
+     ports:
+       - "3301:3301"
++      - "80:3301"
++      - "443:3301"
+     volumes:
+       - ../common/nginx-config.conf:/etc/nginx/conf.d/default.conf
+ 
 diff --git a/deploy/docker/clickhouse-setup/clickhouse-storage.xml b/deploy/docker/clickhouse-setup/clickhouse-storage.xml
 index 54ec4976..8c0b1bc6 100644
 --- a/deploy/docker/clickhouse-setup/clickhouse-storage.xml
