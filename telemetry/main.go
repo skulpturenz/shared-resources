@@ -91,7 +91,7 @@ func main() {
 				sudo apt update &&
 				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose -y &&
 				sudo sysctl -w vm.max_map_count=262144 &&
-				sudo mkdir -p /etc/letsencrypt && 
+				sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy && 
 				echo "dns_cloudflare_api_token = %s" | sudo tee /etc/letsencrypt/dnscloudflare.ini &&
 				echo "#! /bin/bash sudo docker service ls -q | xargs -n1 sudo docker service update --force" | sudo tee /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
 				sudo chmod 0600 /etc/letsencrypt/dnscloudflare.ini &&
