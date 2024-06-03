@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/dogmatiq/ferrite"
 	"github.com/pulumi/pulumi-cloudflare/sdk/v5/go/cloudflare"
 	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/compute"
-	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/storage"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -20,14 +17,6 @@ var (
 	CLOUDFLARE_ZONE_ID = ferrite.
 				String("CLOUDFLARE_ZONE_ID", "Cloudflare zone id").
 				Required()
-	SIGNOZ_PATCH = ferrite.
-			String("SIGNOZ_PATCH", "Signoz config patch").
-			Required()
-	GOOGLE_SERVICE_ACCOUNT = ferrite.
-		// See: https://www.pulumi.com/registry/packages/gcp/api-docs/storage/getobjectsignedurl/#credentials_go
-		// `export GOOGLE_SERVICE_ACCOUNT=$(cat credentials.json)`
-		String("GOOGLE_SERVICE_ACCOUNT", "Google service account credentials to obtain a signed url").
-		Required()
 	CLOUDFLARE_API_TOKEN = ferrite.
 				String("CLOUDFLARE_API_TOKEN", "Cloudflare API token").
 				Required()
@@ -37,27 +26,17 @@ func main() {
 	ferrite.Init()
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		configPatchUrl, err := storage.GetObjectSignedUrl(ctx, &storage.GetObjectSignedUrlArgs{
-			Bucket:      "skulpture-shared-resources",
-			Path:        fmt.Sprintf("telemetry/patch/%s", SIGNOZ_PATCH.Value()),
-			Credentials: pulumi.StringRef(GOOGLE_SERVICE_ACCOUNT.Value()),
-		})
-		if err != nil {
-			return err
-		}
-
-		_, err = compute.NewFirewall(ctx, "allow-collector", &compute.FirewallArgs{
-			Name:        pulumi.String("allow-collector"),
+		_, err := compute.NewFirewall(ctx, "allow-elk", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-elk"),
 			Network:     pulumi.String("shared-resources-network"),
-			Description: pulumi.StringPtr("Allow access to OpenTelemetry collector"),
+			Description: pulumi.StringPtr("Allow access to ELK"),
 			Allows: compute.FirewallAllowArray{
 				&compute.FirewallAllowArgs{
 					Protocol: pulumi.String("tcp"),
 					Ports: pulumi.ToStringArray([]string{
-						"4317",
-						"4318",
-						"8880",
-						"13133",
+						"9200", // Elasticsearch
+						"5601", // Kibana
+						"8200", // APM server
 					},
 					),
 				},
@@ -67,7 +46,7 @@ func main() {
 			},
 			),
 			TargetTags: pulumi.StringArray{
-				pulumi.String("allow-collector"),
+				pulumi.String("allow-elk"),
 			},
 		})
 		if err != nil {
@@ -84,12 +63,12 @@ func main() {
 
 		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			MachineType: pulumi.String("e2-small"),
+			MachineType: pulumi.String("e2-standard-2"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
 				"allow-ssh",
-				"allow-collector",
+				"allow-elk",
 			}),
 			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
 				&compute.InstanceNetworkInterfaceArgs{
@@ -102,24 +81,14 @@ func main() {
 				},
 			},
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
-			// Signoz setup: https://signoz.io/docs/install/docker-swarm/
-			// - https://signoz.io/docs/monitor-http-endpoints/
-			// - https://signoz.io/docs/userguide/otlp-http-enable-cors/
-			// - https://signoz.io/docs/operate/
-			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
+			MetadataStartupScript: pulumi.String(`#! /bin/bash 
 				sudo apt update &&
-				sudo apt install git ca-certificates curl gnupg apt-transport-https gpg -y &&
+				sudo apt install certbot make git ca-certificates curl gnupg apt-transport-https gpg -y &&
 				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
 				echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
 				sudo apt update &&
 				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose -y &&
-				git clone -b v0.46.0-389f22cf6 https://github.com/SigNoz/signoz.git && cd signoz/deploy/ &&
-				curl '%s' > otel-collector-config.patch &&
-				git apply otel-collector-config.patch &&
-				sudo docker swarm init &&
-				sudo docker stack deploy -c docker-swarm/clickhouse-setup/docker-compose.yaml signoz &&
-				sudo docker stack services signoz
-				EOF`, configPatchUrl.SignedUrl)),
+				sudo sysctl -w vm.max_map_count=262144`),
 			Scheduling: compute.InstanceSchedulingArgs{
 				AutomaticRestart:  pulumi.Bool(true),
 				OnHostMaintenance: pulumi.String("MIGRATE"),
