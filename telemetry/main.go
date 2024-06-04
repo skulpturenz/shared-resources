@@ -37,8 +37,10 @@ func main() {
 					Protocol: pulumi.String("tcp"),
 					Ports: pulumi.ToStringArray([]string{
 						"9200", // Elasticsearch
+						"2053", // Elastic proxied by Cloudflare
 						"5601", // Kibana
 						"8200", // APM server
+						"2083", // APM proxied by Cloufflare
 					},
 					),
 				},
@@ -65,7 +67,7 @@ func main() {
 
 		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			MachineType: pulumi.String("e2-standard-2"),
+			MachineType: pulumi.String("e2-medium"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
@@ -83,6 +85,7 @@ func main() {
 				},
 			},
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
+			// Permanently increase vm.max_map_count value: https://thetechdarts.com/how-to-change-default-vm-max_map_count-on-linux/
 			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
 				sudo apt update &&
 				sudo apt install certbot python3-certbot-dns-cloudflare make git ca-certificates curl gnupg apt-transport-https gpg -y &&
@@ -90,7 +93,8 @@ func main() {
 				echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
 				sudo apt update &&
 				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose -y &&
-				sudo sysctl -w vm.max_map_count=262144 &&
+				sudo grep -qxF 'vm.max_map_count=262144' /etc/sysctl.conf || echo vm.max_map_count=262144 | sudo tee -a /etc/sysctl.conf &&
+				sudo sysctl -p &&
 				sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy && 
 				echo "dns_cloudflare_api_token = %s" | sudo tee /etc/letsencrypt/dnscloudflare.ini &&
 				echo "#! /bin/bash sudo docker service ls -q | xargs -n1 sudo docker service update --force" | sudo tee /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
