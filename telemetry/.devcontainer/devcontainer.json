@@ -5,13 +5,16 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
+	"runArgs": [
+		"--env-file",
+		".devcontainer/.env"
+	],
 	"containerEnv": {
-		"COMPUTE_INSTANCE_NAME": "shared-telemetry",
-		"GOOGLE_PROJECT": "",
-		"CLOUDFLARE_ZONE_ID": "",
-		"SIGNOZ_PATCH": "",
-		"GOOGLE_SERVICE_ACCOUNT": "",
-		"CLOUDFLARE_API_TOKEN": ""
+		"COMPUTE_INSTANCE_NAME": "shared-telemetry"
+		// "GOOGLE_PROJECT": "",
+		// "CLOUDFLARE_ZONE_ID": "",
+		// "GOOGLE_SERVICE_ACCOUNT": "",
+		// "CLOUDFLARE_API_TOKEN": ""
 	},
 	"customizations": {
 		"settings": {
