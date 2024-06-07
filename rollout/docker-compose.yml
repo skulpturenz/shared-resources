@@ -46,9 +46,6 @@ services:
       FLIPT_TRACING_EXPORTER: "otlp"
       FLIPT_TRACING_OTLP_ENDPOINT: "https://telemetry.skulpture.xyz:2083"
       FLIPT_TRACING_OTLP_HEADERS: ${FLIPT_OTLP_AUTH_HEADERS}
-      FLIPT_STORAGE_TYPE: "object"
-      FLIPT_STORAGE_OBJECT_TYPE: "googlecloud"
-      FLIPT_STORAGE_OBJECT_GOOGLECLOUD_BUCKET: ${FLIPT_GCS_BUCKET}
     deploy:
       mode: replicated
       replicas: 2
