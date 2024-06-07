@@ -5,11 +5,16 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
+	"runArgs": [
+		"--env-file",
+		".devcontainer/.env"
+	],
 	"containerEnv": {
-		"COMPUTE_INSTANCE_NAME": "shared-rollout",
-		"GOOGLE_PROJECT": "",
-		"CLOUDFLARE_ZONE_ID": "",
-		"CLOUDFLARE_API_TOKEN": ""
+		"COMPUTE_INSTANCE_NAME": "shared-rollout"
+		// "GOOGLE_PROJECT": "",
+		// "CLOUDFLARE_ZONE_ID": "",
+		// "CLOUDFLARE_API_TOKEN": ""
+		// "GOOGLE_SERVICE_ACCOUNT": ""
 	},
 	"customizations": {
 		"settings": {

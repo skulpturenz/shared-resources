@@ -1,0 +1,59 @@
+networks:
+  default:
+    name: flipt
+    driver: overlay
+    attachable: true
+
+secrets:
+  flipt.certificate:
+    file: ${PROXY_CERT_PATH}
+  flipt.key:
+    file: ${PROXY_KEY_PATH}
+
+volumes:
+  flipt-data:
+
+
+services:
+  flipt:
+    image: docker.flipt.io/flipt/flipt:v1.43.0
+    volumes:
+      - flipt-data:/var/opt/flipt
+    environment:
+      FLIPT_LOG_LEVEL: "DEBUG"
+      FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
+      FLIPT_CORS_ALLOWED_ORIGINS: "*"
+      FLIPT_CORS_ENABLED: "true"
+      FLIPT_META_CHECK_FOR_UPDATES: "true"
+      FLIPT_TELEMETRY_ENABLED: "false"
+      FLIPT_AUTHENTICATION_REQUIRED: "true"
+      FLIPT_AUTHENTICATION_METHODS_TOKEN_ENABLED: "true"
+      FLIPT_AUTHENTICATION_METHODS_BOOTSTRAP_TOKEN: ${BOOTSTRAP_TOKEN}
+      FLIPT_AUTHENTICATION_SESSION_DOMAIN: "localhost"
+      FLIPT_AUTHENTICATION_SESSION_CSRF_KEY: ${FLIPT_CSRF_KEY}
+      FLIPT_AUTHENTICATION_METHODS_OIDC_ENABLED: "true"
+      FLIPT_AUTHENTICATION_METHODS_OIDC_EMAIL_MATCHES: ${FLIPT_ALLOWED_EMAILS_REGEX}
+      FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_GOOGLE_ISSUER_URL: "https://accounts.google.com"
+      FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_GOOGLE_CLIENT_ID: ${FLIPT_GOOGLE_OIDC_CLIENT_ID}
+      FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_GOOGLE_CLIENT_SECRET: ${FLIPT_GOOGLE_OIDC_CLIENT_SECRET}
+      FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_GOOGLE_REDIRECT_ADDRESS: ${FLIPT_GOOGLE_OIDC_REDIRECT_ADDRESS}
+      FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_GOOGLE_SCOPES: "email"
+      FLIPT_CACHE_ENABLED: "true"
+      FLIPT_METRICS_EXPORTER: "otlp"
+      FLIPT_METRICS_OTLP_ENDPOINT: "https://telemetry.skulpture.xyz:2083"
+      FLIPT_METRICS_OTLP_HEADERS: ${FLIPT_OTLP_AUTH_HEADERS}
+      FLIPT_TRACING_ENABLED: "true"
+      FLIPT_TRACING_EXPORTER: "otlp"
+      FLIPT_TRACING_OTLP_ENDPOINT: "https://telemetry.skulpture.xyz:2083"
+      FLIPT_TRACING_OTLP_HEADERS: ${FLIPT_OTLP_AUTH_HEADERS}
+      FLIPT_STORAGE_TYPE: "object"
+      FLIPT_STORAGE_OBJECT_TYPE: "googlecloud"
+      FLIPT_STORAGE_OBJECT_GOOGLECLOUD_BUCKET: ${FLIPT_GCS_BUCKER}
+    deploy:
+      mode: replicated
+      replicas: 2
+    secrets:
+      - source: flipt.certificate
+        target: /certs/fullchain.pem
+      - source: flipt.key
+        target: /certs/privkey.pem
