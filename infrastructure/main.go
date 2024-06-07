@@ -34,9 +34,6 @@ func main() {
 			Description: pulumi.StringPtr("Allow all traffic from Cloudflare"),
 			Allows: compute.FirewallAllowArray{
 				&compute.FirewallAllowArgs{
-					Protocol: pulumi.String("icmp"),
-				},
-				&compute.FirewallAllowArgs{
 					Protocol: pulumi.String("tcp"),
 					Ports: pulumi.StringArray{
 						pulumi.String("0-65535"),
@@ -63,6 +60,27 @@ func main() {
 			),
 			TargetTags: pulumi.StringArray{
 				pulumi.String("allow-cloudflare"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = compute.NewFirewall(ctx, "allow-icmp", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-icmp"),
+			Network:     sharedResourcesNetwork.Name,
+			Description: pulumi.StringPtr("Allow ICMP"),
+			Allows: compute.FirewallAllowArray{
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("icmp"),
+				},
+			},
+			SourceRanges: pulumi.ToStringArray([]string{
+				"0.0.0.0",
+			},
+			),
+			TargetTags: pulumi.StringArray{
+				pulumi.String("allow-icmp"),
 			},
 		})
 		if err != nil {

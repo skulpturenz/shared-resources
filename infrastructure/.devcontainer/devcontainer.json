@@ -5,9 +5,13 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
+	"runArgs": [
+		"--env-file",
+		".devcontainer/.env"
+	],
 	"containerEnv": {
-		"COMPUTE_INSTANCE_NAME": "shared-telemetry",
-		"GOOGLE_PROJECT": ""
+		// "GOOGLE_PROJECT": "",
+		// "DIGITAL_OCEAN_TOKEN": ""
 	},
 	"customizations": {
 		"settings": {
