@@ -16,6 +16,9 @@ var (
 	GOOGLE_PROJECT = ferrite.
 			String("GOOGLE_PROJECT", "GCP Project").
 			Required()
+	GOOGLE_SERVICE_ACCOUNT = ferrite.
+				String("GOOGLE_SERVICE_ACCOUNT", "Service account linked to vm").
+				Required()
 	CLOUDFLARE_ZONE_ID = ferrite.
 				String("CLOUDFLARE_ZONE_ID", "Cloudflare zone id").
 				Required()
@@ -28,35 +31,6 @@ func main() {
 	ferrite.Init()
 
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		_, err := compute.NewFirewall(ctx, "allow-elk", &compute.FirewallArgs{
-			Name:        pulumi.String("allow-elk"),
-			Network:     pulumi.String("shared-resources-network"),
-			Description: pulumi.StringPtr("Allow access to ELK"),
-			Allows: compute.FirewallAllowArray{
-				&compute.FirewallAllowArgs{
-					Protocol: pulumi.String("tcp"),
-					Ports: pulumi.ToStringArray([]string{
-						"9200", // Elasticsearch
-						"2053", // Elastic proxied by Cloudflare
-						"5601", // Kibana
-						"8200", // APM server
-						"2083", // APM proxied by Cloufflare
-					},
-					),
-				},
-			},
-			SourceRanges: pulumi.ToStringArray([]string{
-				"0.0.0.0/0",
-			},
-			),
-			TargetTags: pulumi.StringArray{
-				pulumi.String("allow-elk"),
-			},
-		})
-		if err != nil {
-			return err
-		}
-
 		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
 			Name:   pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
 			Region: pulumi.String("australia-southeast1"),
@@ -67,12 +41,11 @@ func main() {
 
 		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			MachineType: pulumi.String("e2-medium"),
+			MachineType: pulumi.String("e2-standard-2"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
 				"allow-ssh",
-				"allow-elk",
 			}),
 			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
 				&compute.InstanceNetworkInterfaceArgs{
@@ -119,6 +92,12 @@ func main() {
 					Size:  pulumi.Int(20),
 				},
 				AutoDelete: pulumi.Bool(false),
+			},
+			ServiceAccount: compute.InstanceServiceAccountArgs{
+				Email: pulumi.StringPtr(GOOGLE_SERVICE_ACCOUNT.Value()),
+				Scopes: pulumi.ToStringArray([]string{
+					"cloud-platform",
+				}),
 			},
 		})
 		if err != nil {

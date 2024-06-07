@@ -13,7 +13,6 @@
 		"COMPUTE_INSTANCE_NAME": "shared-telemetry"
 		// "GOOGLE_PROJECT": "",
 		// "CLOUDFLARE_ZONE_ID": "",
-		// "ELASTDOCKER_PATCH": "",
 		// "GOOGLE_SERVICE_ACCOUNT": "",
 		// "CLOUDFLARE_API_TOKEN": ""
 	},
