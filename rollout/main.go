@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/dogmatiq/ferrite"
 	"github.com/pulumi/pulumi-cloudflare/sdk/v5/go/cloudflare"
 	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/compute"
@@ -56,9 +58,9 @@ func main() {
 				},
 			},
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
-			MetadataStartupScript: pulumi.String(`#! /bin/bash 
+			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
 				sudo apt update &&
-				sudo apt install git ca-certificates curl gnupg apt-transport-https gpg -y &&
+				sudo apt install certbot python3-certbot-dns-cloudflare make git ca-certificates curl gnupg apt-transport-https gpg -y &&
 				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
 				echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
 				sudo apt update &&
@@ -74,7 +76,7 @@ func main() {
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
 					--dns-cloudflare-propagation-seconds 60
-				EOF`),
+				EOF`, CLOUDFLARE_API_TOKEN.Value())),
 			Scheduling: compute.InstanceSchedulingArgs{
 				AutomaticRestart:  pulumi.Bool(true),
 				OnHostMaintenance: pulumi.String("MIGRATE"),
