@@ -7,6 +7,8 @@ networks:
 services:
   flipt:
     image: docker.flipt.io/flipt/flipt:v1.43.0
+    volumes:
+      - ./config.yaml:/etc/flipt/config.yaml:ro
     environment:
       FLIPT_LOG_LEVEL: "DEBUG"
       FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
@@ -29,11 +31,9 @@ services:
       FLIPT_CACHE_ENABLED: "true"
       FLIPT_METRICS_EXPORTER: "otlp"
       FLIPT_METRICS_OTLP_ENDPOINT: "https://telemetry.skulpture.xyz:2083"
-      FLIPT_METRICS_OTLP_HEADERS: ${FLIPT_OTLP_AUTH_HEADERS}
       FLIPT_TRACING_ENABLED: "true"
       FLIPT_TRACING_EXPORTER: "otlp"
       FLIPT_TRACING_OTLP_ENDPOINT: "https://telemetry.skulpture.xyz:2083"
-      FLIPT_TRACING_OTLP_HEADERS: ${FLIPT_OTLP_AUTH_HEADERS}
     deploy:
       mode: replicated
       replicas: 2
