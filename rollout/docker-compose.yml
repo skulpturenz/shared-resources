@@ -4,21 +4,9 @@ networks:
     driver: overlay
     attachable: true
 
-secrets:
-  flipt.certificate:
-    file: ${PROXY_CERT_PATH}
-  flipt.key:
-    file: ${PROXY_KEY_PATH}
-
-volumes:
-  flipt-data:
-
-
 services:
   flipt:
     image: docker.flipt.io/flipt/flipt:v1.43.0
-    volumes:
-      - flipt-data:/var/opt/flipt
     environment:
       FLIPT_LOG_LEVEL: "DEBUG"
       FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
