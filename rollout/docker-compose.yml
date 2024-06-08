@@ -37,3 +37,16 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+
+  heartbeat:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    volumes:
+      - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+    user: heartbeat
+    cap_add: [ "NET_RAW" ]
+    command: -e --strict.perms=false
+    healthcheck:
+      test: heartbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
