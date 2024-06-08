@@ -50,3 +50,19 @@ services:
       interval: 30s
       timeout: 15s
       retries: 5
+
+  metricbeat:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    user: root
+    command: --strict.perms=false -e
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
+      - /proc:/hostfs/proc:ro # Only available on Linux
+      - /:/hostfs:ro
+    healthcheck:
+      test: metricbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
