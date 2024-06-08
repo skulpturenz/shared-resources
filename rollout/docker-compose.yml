@@ -37,8 +37,3 @@ services:
     deploy:
       mode: replicated
       replicas: 2
-    secrets:
-      - source: flipt.certificate
-        target: /certs/fullchain.pem
-      - source: flipt.key
-        target: /certs/privkey.pem
