@@ -1,0 +1,20 @@
+heartbeat.monitors:
+- type: http
+  schedule: '@every 5s'
+  urls:
+    - http://flipt:8080
+    - https://${FLIPT_PUBLIC_HOST}
+
+- type: icmp
+  schedule: '@every 5s'
+  hosts:
+    - flipt
+    - ${FLIPT_PUBLIC_HOST}
+
+processors:
+- add_cloud_metadata: ~
+
+output.elasticsearch:
+  hosts: '${ELASTICSEARCH_HOST_PORT}'
+  username: '${ELASTIC_USERNAME}'
+  password: '${ELASTIC_USERNAME}'

@@ -37,4 +37,31 @@ services:
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV}"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 3
+
+  heartbeat:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    volumes:
+      - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+    user: heartbeat
+    cap_add: [ "NET_RAW" ]
+    command: -e --strict.perms=false
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+
+  metricbeat:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    user: root
+    command: --strict.perms=false -e
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
+      - /proc:/hostfs/proc:ro # Only available on Linux
+      - /:/hostfs:ro
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
