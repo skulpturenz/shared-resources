@@ -1,0 +1,7 @@
+name: authnz
+runtime: go
+description: Deploy authentication and authorization services
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: go
