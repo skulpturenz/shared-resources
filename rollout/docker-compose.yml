@@ -50,9 +50,13 @@ services:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      FLIPT_PUBLIC_HOST: ${FLIPT_AUTHENTICATION_SESSION_DOMAIN}
+    deploy:
+      mode: replicated
+      replicas: 1
 
   metricbeat:
-    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
     user: root
     command: --strict.perms=false -e
     volumes:
@@ -65,3 +69,6 @@ services:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+    deploy:
+      mode: replicated
+      replicas: 1
