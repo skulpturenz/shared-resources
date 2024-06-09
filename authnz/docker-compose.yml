@@ -5,7 +5,6 @@ networks:
     attachable: true
 
 volumes:
-  kc-data:
   filebeat-data:
 
 
@@ -87,6 +86,41 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - filebeat-data:/var/lib/filebeat/data
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  heartbeat:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    volumes:
+      - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+    user: heartbeat
+    cap_add: [ "NET_RAW" ]
+    command: -e --strict.perms=false
+    healthcheck:
+      test: heartbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  metricbeat:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    user: root
+    command: --strict.perms=false -e
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
+      - /proc:/hostfs/proc:ro # Only available on Linux
+      - /:/hostfs:ro
+    healthcheck:
+      test: metricbeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
     deploy:
       mode: replicated
       replicas: 1

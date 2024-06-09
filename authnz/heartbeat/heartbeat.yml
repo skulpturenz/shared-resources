@@ -1,0 +1,20 @@
+heartbeat.monitors:
+- type: http
+  schedule: '@every 5s'
+  urls:
+    - http://keycloak:8080
+    - https://${KEYCLOAK_PUBLIC_HOST}
+
+- type: icmp
+  schedule: '@every 5s'
+  hosts:
+    - keycloak
+    - ${KEYCLOAK_PUBLIC_HOST}
+
+processors:
+- add_cloud_metadata: ~
+
+output.elasticsearch:
+  hosts: '${ELASTICSEARCH_HOSTS}'
+  username: '${ELASTICSEARCH_USERNAME}'
+  password: '${ELASTICSEARCH_PASSWORD}'
