@@ -108,9 +108,14 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      KEYCLOAK_PUBLIC_HOST: ${KC_HOSTNAME}
 
   metricbeat:
-    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
     user: root
     command: --strict.perms=false -e
     volumes:
@@ -128,3 +133,7 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
