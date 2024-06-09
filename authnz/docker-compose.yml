@@ -100,11 +100,6 @@ services:
     user: heartbeat
     cap_add: [ "NET_RAW" ]
     command: -e --strict.perms=false
-    healthcheck:
-      test: heartbeat test config
-      interval: 30s
-      timeout: 15s
-      retries: 5
     deploy:
       mode: replicated
       replicas: 1
@@ -125,11 +120,6 @@ services:
       - /proc:/hostfs/proc:ro # Only available on Linux
       - /:/hostfs:ro
       - metricbeat-data:/var/lib/metricbeat/data
-    healthcheck:
-      test: metricbeat test config
-      interval: 30s
-      timeout: 15s
-      retries: 5
     deploy:
       mode: replicated
       replicas: 1
