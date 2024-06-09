@@ -6,6 +6,8 @@ networks:
 
 volumes:
   filebeat-data:
+  heartbeat-data:
+  metricbeat-data:
 
 
 services:
@@ -94,6 +96,7 @@ services:
     image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
     volumes:
       - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+      - heartbeat-data:/var/lib/heartbeat/data
     user: heartbeat
     cap_add: [ "NET_RAW" ]
     command: -e --strict.perms=false
@@ -116,6 +119,7 @@ services:
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
       - /proc:/hostfs/proc:ro # Only available on Linux
       - /:/hostfs:ro
+      - metricbeat-data:/var/lib/metricbeat/data
     healthcheck:
       test: metricbeat test config
       interval: 30s
