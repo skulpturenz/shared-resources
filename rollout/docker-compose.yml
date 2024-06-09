@@ -36,7 +36,7 @@ services:
       FLIPT_TRACING_OTLP_ENDPOINT: "https://telemetry.skulpture.xyz:2083"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 3
 
   heartbeat:
     image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
@@ -45,11 +45,6 @@ services:
     user: heartbeat
     cap_add: [ "NET_RAW" ]
     command: -e --strict.perms=false
-    healthcheck:
-      test: heartbeat test config
-      interval: 30s
-      timeout: 15s
-      retries: 5
     environment:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
@@ -65,11 +60,6 @@ services:
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
       - /proc:/hostfs/proc:ro # Only available on Linux
       - /:/hostfs:ro
-    healthcheck:
-      test: metricbeat test config
-      interval: 30s
-      timeout: 15s
-      retries: 5
     environment:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
