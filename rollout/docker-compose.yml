@@ -30,10 +30,11 @@ services:
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_GOOGLE_SCOPES: "email"
       FLIPT_CACHE_ENABLED: "true"
       FLIPT_METRICS_EXPORTER: "otlp"
-      FLIPT_METRICS_OTLP_ENDPOINT: "https://telemetry.skulpture.xyz:2083"
+      FLIPT_METRICS_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
       FLIPT_TRACING_ENABLED: "true"
       FLIPT_TRACING_EXPORTER: "otlp"
-      FLIPT_TRACING_OTLP_ENDPOINT: "https://telemetry.skulpture.xyz:2083"
+      FLIPT_TRACING_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV}"
     deploy:
       mode: replicated
       replicas: 2
