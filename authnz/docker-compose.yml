@@ -12,36 +12,42 @@ volumes:
 services:
   keycloak:
     image: skulpture/authnz:${KEYCLOAK_VERSION}
+    hostname: keycloak.{{.Task.Slot}}
     build:
       context: keycloak/
       args:
         KEYCLOAK_VERSION: ${KEYCLOAK_VERSION}
+        KEYCLOAK_CACHE: ispn
+        KEYCLOAK_CACHE_STACK: kubernetes
+        KEYCLOAK_DB: ${KC_DB}
     restart: unless-stopped
     environment:
-      KC_DB: ${KC_DB}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_DB_URL: ${KC_DB_URL}
       KC_DB_USERNAME: ${KC_DB_USERNAME}
       KC_DB_PASSWORD: ${KC_DB_PASSWORD}
       KC_HOSTNAME: ${KC_HOSTNAME}
-      KC_HTTP_ENABLED: true
-      JAVA_OPTS_APPEND: "-javaagent:/tmp/opentelemetry-javaagent.jar"
+      KC_HTTP_ENABLED: "true"
+      JAVA_OPTS_APPEND: "-Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
       OTEL_SERVICE_NAME: keycloak
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: otlp
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
       OTEL_EXPORTER_OTLP_HEADERS: "Authorization ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV}"
-    command: "start --proxy-headers xforwarded"
+    command: "start --optimized --proxy-headers xforwarded"
     deploy:
       mode: replicated
       replicas: 3
+      endpoint_mode: dnsrr
 
   logstash:
     image: elastdocker/logstash:${ELK_VERSION}
     build:
       context: logstash/
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: ${ELK_VERSION}
     restart: unless-stopped
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
