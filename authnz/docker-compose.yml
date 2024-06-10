@@ -44,7 +44,7 @@ services:
       endpoint_mode: dnsrr
 
   logstash:
-    image: elastdocker/logstash:${ELK_VERSION}
+    image: skulpture/logstash:${ELK_VERSION}
     build:
       context: logstash/
       args:
