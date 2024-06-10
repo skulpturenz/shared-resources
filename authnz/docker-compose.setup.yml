@@ -1,0 +1,12 @@
+services:
+  heartbeat-setup:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    command: setup
+    volumes:
+      - ./heartbeat/heartbeat.yml:/user/share/heartbeat/heartbeat.yml:ro
+
+  metricbeat-setup:
+    image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
+    command: setup
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
