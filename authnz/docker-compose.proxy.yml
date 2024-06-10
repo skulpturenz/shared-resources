@@ -13,8 +13,6 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-    environment:
-      KEYCLOAK_PORT: ${KEYCLOAK_PORT}
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     secrets:
