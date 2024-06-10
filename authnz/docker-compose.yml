@@ -35,7 +35,7 @@ services:
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: otlp
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
-      OTEL_EXPORTER_OTLP_HEADERS: "Authorization ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV}"
     command: "start --optimized --proxy-headers xforwarded"
     deploy:
