@@ -199,3 +199,4 @@ dist
 
 # Service account credentials
 gcp-credentials.json
+/secrets
