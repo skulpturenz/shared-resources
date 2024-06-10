@@ -34,7 +34,7 @@ services:
       FLIPT_TRACING_ENABLED: "true"
       FLIPT_TRACING_EXPORTER: "otlp"
       FLIPT_TRACING_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
-      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV}"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV},deployment.node={{.Task.Slot}}"
     deploy:
       mode: replicated
       replicas: 3
