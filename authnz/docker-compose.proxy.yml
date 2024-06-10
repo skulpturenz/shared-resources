@@ -24,6 +24,10 @@ services:
         target: /certs/privkey.pem
     networks:
       - keycloak
+    ulimits:
+      nofile:
+        soft: 15000
+        hard: 15000
 
 networks:
   keycloak:

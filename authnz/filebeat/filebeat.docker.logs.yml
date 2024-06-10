@@ -25,6 +25,8 @@ filebeat.autodiscover:
              - not.contains:
                 docker.container.image: kibana
              - not.contains:
+                docker.container.image: filebeat
+             - not.contains:
                 docker.container.image: metricbeat
              - not.contains:
                 docker.container.image: heartbeat
