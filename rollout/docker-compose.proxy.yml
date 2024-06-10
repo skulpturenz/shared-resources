@@ -22,6 +22,10 @@ services:
         target: /certs/privkey.pem
     networks:
       - flipt
+    ulimits:
+      nofile:
+        soft: 15000
+        hard: 15000
 
 networks:
   flipt:

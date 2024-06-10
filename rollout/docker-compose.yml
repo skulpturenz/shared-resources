@@ -54,6 +54,15 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sf",
+          "-XGET",
+          "localhost:5066/?pretty"
+        ]
 
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
@@ -72,3 +81,12 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sf",
+          "-XGET",
+          "localhost:5066/?pretty"
+        ]

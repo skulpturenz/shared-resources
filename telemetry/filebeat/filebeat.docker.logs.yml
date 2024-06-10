@@ -24,6 +24,8 @@ filebeat.autodiscover:
                 docker.container.image: logstash
              - not.contains:
                 docker.container.image: kibana
+             - not.contains:
+                docker.container.image: filebeat
           config:
             - type: container
               paths:
