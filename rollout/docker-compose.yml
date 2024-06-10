@@ -7,8 +7,6 @@ networks:
 services:
   flipt:
     image: docker.flipt.io/flipt/flipt:v1.43.0
-    volumes:
-      - ./config.yaml:/etc/flipt/config/default.yml:ro
     environment:
       FLIPT_LOG_LEVEL: "DEBUG"
       FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
@@ -31,9 +29,11 @@ services:
       FLIPT_CACHE_ENABLED: "true"
       FLIPT_METRICS_EXPORTER: "otlp"
       FLIPT_METRICS_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+      FLIPT_METRICS_OTLP_HEADERS: "Authorization=Bearer ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
       FLIPT_TRACING_ENABLED: "true"
       FLIPT_TRACING_EXPORTER: "otlp"
       FLIPT_TRACING_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+      FLIPT_TRACING_OTLP_HEADERS: "Authorization=Bearer ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV}"
     deploy:
       mode: replicated
