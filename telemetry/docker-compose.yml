@@ -112,10 +112,12 @@ services:
         [
           "CMD",
           "curl",
-          "-s",
+          "-sf",
           "-XGET",
           "http://127.0.0.1:9600"
         ]
+    depends_on:
+      - elasticsearch
     deploy:
       mode: replicated
       replicas: 1
@@ -147,6 +149,18 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--insecure",
+          "-sf",
+          "-XGET",
+          "https://127.0.0.1:5601"
+        ]
 
   apm-server:
     image: skulpture/apm-server:${ELK_VERSION}
@@ -172,3 +186,5 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    depends_on:
+      - elasticsearch

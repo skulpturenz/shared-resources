@@ -18,6 +18,11 @@ endif
 # --------------------------
 .PHONY: setup keystore certs all elk monitoring build down stop restart rm logs
 
+## In Docker Swarm, env files are not loaded automatically
+## Run the below in the current shell to set environment variables from a file
+# loadenv:
+# 	set -o allexport && . ./.env && set +o allexport
+
 keystore:		## Setup Elasticsearch Keystore, by initializing passwords, and add credentials defined in `keystore.sh`.
 	$(DOCKER_COMPOSE_COMMAND) -f docker-compose.setup.yml run --rm keystore
 
@@ -39,7 +44,6 @@ proxy:
 
 up:
 	@make elk
-	@echo "Visit Kibana: https://localhost:5601 (user: elastic, password: changeme) [Unless you changed values in .env]"
 
 build:			## Build ELK and all its extra components.
 	$(DOCKER_COMPOSE_COMMAND) ${COMPOSE_ALL_FILES} build
