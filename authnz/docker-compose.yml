@@ -28,6 +28,9 @@ services:
       KC_DB_URL: ${KC_DB_URL}
       KC_DB_USERNAME: ${KC_DB_USERNAME}
       KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_DB_POOL_INITIAL_SIZE: ${KC_DB_POOL_INITIAL_SIZE:1}
+      KC_DB_POOL_MAX_SIZE: ${KC_DB_POOL_MAX_SIZE:2}
+      KC_DB_POOL_MIN_SIZE: ${KC_DB_POOL_MIN_SIZE:1}
       KC_HOSTNAME: ${KC_HOSTNAME}
       KC_HTTP_ENABLED: "true"
       JAVA_OPTS_APPEND: "-javaagent:/tmp/opentelemetry-javaagent.jar -Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
