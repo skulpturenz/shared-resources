@@ -11,6 +11,10 @@ jobs:
       contents: read
       id-token: write
 
+    strategy:
+      matrix:
+        compute: [auth, rollout, infrastructure, telemetry]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,66 +35,18 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: "Install dependencies: authnz"
+      - name: "Install dependencies: ${{ matrix.compute }}"
         run: go mod download
-        working-directory: authnz
+        working-directory: ${{ matrix.compute }}
 
-      - name: "Install dependencies: infrastructure"
-        run: go mod download
-        working-directory: infrastructure
-
-      - name: "Install dependencies: rollout"
-        run: go mod download
-        working-directory: rollout
-
-      - name: "Install dependencies: telemetry"
-        run: go mod download
-        working-directory: telemetry
-
-      - name: "Deploy stack: skulpture/shared-authnz"
+      - name: "Deploy stack: skulpture/shared-${{ matrix.compute }}"
         uses: pulumi/actions@v3
         with:
           command: up
-          stack-name: skulpture/shared-authnz
+          stack-name: "skulpture/shared-${{ matrix.compute }}"
           comment-on-pr: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          work-dir: authnz
-          upsert: true
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
-      - name: "Deploy stack: skulpture/shared-infrastructure"
-        uses: pulumi/actions@v3
-        with:
-          command: up
-          stack-name: skulpture/shared-infrastructure
-          comment-on-pr: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          work-dir: infrastructure
-          upsert: true
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
-      - name: "Deploy stack: skulpture/shared-rollout"
-        uses: pulumi/actions@v3
-        with:
-          command: up
-          stack-name: skulpture/shared-rollout
-          comment-on-pr: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          work-dir: rollout
-          upsert: true
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-
-      - name: "Deploy stack: skulpture/shared-telemetry"
-        uses: pulumi/actions@v3
-        with:
-          command: up
-          stack-name: skulpture/shared-telemetry
-          comment-on-pr: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          work-dir: telemetry
+          work-dir: ${{ matrix.compute }}
           upsert: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
