@@ -4,6 +4,11 @@ networks:
     driver: overlay
     attachable: true
 
+volumes:
+  filebeat-data:
+  heartbeat-data:
+  metricbeat-data:
+
 services:
   flipt:
     image: docker.flipt.io/flipt/flipt:v1.43.0
@@ -97,6 +102,7 @@ services:
     image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
     volumes:
       - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+      - heartbeat-data:/var/lib/heartbeat/data
     user: heartbeat
     cap_add: [ "NET_RAW" ]
     command: -e --strict.perms=false
@@ -128,6 +134,7 @@ services:
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
       - /proc:/hostfs/proc:ro # Only available on Linux
       - /:/hostfs:ro
+      - metricbeat-data:/var/lib/metricbeat/data
     environment:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
