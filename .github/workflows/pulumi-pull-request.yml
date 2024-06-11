@@ -1,0 +1,97 @@
+name: Preview infrastructure
+
+on:
+  pull_request:
+    - master
+    - dev
+  workflow_dispatch:
+
+jobs:
+  preview:
+    permissions:
+      contents: read
+      id-token: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Configure GCP credentials
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: "Install dependencies: authnz"
+        run: go mod download
+        working-directory: authnz
+
+      - name: "Install dependencies: infrastructure"
+        run: go mod download
+        working-directory: infrastructure
+
+      - name: "Install dependencies: rollout"
+        run: go mod download
+        working-directory: rollout
+
+      - name: "Install dependencies: telemetry"
+        run: go mod download
+        working-directory: telemetry
+
+      - name: "Preview stack: skulpture/authnz"
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          stack-name: skulpture/shared-authnz
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          work-dir: authnz
+          upsert: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: "Preview: skulpture/infrastructure"
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          stack-name: skulpture/shared-infrastructure
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          work-dir: infrastructure
+          upsert: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: "Preview: skulpture/rollout"
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          stack-name: skulpture/shared-rollout
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          work-dir: rollout
+          upsert: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: "Preview: skulpture/telemetry"
+        uses: pulumi/actions@v3
+        with:
+          command: preview
+          stack-name: skulpture/shared-telemetry
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          work-dir: telemetry
+          upsert: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
