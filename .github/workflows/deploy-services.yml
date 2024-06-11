@@ -110,7 +110,7 @@ jobs:
           SERVICES_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.yml
           LOGS_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.logs.yml
           PROXY_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.proxy.yml
-          ENV_FILE: ./.env
+          ENV_FILE: ~/.env
         with:
           host: ${{ env.GCP_VM_HOST }}
           username: ${{ env.GCP_VM_USERNAME }}
