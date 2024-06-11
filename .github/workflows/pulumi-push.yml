@@ -2,7 +2,7 @@ name: Deploy infrastructure
 
 on:
   push:
-    - master
+    branches: [master]
   workflow_dispatch:
 
 jobs:
