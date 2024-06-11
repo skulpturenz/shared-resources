@@ -76,6 +76,7 @@ jobs:
             skulpture/apm-server:${{ env.TAG }}
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     strategy:
