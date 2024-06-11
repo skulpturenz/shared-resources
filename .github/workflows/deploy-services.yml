@@ -2,8 +2,10 @@ name: Deploy services
 
 on:
   workflow_run:
-    workflows: ["Deploy infrastructure", "Preview infrastructure"]
+    workflows: ["Deploy infrastructure"]
     types: [completed]
+  push:
+    branches: [dev]
   workflow_dispatch:
 
 jobs:
@@ -121,3 +123,5 @@ jobs:
             docker stack deploy --compose-file ${{ env.LOGS_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
             sleep 5s
             docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
+            sleep 5m
+            docker container prune
