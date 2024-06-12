@@ -27,6 +27,7 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
 
       - name: Set up Cloud SDK
@@ -35,7 +36,9 @@ jobs:
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: "Install dependencies: ${{ matrix.compute }}"
-        run: go mod download
+        run: |
+          ls -la
+          go mod download
         working-directory: ${{ matrix.compute }}
 
       - name: "Preview stack: skulpture/shared-${{ matrix.compute }}"
