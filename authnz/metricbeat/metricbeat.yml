@@ -26,11 +26,13 @@ metricbeat.modules:
     - "memory"
     - "network"
   hosts: ["unix:///var/run/docker.sock"]
-  period: 10s
+  period: 1m
   enabled: true
 
 processors:
   - add_cloud_metadata: ~
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
 
 output.elasticsearch:
   hosts: '${ELASTICSEARCH_HOST_PORT}'

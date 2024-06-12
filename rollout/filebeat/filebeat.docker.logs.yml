@@ -18,18 +18,10 @@ filebeat.autodiscover:
       templates:
         - condition:
             and:
-             - not.contains:
-                docker.container.image: elasticsearch
-             - not.contains:
-                docker.container.image: logstash
-             - not.contains:
-                docker.container.image: kibana
-             - not.contains:
-                docker.container.image: filebeat
-             - not.contains:
-                docker.container.image: metricbeat
-             - not.contains:
-                docker.container.image: heartbeat
+             - contains:
+                docker.container.image: flipt
+             - contains:
+                docker.container.image: nginx
           config:
             - type: container
               paths:
@@ -37,6 +29,8 @@ filebeat.autodiscover:
 
 processors:
   - add_cloud_metadata: ~
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
 
 # Output to Logstash
 output.logstash:

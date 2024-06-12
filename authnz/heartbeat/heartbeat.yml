@@ -1,3 +1,6 @@
+name: 'rollout-heartbeat'
+tags: ['${JAVA_ENV}']
+
 setup.kibana:
   host: '${KIBANA_HOST_PORT}'
   username: '${KIBANA_USERNAME}'
@@ -5,19 +8,32 @@ setup.kibana:
 
 heartbeat.monitors:
 - type: http
-  schedule: '@every 5s'
+  schedule: '@every 5m'
+  name: 'Keycloak'
+  check.response.status: [200]
   urls:
-    - http://keycloak:8080
     - https://${KEYCLOAK_PUBLIC_HOST}
 
-- type: icmp
-  schedule: '@every 5s'
-  hosts:
-    - keycloak
-    - ${KEYCLOAK_PUBLIC_HOST}
+heartbeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            or:
+              contains:
+                docker.container.image: authnz
+              contains:
+                docker.container.image: nginx
+          config:
+            - type: http
+              hosts: ["${data.host}:${data.port}"]
+              schedule: "@every 5s"
+              timeout: 1s
 
 processors:
-- add_cloud_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
 
 output.elasticsearch:
   hosts: '${ELASTICSEARCH_HOST_PORT}'
