@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        compute: [auth, rollout, infrastructure, telemetry]
+        compute: [authnz, rollout, infrastructure, telemetry]
 
     runs-on: ubuntu-latest
     steps:

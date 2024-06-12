@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        compute: [auth, rollout, infrastructure, telemetry]
+        compute: [authnz, rollout, infrastructure, telemetry]
 
     runs-on: ubuntu-latest
     steps:
@@ -36,10 +36,8 @@ jobs:
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: "Install dependencies: ${{ matrix.compute }}"
-        run: |
-          ls -la
-          # go mod download
-        # working-directory: ${{ matrix.compute }}
+        run: go mod download
+        working-directory: ${{ matrix.compute }}
 
       - name: "Preview stack: skulpture/shared-${{ matrix.compute }}"
         uses: pulumi/actions@v3
