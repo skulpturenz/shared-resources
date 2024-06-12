@@ -5,7 +5,7 @@ on:
     workflows: ["Deploy infrastructure"]
     types: [completed]
   push:
-    branches: [master, dev]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
