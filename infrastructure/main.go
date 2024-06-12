@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/dogmatiq/ferrite"
 	"github.com/pulumi/pulumi-digitalocean/sdk/v4/go/digitalocean"
 	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/compute"
+	"github.com/pulumi/pulumi-gcp/sdk/v7/go/gcp/iam"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -18,6 +21,56 @@ var (
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
+		pool, err := iam.NewWorkloadIdentityPool(ctx, "shared-resources-wif-pool", &iam.WorkloadIdentityPoolArgs{
+			WorkloadIdentityPoolId: pulumi.String("shared-resources"),
+		})
+		if err != nil {
+			return err
+		}
+
+		ctx.Export("wifPool", pool.Name)
+
+		githubProvider, err := iam.NewWorkloadIdentityPoolProvider(ctx, "shared-resources", &iam.WorkloadIdentityPoolProviderArgs{
+			WorkloadIdentityPoolId:         pool.WorkloadIdentityPoolId,
+			WorkloadIdentityPoolProviderId: pulumi.String("github"),
+			DisplayName:                    pulumi.String("Github"),
+			AttributeMapping: pulumi.StringMap{
+				"google.subject":       pulumi.String("assertion.sub"),
+				"attribute.actor":      pulumi.String("assertion.actor"),
+				"attribute.repository": pulumi.String("assertion.repository_owner"),
+				"attribute.ref":        pulumi.String("assertion.ref"),
+			},
+			Oidc: &iam.WorkloadIdentityPoolProviderOidcArgs{
+				IssuerUri: pulumi.String("https://token.actions.githubusercontent.com"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		ctx.Export("githubWIFProvider", githubProvider.Name)
+
+		const REPOSITORY = "nmathew98/shared-resources"
+		pool.Name.ApplyT(func(workloadIdentityPoolId string) error {
+			principalSet := fmt.Sprintf("principalSet://iam.googleapis.com/%s/attribute.repository/%s", workloadIdentityPoolId, REPOSITORY)
+
+			services := []string{"shared-authnz", "shared-rollout", "shared-telemetry"}
+
+			for _, service := range services {
+				_, err = compute.NewInstanceIAMBinding(ctx, fmt.Sprintf("%s-cicd", service), &compute.InstanceIAMBindingArgs{
+					Zone:         pulumi.String("australia-southeast1-a"),
+					InstanceName: pulumi.String(service),
+					Role:         pulumi.String("roles/compute.admin"),
+					Members:      pulumi.ToStringArray([]string{principalSet}),
+				})
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		})
+
 		sharedResourcesNetwork, err := compute.NewNetwork(ctx, "shared-resources-network", &compute.NetworkArgs{
 			Name:        pulumi.String("shared-resources-network"),
 			Description: pulumi.String("Allows Cloudflare sources only"),
