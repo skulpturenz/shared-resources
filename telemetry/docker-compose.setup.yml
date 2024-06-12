@@ -1,6 +1,6 @@
 services:
   keystore:
-    image: skulpture/elasticsearch:${ELK_VERSION}
+    image: skulpture/elasticsearch
     build:
       context: elasticsearch/
       args:
@@ -14,7 +14,7 @@ services:
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
 
   certs:
-    image: skulpture/elasticsearch:${ELK_VERSION}
+    image: skulpture/elasticsearch
     build:
       context: elasticsearch/
       args:

@@ -1,0 +1,131 @@
+name: Deploy services
+
+on:
+  workflow_run:
+    workflows: ["Deploy infrastructure"]
+    types: [completed]
+  push:
+    branches: [master, dev]
+  workflow_dispatch:
+
+env:
+  BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: "Build and push Docker image: skulpture/authnz"
+        uses: docker/build-push-action@v5
+        env:
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.KEYCLOAK_VERSION, env.BRANCH_NAME) }}
+        with:
+          context: "{{defaultContext}}:authnz/keycloak"
+          push: true
+          build-args: |
+            KEYCLOAK_VERSION=${{ vars.KEYCLOAK_VERSION }}
+            KEYCLOAK_CACHE=ispn
+            KEYCLOAK_CACHE_STACK=kubernetes
+            KEYCLOAK_DB=${{ vars.KEYCLOAK_DB }}
+          tags: |
+            skulpture/authnz:${{ env.TAG }}
+
+      - name: "Build and push Docker image: skulpture/elasticsearch"
+        uses: docker/build-push-action@v5
+        env:
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
+        with:
+          context: "{{defaultContext}}:telemetry/elasticsearch"
+          push: true
+          build-args: |
+            ELK_VERSION=${{ vars.ELK_VERSION }}
+          tags: |
+            skulpture/elasticsearch:${{ env.TAG }}
+
+      - name: "Build and push Docker image: skulpture/kibana"
+        uses: docker/build-push-action@v5
+        env:
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
+        with:
+          context: "{{defaultContext}}:telemetry/kibana"
+          push: true
+          build-args: |
+            ELK_VERSION=${{ vars.ELK_VERSION }}
+          tags: |
+            skulpture/elasticsearch:${{ env.TAG }}
+
+      - name: "Build and push Docker image: skulpture/apm-server"
+        uses: docker/build-push-action@v5
+        env:
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
+        with:
+          context: "{{defaultContext}}:telemetry/apm-server"
+          push: true
+          build-args: |
+            ELK_VERSION=${{ vars.ELK_VERSION }}
+          tags: |
+            skulpture/apm-server:${{ env.TAG }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [authnz, rollout, telemetry]
+
+    steps:
+      - name: Copy files to GCP vm 
+        uses: appleboy/scp-action@master
+        if: contains(vars.DEPLOY, env.BRANCH_NAME)
+        env:
+          GCP_VM_HOST: ${{ (env.BRANCH_NAME == 'master' && format('{0}', vars.GCP_VM_AUTHNZ_MASTER)) || format('authnz-{0}.skulpture.xyz', env.BRANCH_NAME) }}
+          GCP_VM_USERNAME: ${{ env.BRANCH_NAME == 'master' && secrets.GCP_VM_MASTER_USERNAME || secrets.GCP_VM_OTHER_USERNAME }}
+          GCP_VM_KEY: ${{ env.BRANCH_NAME == 'master' && secrets.GCP_VM_MASTER_KEY || secrets.GCP_VM_OTHER_KEY }}
+        with:
+          host: ${{ env.GCP_VM_HOST }}
+          username: ${{ env.GCP_VM_USERNAME }}
+          key: ${{ env.GCP_VM_KEY }}
+          port: 22
+          overwrite: true
+          source: "./*"
+          target: "./shared-resources"
+
+      - name: Deploy ${{ matrix.service }} (${{ env.BRANCH_NAME }})
+        uses: appleboy/ssh-action@master
+        if: contains(vars.DEPLOY, env.BRANCH_NAME)
+        env:
+          STACK_NAME: ${{ matrix.service }}
+          GCP_VM_HOST: ${{ (env.BRANCH_NAME == 'master' && format('{0}', vars.GCP_VM_AUTHNZ_MASTER)) || format('authnz-{0}.skulpture.xyz', env.BRANCH_NAME) }}
+          GCP_VM_USERNAME: ${{ env.BRANCH_NAME == 'master' && secrets.GCP_VM_MASTER_USERNAME || secrets.GCP_VM_OTHER_USERNAME }}
+          GCP_VM_KEY: ${{ env.BRANCH_NAME == 'master' && secrets.GCP_VM_MASTER_KEY || secrets.GCP_VM_OTHER_KEY }}
+          SERVICES_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.yml
+          LOGS_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.logs.yml
+          PROXY_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.proxy.yml
+          ENV_FILE: ~/.env
+        with:
+          host: ${{ env.GCP_VM_HOST }}
+          username: ${{ env.GCP_VM_USERNAME }}
+          key: ${{ env.GCP_VM_KEY }}
+          port: 22
+          script: |
+            set -o allexport && . ./.${{ env.ENV_FILE }} && set +o allexport
+            docker stack deploy --compose-file ${{ env.SERVICES_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
+            sleep 15s
+            docker stack deploy --compose-file ${{ env.LOGS_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
+            sleep 5s
+            docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
+            sleep 5m
+            docker container prune
