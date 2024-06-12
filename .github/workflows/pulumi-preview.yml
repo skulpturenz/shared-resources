@@ -33,7 +33,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: "Install dependencies: ${{ matrix.compute }}"
         run: go mod download
@@ -49,4 +49,4 @@ jobs:
           work-dir: ${{ matrix.compute }}
           upsert: true
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ vars.PULUMI_ACCESS_TOKEN }}

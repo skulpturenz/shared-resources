@@ -27,7 +27,7 @@ jobs:
       - name: "Build and push Docker image: skulpture/authnz"
         uses: docker/build-push-action@v5
         env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', env.KEYCLOAK_VERSION, env.BRANCH_NAME) }}
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.KEYCLOAK_VERSION, env.BRANCH_NAME) }}
         with:
           context: "{{defaultContext}}:authnz/keycloak"
           push: true
@@ -42,36 +42,36 @@ jobs:
       - name: "Build and push Docker image: skulpture/elasticsearch"
         uses: docker/build-push-action@v5
         env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', env.ELK_VERSION, env.BRANCH_NAME) }}
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
         with:
           context: "{{defaultContext}}:telemetry/elasticsearch"
           push: true
           build-args: |
-            ELK_VERSION=${{ env.ELK_VERSION }}
+            ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
             skulpture/elasticsearch:${{ env.TAG }}
 
       - name: "Build and push Docker image: skulpture/kibana"
         uses: docker/build-push-action@v5
         env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', env.ELK_VERSION, env.BRANCH_NAME) }}
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
         with:
           context: "{{defaultContext}}:telemetry/kibana"
           push: true
           build-args: |
-            ELK_VERSION=${{ env.ELK_VERSION }}
+            ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
             skulpture/elasticsearch:${{ env.TAG }}
 
       - name: "Build and push Docker image: skulpture/apm-server"
         uses: docker/build-push-action@v5
         env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', env.ELK_VERSION, env.BRANCH_NAME) }}
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
         with:
           context: "{{defaultContext}}:telemetry/apm-server"
           push: true
           build-args: |
-            ELK_VERSION=${{ env.ELK_VERSION }}
+            ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
             skulpture/apm-server:${{ env.TAG }}
 
