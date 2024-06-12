@@ -2,7 +2,7 @@ name: Deploy services
 
 on:
   push:
-    branches: [master, dev]
+    branches: [master, staging, dev]
   workflow_dispatch:
 
 env:
@@ -98,7 +98,7 @@ jobs:
           port: 22
           overwrite: true
           source: "./*"
-          target: "./shared-resources"
+          target: "./shared-resources-${{ env.BRANCH_NAME }}"
 
       - name: Deploy ${{ matrix.service }} (${{ env.BRANCH_NAME }})
         uses: appleboy/ssh-action@master
@@ -108,9 +108,9 @@ jobs:
           GCP_VM_HOST: ${{ (env.BRANCH_NAME == 'master' && format('{0}', vars.GCP_VM_AUTHNZ_MASTER)) || format('authnz-{0}.skulpture.xyz', env.BRANCH_NAME) }}
           GCP_VM_USERNAME: ${{ env.BRANCH_NAME == 'master' && secrets.GCP_VM_MASTER_USERNAME || secrets.GCP_VM_OTHER_USERNAME }}
           GCP_VM_KEY: ${{ env.BRANCH_NAME == 'master' && secrets.GCP_VM_MASTER_KEY || secrets.GCP_VM_OTHER_KEY }}
-          SERVICES_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.yml
-          LOGS_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.logs.yml
-          PROXY_DOCKER_COMPOSE_FILE: ./shared-resources/${{ matrix.service }}/docker-compose.proxy.yml
+          SERVICES_DOCKER_COMPOSE_FILE: ./shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}/docker-compose.yml
+          LOGS_DOCKER_COMPOSE_FILE: ./shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}/docker-compose.logs.yml
+          PROXY_DOCKER_COMPOSE_FILE: ./shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}/docker-compose.proxy.yml
           ENV_FILE: ~/.env
         with:
           host: ${{ env.GCP_VM_HOST }}
