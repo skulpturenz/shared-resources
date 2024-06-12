@@ -1,9 +1,6 @@
 name: Deploy services
 
 on:
-  workflow_run:
-    workflows: ["Deploy infrastructure"]
-    types: [completed]
   push:
     branches: [master, dev]
   workflow_dispatch:
