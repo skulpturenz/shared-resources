@@ -49,4 +49,4 @@ jobs:
           work-dir: ${{ matrix.compute }}
           upsert: true
         env:
-          PULUMI_ACCESS_TOKEN: ${{ vars.PULUMI_ACCESS_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
