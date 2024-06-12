@@ -9,6 +9,7 @@ volumes:
   heartbeat-data:
   metricbeat-data:
 
+
 services:
   flipt:
     image: docker.flipt.io/flipt/flipt:v1.43.0
@@ -103,7 +104,8 @@ services:
     volumes:
       - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
       - heartbeat-data:/var/lib/heartbeat/data
-    user: heartbeat
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    user: root
     cap_add: [ "NET_RAW" ]
     command: -e --strict.perms=false
     environment:
@@ -111,6 +113,7 @@ services:
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
       FLIPT_PUBLIC_HOST: ${FLIPT_AUTHENTICATION_SESSION_DOMAIN}
+      GO_ENV: ${GO_ENV}
     deploy:
       mode: replicated
       replicas: 1

@@ -105,7 +105,8 @@ services:
     volumes:
       - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
       - heartbeat-data:/var/lib/heartbeat/data
-    user: heartbeat
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    user: root
     cap_add: [ "NET_RAW" ]
     command: -e --strict.perms=false
     deploy:
@@ -116,6 +117,7 @@ services:
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
       KEYCLOAK_PUBLIC_HOST: ${KC_HOSTNAME}
+      JAVA_ENV: ${JAVA_ENV}
     healthcheck:
       test:
         [
