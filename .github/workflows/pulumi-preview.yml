@@ -5,15 +5,8 @@ on:
     branches: [master, dev]
   workflow_dispatch:
 
-permissions:
-  pull-requests: write
-
 jobs:
   preview:
-    permissions:
-      contents: write
-      id-token: write
-
     strategy:
       matrix:
         compute: [authnz, rollout, infrastructure, telemetry]
