@@ -11,8 +11,9 @@ permissions:
 jobs:
   deploy:
     permissions:
-      contents: write
+      contents: read
       id-token: write
+      pull-requests: write
 
     strategy:
       matrix:
