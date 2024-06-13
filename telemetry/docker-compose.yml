@@ -12,23 +12,23 @@ volumes:
 
 secrets:
   elasticsearch.keystore:
-    file: ./secrets/keystore/elasticsearch.keystore
+    file: ${ELASTIC_SECRETS_DIR}/keystore/elasticsearch.keystore
   elasticsearch.service_tokens:
-    file: ./secrets/service_tokens
+    file: ${ELASTIC_SECRETS_DIR}/service_tokens
   elastic.ca:
-    file: ./secrets/certs/ca/ca.crt
+    file: ${ELASTIC_SECRETS_DIR}/certs/ca/ca.crt
   elasticsearch.certificate:
-    file: ./secrets/certs/elasticsearch/elasticsearch.crt
+    file: ${ELASTIC_SECRETS_DIR}/certs/elasticsearch/elasticsearch.crt
   elasticsearch.key:
-    file: ./secrets/certs/elasticsearch/elasticsearch.key
+    file: ${ELASTIC_SECRETS_DIR}/certs/elasticsearch/elasticsearch.key
   kibana.certificate:
-    file: ./secrets/certs/kibana/kibana.crt
+    file: ${ELASTIC_SECRETS_DIR}/certs/kibana/kibana.crt
   kibana.key:
-    file: ./secrets/certs/kibana/kibana.key
+    file: ${ELASTIC_SECRETS_DIR}/certs/kibana/kibana.key
   apm-server.certificate:
-    file: ./secrets/certs/apm-server/apm-server.crt
+    file: ${ELASTIC_SECRETS_DIR}/certs/apm-server/apm-server.crt
   apm-server.key:
-    file: ./secrets/certs/apm-server/apm-server.key
+    file: ${ELASTIC_SECRETS_DIR}/certs/apm-server/apm-server.key
   proxy.certificate:
     file: ${PROXY_CERT_PATH}
   proxy.key:
@@ -134,7 +134,7 @@ services:
       KIBANA_PORT: ${KIBANA_PORT}
       KIBANA_PUBLIC_BASE_URL: ${KIBANA_PUBLIC_BASE_URL}
     env_file:
-      - ./secrets/.env.kibana.token
+      - ${ELASTIC_SECRETS_DIR}/.env.kibana.token
     secrets:
       - source: elastic.ca
         target: /certs/ca.crt

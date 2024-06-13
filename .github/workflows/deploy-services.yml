@@ -122,6 +122,11 @@ jobs:
           port: 22
           script: |
             set -o allexport && . ./.${{ env.ENV_FILE }} && set +o allexport
+            
+            if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
+              export TAG=${{ env.BRANCH_NAME }}
+            fi
+
             docker stack deploy --compose-file ${{ env.SERVICES_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
             sleep 15s
             docker stack deploy --compose-file ${{ env.LOGS_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
