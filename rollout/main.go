@@ -25,6 +25,9 @@ var (
 	CLOUDFLARE_API_TOKEN = ferrite.
 				String("CLOUDFLARE_API_TOKEN", "Cloudflare API token").
 				Required()
+	GCP_SSH_PUBLIC_KEY = ferrite.
+				String("GCP_SSH_PUBLIC_KEY", "SSH key for this instance").
+				Required()
 )
 
 func main() {
@@ -57,6 +60,9 @@ func main() {
 					Network: pulumi.String("shared-resources-network"),
 				},
 			},
+			Metadata: pulumi.ToStringMap(map[string]string{
+				"ssh-keys": GCP_SSH_PUBLIC_KEY.Value(),
+			}),
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
 			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
 				sudo apt update &&
