@@ -8,9 +8,9 @@ setup.kibana:
 
 heartbeat.monitors:
 - type: http
-  schedule: '@every 5m'
+  schedule: '@every 6m'
   name: 'Keycloak'
-  check.response.status: [200]
+  check.response.status: [302]
   urls:
     - https://${KEYCLOAK_PUBLIC_HOST}
 
@@ -24,10 +24,16 @@ heartbeat.autodiscover:
                   docker.container.image: authnz
               - contains:
                   docker.container.image: nginx
+              - and:
+                - or:
+                  - equals:
+                      port: 8080
+                  - equals:
+                      port: 443
           config:
             - type: http
               hosts: ["${data.host}:${data.port}"]
-              schedule: "@every 5s"
+              schedule: "@every 3m"
               timeout: 1s
 
 processors:
