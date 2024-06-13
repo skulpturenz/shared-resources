@@ -14,7 +14,7 @@ services:
   flipt:
     image: docker.flipt.io/flipt/flipt:v1.43.0
     volumes:
-      - ./flipt/config.yml:/etc/flipt/config/default.yml:ro
+      - ${FLIPT_CONFIG_DIR}:/etc/flipt/config/default.yml:ro
     environment:
       FLIPT_LOG_LEVEL: "DEBUG"
       FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
