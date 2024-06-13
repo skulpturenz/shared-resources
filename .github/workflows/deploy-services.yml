@@ -121,6 +121,8 @@ jobs:
           passphrase: ${{ secrets.GCP_SSH_PASSPHRASE }}
           port: 22
           script: |
+            sudo su
+            
             set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
