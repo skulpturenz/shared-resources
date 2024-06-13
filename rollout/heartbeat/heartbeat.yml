@@ -20,9 +20,9 @@ heartbeat.autodiscover:
       templates:
         - condition:
             or:
-              contains:
+              - contains:
                 docker.container.image: flipt
-              contains:
+              - contains:
                 docker.container.image: nginx
           config:
             - type: http
