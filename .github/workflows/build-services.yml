@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: "Build and push Docker image: authnz"
+      - name: "Build Docker image: authnz"
         uses: docker/build-push-action@v5
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.KEYCLOAK_VERSION, env.BRANCH_NAME) }}
@@ -39,7 +39,7 @@ jobs:
           tags: |
             skulpture/authnz:${{ env.TAG }}
 
-      - name: "Build and push Docker image: elasticsearch"
+      - name: "Build Docker image: elasticsearch"
         uses: docker/build-push-action@v5
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
@@ -51,7 +51,7 @@ jobs:
           tags: |
             skulpture/elasticsearch:${{ env.TAG }}
 
-      - name: "Build and push Docker image: kibana"
+      - name: "Build Docker image: kibana"
         uses: docker/build-push-action@v5
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
