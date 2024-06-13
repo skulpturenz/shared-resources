@@ -83,7 +83,7 @@ jobs:
     strategy:
       matrix:
         service: [authnz, rollout, telemetry]
-        branch: [master, staging, dev]
+        branch: [master] # staging, dev
 
     environment: "${{ matrix.service }}-${{ matrix.branch }}"
 
@@ -94,10 +94,12 @@ jobs:
 
       - name: Copy files to GCP (${{ matrix.branch }})
         uses: appleboy/scp-action@master
+        # if: env.BRANCH_NAME == matrix.branch
         with:
           host: ${{ secrets.GCP_VM_HOST }}
           username: ${{ secrets.GCP_VM_USERNAME }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GCP_SSH_PASSPHRASE }}
           port: 22
           overwrite: true
           source: "./*"
@@ -116,6 +118,7 @@ jobs:
           host: ${{ secrets.GCP_VM_HOST }}
           username: ${{ secrets.GCP_VM_USERNAME }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GCP_SSH_PASSPHRASE }}
           port: 22
           script: |
             set -o allexport && . ./.${{ env.ENV_FILE }} && set +o allexport
