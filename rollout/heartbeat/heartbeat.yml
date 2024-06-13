@@ -21,9 +21,9 @@ heartbeat.autodiscover:
         - condition:
             or:
               - contains:
-                docker.container.image: flipt
+                  docker.container.image: flipt
               - contains:
-                docker.container.image: nginx
+                  docker.container.image: nginx
           config:
             - type: http
               hosts: ["${data.host}:${data.port}"]
