@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: "Build and push Docker image: skulpture/authnz"
+      - name: "Build and push Docker image: authnz"
         uses: docker/build-push-action@v5
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.KEYCLOAK_VERSION, env.BRANCH_NAME) }}
@@ -39,7 +39,7 @@ jobs:
           tags: |
             skulpture/authnz:${{ env.TAG }}
 
-      - name: "Build and push Docker image: skulpture/elasticsearch"
+      - name: "Build and push Docker image: elasticsearch"
         uses: docker/build-push-action@v5
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
@@ -51,7 +51,7 @@ jobs:
           tags: |
             skulpture/elasticsearch:${{ env.TAG }}
 
-      - name: "Build and push Docker image: skulpture/kibana"
+      - name: "Build and push Docker image: kibana"
         uses: docker/build-push-action@v5
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
@@ -63,7 +63,7 @@ jobs:
           tags: |
             skulpture/elasticsearch:${{ env.TAG }}
 
-      - name: "Build and push Docker image: skulpture/apm-server"
+      - name: "Build and push Docker image: apm-server"
         uses: docker/build-push-action@v5
         env:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
