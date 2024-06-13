@@ -110,9 +110,9 @@ jobs:
         if: contains(vars.DEPLOY, env.BRANCH_NAME)
         env:
           STACK_NAME: ${{ matrix.service }}
-          SERVICES_DOCKER_COMPOSE_FILE: ./shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}/docker-compose.yml
-          LOGS_DOCKER_COMPOSE_FILE: ./shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}/docker-compose.logs.yml
-          PROXY_DOCKER_COMPOSE_FILE: ./shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}/docker-compose.proxy.yml
+          SERVICES_DOCKER_COMPOSE_FILE: docker-compose.yml
+          LOGS_DOCKER_COMPOSE_FILE: docker-compose.logs.yml
+          PROXY_DOCKER_COMPOSE_FILE: docker-compose.proxy.yml
           ENV_FILE: ~/.env
         with:
           host: ${{ secrets.GCP_VM_HOST }}
@@ -123,16 +123,18 @@ jobs:
           script: |
             sudo su
 
+            docker container prune
+
             set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
               export TAG=${{ env.BRANCH_NAME }}
             fi
 
+            cd shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}
+
             docker stack deploy --compose-file ${{ env.SERVICES_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
             sleep 15s
             docker stack deploy --compose-file ${{ env.LOGS_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
             sleep 5s
             docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
-            sleep 5m
-            docker container prune
