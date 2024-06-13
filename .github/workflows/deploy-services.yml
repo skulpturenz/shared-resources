@@ -129,6 +129,8 @@ jobs:
             docker stack rm ${{ env.STACK_NAME }}
             docker container prune -f
 
+            sleep 30s
+
             set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
@@ -138,7 +140,7 @@ jobs:
             cd shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}
 
             docker stack deploy --compose-file ${{ env.SERVICES_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
-            sleep 15s
+            sleep 30s
             docker stack deploy --compose-file ${{ env.LOGS_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
-            sleep 5s
+            sleep 30s
             docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
