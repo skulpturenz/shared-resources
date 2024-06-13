@@ -36,7 +36,7 @@ secrets:
 
 services:
   elasticsearch:
-    image: skulpture/elasticsearch
+    image: skulpture/elasticsearch:${TAG:-latest}
     build:
       context: elasticsearch/
       args:
@@ -119,7 +119,7 @@ services:
       replicas: 1
 
   kibana:
-    image: skulpture/kibana
+    image: skulpture/kibana:${TAG:-latest}
     build:
       context: kibana/
       args:
@@ -159,7 +159,7 @@ services:
         ]
 
   apm-server:
-    image: skulpture/apm-server
+    image: skulpture/apm-server:${TAG:-latest}
     build:
       context: apm-server/
       args:

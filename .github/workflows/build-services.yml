@@ -27,7 +27,7 @@ jobs:
       - name: "Build Docker image: authnz"
         uses: docker/build-push-action@v5
         env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.KEYCLOAK_VERSION, env.BRANCH_NAME) }}
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:authnz/keycloak"
           push: false
@@ -42,7 +42,7 @@ jobs:
       - name: "Build Docker image: elasticsearch"
         uses: docker/build-push-action@v5
         env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/elasticsearch"
           push: false
@@ -54,7 +54,7 @@ jobs:
       - name: "Build Docker image: kibana"
         uses: docker/build-push-action@v5
         env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/kibana"
           push: false
@@ -66,7 +66,7 @@ jobs:
       - name: "Build Docker image: apm-server"
         uses: docker/build-push-action@v5
         env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || format('{0}-{1}', vars.ELK_VERSION, env.BRANCH_NAME) }}
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/apm-server"
           push: false
