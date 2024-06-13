@@ -61,7 +61,7 @@ jobs:
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
-            skulpture/elasticsearch:${{ env.TAG }}
+            skulpture/kibana:${{ env.TAG }}
 
       - name: "Build and push Docker image: apm-server"
         uses: docker/build-push-action@v5

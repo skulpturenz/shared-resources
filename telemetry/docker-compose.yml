@@ -37,10 +37,6 @@ secrets:
 services:
   elasticsearch:
     image: skulpture/elasticsearch:${TAG:-latest}
-    build:
-      context: elasticsearch/
-      args:
-        ELK_VERSION: ${ELK_VERSION}
     restart: unless-stopped
     environment:
       network.publish_host: _eth0_
@@ -120,10 +116,6 @@ services:
 
   kibana:
     image: skulpture/kibana:${TAG:-latest}
-    build:
-      context: kibana/
-      args:
-        ELK_VERSION: $ELK_VERSION
     restart: unless-stopped
     volumes:
       - ./kibana/config/:/usr/share/kibana/config:ro
@@ -160,10 +152,6 @@ services:
 
   apm-server:
     image: skulpture/apm-server:${TAG:-latest}
-    build:
-      context: apm-server/
-      args:
-        ELK_VERSION: $ELK_VERSION
     restart: unless-stopped
     volumes:
       - ./apm-server/config/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro
