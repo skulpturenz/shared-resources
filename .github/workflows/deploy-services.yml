@@ -123,7 +123,11 @@ jobs:
           script: |
             sudo su
 
-            docker container prune
+            # TODO: before, updated env wasn't being applied when just updating a stack like this
+            # TODO: if we refer to a node specifically by ip, there are issues with nginx not being able
+            # to resolve the hostname because it caches
+            docker stack rm ${{ env.STACK_NAME }}
+            docker container prune -f
 
             set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
             
