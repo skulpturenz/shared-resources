@@ -19,12 +19,12 @@ heartbeat.autodiscover:
     - type: docker
       templates:
         - condition:
-            - or:
-              - contains:
-                  docker.container.image: flipt
-              - contains:
-                  docker.container.image: nginx
-            - and:
+            and:
+              - or:
+                - contains:
+                    docker.container.image: flipt
+                - contains:
+                    docker.container.image: nginx
               - or:
                 - equals:
                     port: 8080
