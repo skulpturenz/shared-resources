@@ -121,8 +121,8 @@ jobs:
           passphrase: ${{ secrets.GCP_SSH_PASSPHRASE }}
           port: 22
           script: |
-            sudo su
-            
+            sudo su # TODO: This is not working
+
             set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
@@ -133,6 +133,6 @@ jobs:
             sleep 15s
             docker stack deploy --compose-file ${{ env.LOGS_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
             sleep 5s
-            docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
+            sudo docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
             sleep 5m
-            docker container prune
+            sudo docker container prune

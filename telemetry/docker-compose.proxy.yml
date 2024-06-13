@@ -17,8 +17,6 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-    environment:
-      KIBANA_PORT: ${KIBANA_PORT}
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     secrets:
