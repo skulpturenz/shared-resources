@@ -120,8 +120,9 @@ jobs:
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.GCP_SSH_PASSPHRASE }}
           port: 22
+          request_pty: true
           script: |
-            sudo su # TODO: This is not working
+            sudo su
 
             set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
             
