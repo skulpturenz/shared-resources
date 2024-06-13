@@ -12,7 +12,7 @@ volumes:
 
 services:
   keycloak:
-    image: skulpture/authnz
+    image: skulpture/authnz:${TAG:-latest}
     hostname: keycloak.{{.Task.Slot}}
     build:
       context: keycloak/
