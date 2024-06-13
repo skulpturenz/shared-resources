@@ -21,9 +21,9 @@ heartbeat.autodiscover:
         - condition:
             or:
               - contains:
-                docker.container.image: authnz
+                  docker.container.image: authnz
               - contains:
-                docker.container.image: nginx
+                  docker.container.image: nginx
           config:
             - type: http
               hosts: ["${data.host}:${data.port}"]
