@@ -1,0 +1,28 @@
+services:
+  heartbeat-setup:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    command: setup
+    volumes:
+      - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+    cap_add: [ "NET_RAW" ]
+    environment:
+      KIBANA_USERNAME: ${KIBANA_USERNAME}
+      KIBANA_PASSWORD: ${KIBANA_PASSWORD}
+      KIBANA_HOST_PORT: https://${KIBANA_HOST}:${KIBANA_PORT}
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      KEYCLOAK_PUBLIC_HOST: ${KC_HOSTNAME}
+
+  metricbeat-setup:
+    image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
+    command: setup
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    environment:
+      KIBANA_USERNAME: ${KIBANA_USERNAME}
+      KIBANA_PASSWORD: ${KIBANA_PASSWORD}
+      KIBANA_HOST_PORT: https://${KIBANA_HOST}:${KIBANA_PORT}
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
