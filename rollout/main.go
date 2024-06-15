@@ -87,7 +87,7 @@ func main() {
 				AutomaticRestart:  pulumi.Bool(true),
 				OnHostMaintenance: pulumi.String("MIGRATE"),
 			},
-			DeletionProtection:     pulumi.Bool(true),
+			DeletionProtection:     pulumi.Bool(false),
 			AllowStoppingForUpdate: pulumi.Bool(true),
 			BootDisk: &compute.InstanceBootDiskArgs{
 				InitializeParams: &compute.InstanceBootDiskInitializeParamsArgs{
