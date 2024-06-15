@@ -66,36 +66,6 @@ func main() {
 				if err != nil {
 					return err
 				}
-
-				_, err = compute.NewInstanceIAMBinding(ctx, fmt.Sprintf("%s-compute-instance-admin", service), &compute.InstanceIAMBindingArgs{
-					Zone:         pulumi.String("australia-southeast1-a"),
-					InstanceName: pulumi.String(service),
-					Role:         pulumi.String("roles/compute.instanceAdmin"),
-					Members:      pulumi.ToStringArray([]string{principalSet}),
-				})
-				if err != nil {
-					return err
-				}
-
-				_, err = compute.NewInstanceIAMBinding(ctx, fmt.Sprintf("%s-compute-network-admin", service), &compute.InstanceIAMBindingArgs{
-					Zone:         pulumi.String("australia-southeast1-a"),
-					InstanceName: pulumi.String(service),
-					Role:         pulumi.String("roles/compute.networkAdmin"),
-					Members:      pulumi.ToStringArray([]string{principalSet}),
-				})
-				if err != nil {
-					return err
-				}
-
-				_, err = compute.NewInstanceIAMBinding(ctx, fmt.Sprintf("%s-compute-security-admin", service), &compute.InstanceIAMBindingArgs{
-					Zone:         pulumi.String("australia-southeast1-a"),
-					InstanceName: pulumi.String(service),
-					Role:         pulumi.String("roles/compute.securityAdmin"),
-					Members:      pulumi.ToStringArray([]string{principalSet}),
-				})
-				if err != nil {
-					return err
-				}
 			}
 
 			return nil
