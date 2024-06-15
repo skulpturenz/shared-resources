@@ -1,0 +1,52 @@
+name: 'rollout-heartbeat'
+tags: ['${GO_ENV}']
+
+setup.kibana:
+  host: '${KIBANA_HOST_PORT}'
+  username: '${KIBANA_USERNAME}'
+  password: '${KIBANA_PASSWORD}'
+
+heartbeat.monitors:
+- type: http
+  schedule: '@every 5m'
+  name: 'Rollout'
+  check.response.status: [200]
+  urls:
+    - https://${FLIPT_PUBLIC_HOST}
+
+heartbeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            and:
+              - or:
+                - contains:
+                    docker.container.image: flipt
+                - contains:
+                    docker.container.image: nginx
+              - or:
+                - equals:
+                    port: 8080
+                - equals:
+                    port: 443
+          config:
+            - type: http
+              hosts: ["${data.host}:${data.port}"]
+              schedule: "@every 5m"
+              timeout: 1s
+
+processors:
+  - add_cloud_metadata: ~
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
+
+output.elasticsearch:
+  hosts: '${ELASTICSEARCH_HOST_PORT}'
+  username: '${ELASTIC_USERNAME}'
+  password: '${ELASTIC_PASSWORD}'
+
+# Defines if the HTTP endpoint is enabled.
+http.enabled: true
+http.host: 0.0.0.0
+http.port: 5066

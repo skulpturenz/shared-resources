@@ -1,0 +1,7 @@
+name: network
+runtime: go
+description: Networking for shared resources
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: gcp-go

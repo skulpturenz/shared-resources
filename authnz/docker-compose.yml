@@ -1,0 +1,157 @@
+networks:
+  default:
+    name: keycloak
+    driver: overlay
+    attachable: true
+
+volumes:
+  filebeat-data:
+  heartbeat-data:
+  metricbeat-data:
+
+
+services:
+  keycloak:
+    image: skulpture/authnz:${TAG:-latest}
+    hostname: keycloak.{{.Task.Slot}}
+    build:
+      context: keycloak/
+      args:
+        KEYCLOAK_VERSION: ${KEYCLOAK_VERSION}
+        KEYCLOAK_CACHE: ispn
+        KEYCLOAK_CACHE_STACK: kubernetes
+        KEYCLOAK_DB: ${KC_DB}
+    restart: unless-stopped
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB_URL: ${KC_DB_URL}
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_DB_POOL_INITIAL_SIZE: ${KC_DB_POOL_INITIAL_SIZE:-1}
+      KC_DB_POOL_MAX_SIZE: ${KC_DB_POOL_MAX_SIZE:-2}
+      KC_DB_POOL_MIN_SIZE: ${KC_DB_POOL_MIN_SIZE:-0}
+      KC_HOSTNAME: ${KC_HOSTNAME}
+      KC_HTTP_ENABLED: "true"
+      JAVA_OPTS_APPEND: "-javaagent:/tmp/opentelemetry-javaagent.jar -Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
+      OTEL_SERVICE_NAME: keycloak
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}"
+    command: "start --optimized --proxy-headers xforwarded"
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: dnsrr
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
+    restart: unless-stopped
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      LS_JAVA_OPTS: "-Xmx${LOGSTASH_HEAP} -Xms${LOGSTASH_HEAP} -Dlog4j2.formatMsgNoLookups=true"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-s",
+          "-XGET",
+          "http://127.0.0.1:9600"
+        ]
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
+    restart: always
+    # -e flag to log to stderr and disable syslog/file output
+    command: -e --strict.perms=false
+    user: root
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      KIBANA_HOST_PORT: https://${KIBANA_HOST}:${KIBANA_PORT}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+    volumes:
+      - ./filebeat/filebeat.docker.logs.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - filebeat-data:/var/lib/filebeat/data
+    deploy:
+      mode: replicated
+      replicas: 1
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sf",
+          "-XGET",
+          "localhost:5066/?pretty"
+        ]
+
+  heartbeat:
+    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+    volumes:
+      - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+      - heartbeat-data:/var/lib/heartbeat/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    user: root
+    cap_add: [ "NET_RAW" ]
+    command: -e --strict.perms=false
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      KEYCLOAK_PUBLIC_HOST: ${KC_HOSTNAME}
+      JAVA_ENV: ${JAVA_ENV}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sf",
+          "-XGET",
+          "localhost:5066/?pretty"
+        ]
+
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
+    user: root
+    command: --strict.perms=false -e
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
+      - /proc:/hostfs/proc:ro # Only available on Linux
+      - /:/hostfs:ro
+      - metricbeat-data:/var/lib/metricbeat/data
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sf",
+          "-XGET",
+          "localhost:5066/?pretty"
+        ]
