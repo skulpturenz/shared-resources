@@ -37,7 +37,7 @@ func main() {
 			AttributeMapping: pulumi.StringMap{
 				"google.subject":       pulumi.String("assertion.sub"),
 				"attribute.actor":      pulumi.String("assertion.actor"),
-				"attribute.repository": pulumi.String("assertion.repository_owner"),
+				"attribute.repository": pulumi.String("assertion.repository"),
 				"attribute.ref":        pulumi.String("assertion.ref"),
 			},
 			Oidc: &iam.WorkloadIdentityPoolProviderOidcArgs{
