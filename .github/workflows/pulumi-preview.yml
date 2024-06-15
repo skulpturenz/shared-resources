@@ -44,7 +44,7 @@ jobs:
         working-directory: ${{ matrix.compute }}
 
       - name: "Preview stack: skulpture/shared-${{ matrix.compute }}"
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v5
         with:
           command: preview
           stack-name: "skulpture/shared-${{ matrix.compute }}"

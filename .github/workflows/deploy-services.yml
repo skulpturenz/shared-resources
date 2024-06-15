@@ -44,7 +44,7 @@ jobs:
         working-directory: ${{ matrix.compute }}
 
       - name: "Deploy stack: skulpture/shared-${{ matrix.compute }}"
-        uses: pulumi/actions@v3
+        uses: pulumi/actions@v5
         with:
           command: up
           stack-name: "skulpture/shared-${{ matrix.compute }}"
@@ -52,6 +52,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           work-dir: ${{ matrix.compute }}
           upsert: true
+          supress-outputs: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           COMPUTE_INSTANCE_NAME: shared-${{ matrix.compute }}
