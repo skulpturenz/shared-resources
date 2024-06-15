@@ -8,7 +8,7 @@ setup.kibana:
 
 heartbeat.monitors:
 - type: http
-  schedule: '@every 30m'
+  schedule: '@every 5m'
   name: 'Rollout'
   check.response.status: [200]
   urls:
@@ -33,7 +33,7 @@ heartbeat.autodiscover:
           config:
             - type: http
               hosts: ["${data.host}:${data.port}"]
-              schedule: "@every 30m"
+              schedule: "@every 5m"
               timeout: 1s
 
 processors:
