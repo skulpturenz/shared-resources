@@ -16,6 +16,7 @@ jobs:
       id-token: write
 
     strategy:
+      fail-fast: false
       matrix:
         compute: [authnz, rollout, infrastructure, telemetry]
 
@@ -138,6 +139,7 @@ jobs:
       id-token: write
 
     strategy:
+      fail-fast: false
       matrix:
         service: [authnz, rollout, telemetry]
         branch: [master] # staging, dev
