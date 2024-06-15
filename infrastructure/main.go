@@ -57,7 +57,7 @@ func main() {
 			services := []string{"shared-authnz", "shared-rollout", "shared-telemetry"}
 
 			for _, service := range services {
-				_, err = compute.NewInstanceIAMBinding(ctx, fmt.Sprintf("%s-cicd", service), &compute.InstanceIAMBindingArgs{
+				_, err = compute.NewInstanceIAMBinding(ctx, fmt.Sprintf("%s-compute-admin", service), &compute.InstanceIAMBindingArgs{
 					Zone:         pulumi.String("australia-southeast1-a"),
 					InstanceName: pulumi.String(service),
 					Role:         pulumi.String("roles/compute.admin"),
@@ -67,7 +67,7 @@ func main() {
 					return err
 				}
 
-				_, err = compute.NewInstanceIAMBinding(ctx, fmt.Sprintf("%s-cicd", service), &compute.InstanceIAMBindingArgs{
+				_, err = compute.NewInstanceIAMBinding(ctx, fmt.Sprintf("%s-service-account-user", service), &compute.InstanceIAMBindingArgs{
 					Zone:         pulumi.String("australia-southeast1-a"),
 					InstanceName: pulumi.String(service),
 					Role:         pulumi.String("roles/iam.serviceAccountUser"),
