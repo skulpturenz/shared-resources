@@ -64,6 +64,7 @@ jobs:
           GCP_SSH_PUBLIC_KEY: ${{ vars.GCP_SSH_PUBLIC_KEY }}
 
   build:
+    if: ${{ always() }}
     needs: up
     runs-on: ubuntu-latest
     steps:
@@ -143,6 +144,7 @@ jobs:
     environment: "${{ matrix.service }}-${{ matrix.branch }}"
 
     needs: build
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
