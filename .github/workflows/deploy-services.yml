@@ -52,7 +52,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           work-dir: ${{ matrix.compute }}
           upsert: true
-          supress-outputs: true
+          suppress-outputs: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           COMPUTE_INSTANCE_NAME: shared-${{ matrix.compute }}
