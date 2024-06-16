@@ -40,10 +40,10 @@ services:
     restart: unless-stopped
     environment:
       network.publish_host: _eth0_
-      node.name: elastic_elasticsearch.{{.Task.Slot}}
+      node.name: telemetry_elasticsearch.{{.Task.Slot}}
       path.data: ./data/elasticsearch.{{.Task.Slot}}
       discovery.seed_hosts: tasks.elasticsearch
-      cluster.initial_master_nodes: elastic_elasticsearch.1,elastic_elasticsearch.2,elastic_elasticsearch.3
+      cluster.initial_master_nodes: telemetry_elasticsearch.1,telemetry_elasticsearch.2,telemetry_elasticsearch.3
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTIC_CLUSTER_NAME: ${ELASTIC_CLUSTER_NAME}
