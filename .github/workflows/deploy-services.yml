@@ -91,9 +91,8 @@ jobs:
           push: true
           build-args: |
             KEYCLOAK_VERSION=${{ vars.KEYCLOAK_VERSION }}
-            KEYCLOAK_CACHE=ispn
-            KEYCLOAK_CACHE_STACK=kubernetes
             KEYCLOAK_DB=${{ vars.KEYCLOAK_DB }}
+            KEYCLOAK_FEATURES=persistent-user-sessions
           tags: |
             skulpture/authnz:${{ env.TAG }}
 
