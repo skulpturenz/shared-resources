@@ -17,13 +17,13 @@ services:
     build:
       context: keycloak/
       args:
-        KEYCLOAK_FEATURES: persistent-user-sessions
         KEYCLOAK_VERSION: ${KEYCLOAK_VERSION}
+        KEYCLOAK_CACHE: ispn
+        KEYCLOAK_CACHE_STACK: kubernetes
+        KEYCLOAK_FEATURES: persistent-user-sessions
         KEYCLOAK_DB: ${KC_DB}
     restart: unless-stopped
     environment:
-      KEYCLOAK_CACHE: ispn
-      KEYCLOAK_CACHE_STACK: kubernetes
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_DB_URL: ${KC_DB_URL}

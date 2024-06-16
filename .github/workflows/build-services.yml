@@ -35,6 +35,8 @@ jobs:
             KEYCLOAK_VERSION=${{ vars.KEYCLOAK_VERSION }}
             KEYCLOAK_DB=${{ vars.KEYCLOAK_DB }}
             KEYCLOAK_FEATURES=persistent-user-sessions
+            KEYCLOAK_CACHE=ispn
+            KEYCLOAK_CACHE_STACK=kubernetes
           tags: |
             skulpture/authnz:${{ env.TAG }}
 
