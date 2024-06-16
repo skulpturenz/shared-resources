@@ -93,7 +93,7 @@ func main() {
 				InitializeParams: &compute.InstanceBootDiskInitializeParamsArgs{
 					Image: pulumi.String("debian-12-bookworm-v20240515"),
 					Type:  pulumi.String("pd-standard"),
-					Size:  pulumi.Int(10),
+					Size:  pulumi.Int(30),
 				},
 				AutoDelete: pulumi.Bool(false),
 			},
