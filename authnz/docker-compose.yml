@@ -8,6 +8,7 @@ volumes:
   filebeat-data:
   heartbeat-data:
   metricbeat-data:
+  opa-data:
 
 
 services:
@@ -40,6 +41,29 @@ services:
       mode: replicated
       replicas: 3
       endpoint_mode: dnsrr
+
+  opa:
+    image: openpolicyagent/opa:${OPA_VERSION}
+    restart: unless-stopped
+    environment:
+      distributed_tracing.address: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+      storage.disk.directory: /policies
+      storage.disk.autocreate: true
+    command: run --server --v1-compatible
+    volumes:
+      - opa-data:/policies:ro,Z
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sf",
+          "-XGET",
+          "localhost:8181/health?bundle=true"
+        ]
+    deploy:
+      mode: replicated
+      replicas: 3
 
   logstash:
     image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
