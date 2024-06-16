@@ -24,6 +24,8 @@ services:
         KEYCLOAK_DB: ${KC_DB}
     restart: unless-stopped
     environment:
+      KC_CACHE: ispn
+      KC_CACHE_STACK: kubernetes
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_DB_URL: ${KC_DB_URL}
