@@ -132,7 +132,10 @@ func DeleteEnv(db *sql.DB, key string) {
 	}
 	defer statement.Close()
 
-	statement.Exec(key, PROJECT.Value())
+	_, err = statement.Exec(key, PROJECT.Value())
+	if err != nil {
+		panic(err)
+	}
 
 	delete(ENVS, key)
 
@@ -151,7 +154,10 @@ func SetEnv(db *sql.DB, key string, value string) {
 	}
 	defer deprecate.Close()
 
-	deprecate.Exec(key, PROJECT.Value())
+	_, err = deprecate.Exec(key, PROJECT.Value())
+	if err != nil {
+		panic(err)
+	}
 
 	insert, err := tx.Prepare("INSERT INTO environments(key, value, project, deprecated) VALUES(?, ?, ?, 0);")
 	if err != nil {
@@ -159,7 +165,10 @@ func SetEnv(db *sql.DB, key string, value string) {
 	}
 	defer insert.Close()
 
-	insert.Exec(key, encrypt(value, KEY.Value()), PROJECT.Value())
+	_, err = insert.Exec(key, encrypt(value, KEY.Value()), PROJECT.Value())
+	if err != nil {
+		panic(err)
+	}
 
 	ENVS[key] = value
 
