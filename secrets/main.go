@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"fmt"
-	"log/slog"
 	"os"
 
 	"github.com/docopt/docopt-go"
@@ -25,7 +24,7 @@ var (
 		String("DSN", "SQLite connection string").
 		Required()
 	KEY = ferrite.
-		String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 32`").
+		String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 16`").
 		Required()
 )
 
@@ -44,18 +43,19 @@ func init() {
 
 func main() {
 	usage := `Kryptos
-	
+
 Usage:
-	kryptos set <key> <value>
-	kryptos (rm|grep) <key>
-	kryptos cat
-	kryptos dump (-o | --output)=<output>
-	kryptos (-h | --help)
-	
+    kryptos set <key> <value>
+    kryptos (rm|grep) <key>
+    kryptos cat
+    kryptos dump [--output=<output>]
+    kryptos -h | --help
+    kryptos --version
+
 Options:
-	-h --help		Show this screen
-	--version		Show version
-	-o --output		Output file [default: ./.env]`
+    -h --help          Show this screen
+    --version          Show version
+    --output=<output>  Output file [default: ./.env]`
 
 	options, err := docopt.ParseArgs(usage, nil, VERSION)
 	if err != nil {
@@ -92,7 +92,7 @@ Options:
 			fmt.Printf("%s=%s\n", key, value)
 		}
 	} else if dump {
-		path, _ := options.String("<output>")
+		path, _ := options.String("--output")
 
 		out := ""
 
@@ -138,8 +138,6 @@ func GetEnvs(db *sql.DB) {
 
 		decrypted := decrypt(encrypted, KEY.Value())
 		ENVS[key] = decrypted
-
-		slog.Info("get", "env", key)
 	}
 
 	err = rows.Err()
@@ -161,8 +159,6 @@ func DeleteEnv(db *sql.DB, key string) {
 	}
 
 	delete(ENVS, key)
-
-	slog.Info("rm", "env", key)
 }
 
 func SetEnv(db *sql.DB, key string, value string) {
@@ -199,8 +195,6 @@ func SetEnv(db *sql.DB, key string, value string) {
 	if err != nil {
 		panic(err)
 	}
-
-	slog.Info("set", "env", key)
 }
 
 func open() (db *sql.DB, close func() error) {
@@ -210,7 +204,7 @@ func open() (db *sql.DB, close func() error) {
 	}
 
 	createTable := `CREATE TABLE IF NOT EXISTS environments (
-		id INTEGER AUTOINCREMENT,
+		id INTEGER AUTO INCREMENT,
 		key TEXT,
 		value TEXT,
 		project TEXT,

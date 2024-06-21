@@ -6,7 +6,7 @@ RUN git config --global pager.branch false
 
 FROM base
 
-RUN apk add libc6-compat && curl -fsSL https://get.pulumi.com/ | sh
+RUN apk add build-base libc6-compat && curl -fsSL https://get.pulumi.com/ | sh
 ENV PATH=$PATH:/root/.pulumi/bin
 
 RUN bash -c "curl https://sdk.cloud.google.com > /tmp/install-gcloud.sh" && bash /tmp/install-gcloud.sh --disable-prompts
