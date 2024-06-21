@@ -56,7 +56,9 @@ Usage:
 Options:
     -h --help             Show this screen
     --version             Show version
-    -o --output=<output>  Output file [default: ./.env]`
+    -o --output=<output>  Output file [default: ./.env]
+
+"Try to understand the fuckin' message I encrypted"`
 
 	options, err := docopt.ParseArgs(usage, nil, VERSION)
 	if err != nil {
