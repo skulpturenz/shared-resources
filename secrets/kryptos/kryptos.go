@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/dogmatiq/ferrite"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -19,9 +20,14 @@ var (
 		String("PROJECT", "Project to load environments for").
 		WithDefault("*").
 		Required()
-	DSN = ferrite.
-		String("DSN", "SQLite connection string").
-		Required()
+	DB_DRIVER = ferrite.
+			Enum("DB_DRIVER", "Database driver").
+			WithMembers("sqlite3", "pgx").
+			WithDefault("sqlite3").
+			Required()
+	DB_CONNECTION_STRING = ferrite.
+				String("DB_CONNECTION_STRING", "Database connection string").
+				Required()
 	KEY = ferrite.
 		String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 16`").
 		Required()
@@ -123,7 +129,7 @@ func SetEnv(db *sql.DB, key string, value string) {
 }
 
 func Open() (db *sql.DB, close func() error) {
-	db, err := sql.Open("sqlite3", DSN.Value())
+	db, err := sql.Open(DB_DRIVER.Value(), DB_CONNECTION_STRING.Value())
 	if err != nil {
 		panic(err)
 	}
