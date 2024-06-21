@@ -47,11 +47,10 @@ func main() {
 	
 Usage:
 	kryptos set <key> <value>
-	kryptos rm <key>
-	kryptos grep <key>
+	kryptos (rm|grep) <key>
 	kryptos cat
-	kryptos dump -o=<output> | --output=<output>
-	kryptos -h | kryptos --help
+	kryptos dump (-o | --output)=<output>
+	kryptos (-h | --help)
 	
 Options:
 	-h --help		Show this screen
