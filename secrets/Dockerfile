@@ -1,4 +1,4 @@
-FROM golang:alpine as base
+FROM golang:alpine
 
 VOLUME . .
 RUN go install
