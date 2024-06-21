@@ -28,7 +28,7 @@ func main() {
 Usage:
     kryptos set <key> <value>
     kryptos (rm|grep) <key>
-	kryptos refresh (-e <encryption> | --encryption-key=<encryption>)
+	kryptos rotate (-e <encryption> | --encryption-key=<encryption>)
     kryptos cat
     kryptos dump [-o <output> | --output=<output>]
 	kryptos info
@@ -56,7 +56,7 @@ Options:
 	set, _ := options.Bool("set")
 	rm, _ := options.Bool("rm")
 	grep, _ := options.Bool("grep")
-	refresh, _ := options.Bool("refresh")
+	rotate, _ := options.Bool("rotate")
 	cat, _ := options.Bool("cat")
 	dump, _ := options.Bool("dump")
 	info, _ := options.Bool("info")
@@ -74,7 +74,7 @@ Options:
 		key, _ := options.String("<key>")
 
 		fmt.Println(ENVS[key])
-	} else if refresh {
+	} else if rotate {
 		encryptionKey, _ := options.String("--encryption-key")
 
 		os.Setenv("ENCRYPTION_KEY", encryptionKey)
