@@ -47,6 +47,7 @@ func main() {
 Usage:
     kryptos set <key> <value>
     kryptos (rm|grep) <key>
+	kryptos refresh (-e <encryption> | --encryption-key=<encryption>)
     kryptos cat
     kryptos dump [-o <output> | --output=<output>]
 	kryptos info
@@ -54,9 +55,10 @@ Usage:
     kryptos --version
 
 Options:
-    -o --output=<output>  Output file [default: ./.env]
-    -h --help             Show this screen
-    --version             Show version
+    -o --output=<output>              Output file [default: ./.env]
+	-e --encryption-key=<encryption>  Encryption key
+    -h --help                         Show this screen
+    --version                         Show version
 
 "Try to understand the fuckin' message I encrypted"`
 
@@ -73,6 +75,7 @@ Options:
 	set, _ := options.Bool("set")
 	rm, _ := options.Bool("rm")
 	grep, _ := options.Bool("grep")
+	refresh, _ := options.Bool("refresh")
 	cat, _ := options.Bool("cat")
 	dump, _ := options.Bool("dump")
 	info, _ := options.Bool("info")
@@ -90,6 +93,14 @@ Options:
 		key, _ := options.String("<key>")
 
 		fmt.Println(ENVS[key])
+	} else if refresh {
+		encryptionKey, _ := options.String("--encryption-key")
+
+		os.Setenv("ENCRYPTION_KEY", encryptionKey)
+
+		for key, value := range ENVS {
+			SetEnv(db, key, value)
+		}
 	} else if cat {
 		// eval $(kryptos cat)
 		for key, value := range ENVS {
