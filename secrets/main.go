@@ -48,14 +48,15 @@ Usage:
     kryptos set <key> <value>
     kryptos (rm|grep) <key>
     kryptos cat
-    kryptos dump [--output=<output>]
+    kryptos dump [-o <output> | --output=<output>]
+	kryptos info
     kryptos -h | --help
     kryptos --version
 
 Options:
-    -h --help          Show this screen
-    --version          Show version
-    --output=<output>  Output file [default: ./.env]`
+    -h --help             Show this screen
+    --version             Show version
+    -o --output=<output>  Output file [default: ./.env]`
 
 	options, err := docopt.ParseArgs(usage, nil, VERSION)
 	if err != nil {
@@ -72,6 +73,7 @@ Options:
 	grep, _ := options.Bool("grep")
 	cat, _ := options.Bool("cat")
 	dump, _ := options.Bool("dump")
+	info, _ := options.Bool("info")
 
 	if set {
 		key, _ := options.String("<key>")
@@ -112,6 +114,11 @@ Options:
 		}
 
 		file.Sync()
+	} else if info {
+		fmt.Printf("Project: %s\n", PROJECT.Value())
+		fmt.Printf("DSN: %s\n", DSN.Value())
+		fmt.Printf("Encryption key: %s\n", KEY.Value())
+		fmt.Printf("Version: v%s\n", VERSION)
 	}
 }
 
