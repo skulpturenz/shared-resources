@@ -189,16 +189,22 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int) {
 	}
 }
 
-func ClearEnv(ctx context.Context, db *sql.DB) {
+func ClearEnv(ctx context.Context, db *sql.DB, offset int) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
-	prune, err := db.PrepareContext(ctx, `DELETE FROM environments WHERE project = ?`)
+	prune, err := db.PrepareContext(ctx, `DELETE FROM environments 
+		WHERE id
+		IN (
+			SELECT id
+			FROM environments
+			WHERE project = ?
+			ORDER BY id DESC OFFSET ?)`)
 	if err != nil {
 		panic(err)
 	}
 	prune.Close()
 
-	_, err = prune.ExecContext(ctx, PROJECT.Value())
+	_, err = prune.ExecContext(ctx, PROJECT.Value(), offset)
 	if err != nil {
 		panic(err)
 	}

@@ -105,14 +105,13 @@ Options:
 
 		file.Sync()
 	} else if prune {
+		offset, _ := options.Int("offset")
 		all, _ := options.Bool("--all")
 
 		if !all {
-			offset, _ := options.Int("offset")
-
 			kryptos.PruneEnv(ctx, db, offset)
 		} else {
-			kryptos.ClearEnv(ctx, db)
+			kryptos.ClearEnv(ctx, db, offset)
 		}
 	} else if info {
 		fmt.Printf("Project: %s\n", kryptos.PROJECT.Value())
