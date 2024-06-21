@@ -99,7 +99,7 @@ func GetEnvs(db *sql.DB) {
 		environments
 	WHERE 
 		deprecated = 0 AND 
-		(project = %s OR project = '*');`, PROJECT.Value()))
+		(project = '%s' OR project = '*');`, PROJECT.Value()))
 	if err != nil {
 		panic(err)
 	}
