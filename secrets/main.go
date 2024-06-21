@@ -96,7 +96,7 @@ func GetEnvs(db *sql.DB) {
 	rows, err := db.Query(fmt.Sprintf(`SELECT 
 		key, value 
 	FROM
-		secrets
+		environments
 	WHERE 
 		deprecated = 0 AND 
 		(project = %s OR project = '*');`, PROJECT.Value()))
