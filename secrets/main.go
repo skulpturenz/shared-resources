@@ -54,9 +54,9 @@ Usage:
     kryptos --version
 
 Options:
+    -o --output=<output>  Output file [default: ./.env]
     -h --help             Show this screen
     --version             Show version
-    -o --output=<output>  Output file [default: ./.env]
 
 "Try to understand the fuckin' message I encrypted"`
 
