@@ -189,6 +189,25 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int) {
 	}
 }
 
+func ClearEnv(ctx context.Context, db *sql.DB) {
+	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
+
+	prune, err := db.PrepareContext(ctx, `DELETE FROM environments WHERE project = ?`)
+	if err != nil {
+		panic(err)
+	}
+	prune.Close()
+
+	_, err = prune.ExecContext(ctx, PROJECT.Value())
+	if err != nil {
+		panic(err)
+	}
+
+	if isDebugEnabled {
+		slog.InfoContext(ctx, "clear", "project", PROJECT.Value())
+	}
+}
+
 func Open(ctx context.Context) (db *sql.DB, close func() error) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 

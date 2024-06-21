@@ -21,7 +21,7 @@ Usage:
 	kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
     kryptos cat
     kryptos dump [-o <output> | --output=<output>]
-	kryptos prune <offset> [-d | --debug]
+	kryptos prune <offset> [-d | --debug] [-a | --all]
 	kryptos info
     kryptos -h | --help
     kryptos -v | --version
@@ -105,9 +105,15 @@ Options:
 
 		file.Sync()
 	} else if prune {
-		offset, _ := options.Int("offset")
+		all, _ := options.Bool("--all")
 
-		kryptos.PruneEnv(ctx, db, offset)
+		if !all {
+			offset, _ := options.Int("offset")
+
+			kryptos.PruneEnv(ctx, db, offset)
+		} else {
+			kryptos.ClearEnv(ctx, db)
+		}
 	} else if info {
 		fmt.Printf("Project: %s\n", kryptos.PROJECT.Value())
 		fmt.Printf("Database driver: %s\n", kryptos.DB_DRIVER.Value())
