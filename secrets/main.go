@@ -18,7 +18,7 @@ import (
 var (
 	VERSION = "0.0.1"
 	PROJECT = ferrite.
-		String("PROJECT", "Project to load environment for").
+		String("PROJECT", "Project to load environments for").
 		WithDefault("*").
 		Required()
 	DSN = ferrite.
@@ -126,7 +126,7 @@ func GetEnvs(db *sql.DB) {
 }
 
 func DeleteEnv(db *sql.DB, key string) {
-	statement, err := db.Prepare("DELETE FROM environment WHERE key = ? AND project = ?;")
+	statement, err := db.Prepare("DELETE FROM environments WHERE key = ? AND project = ?;")
 	if err != nil {
 		panic(err)
 	}
@@ -145,7 +145,7 @@ func SetEnv(db *sql.DB, key string, value string) {
 		panic(err)
 	}
 
-	deprecate, err := tx.Prepare("UPDATE environment SET deprecated = 1 WHERE key = ? AND project = ?;")
+	deprecate, err := tx.Prepare("UPDATE environments SET deprecated = 1 WHERE key = ? AND project = ?;")
 	if err != nil {
 		panic(err)
 	}
@@ -153,7 +153,7 @@ func SetEnv(db *sql.DB, key string, value string) {
 
 	deprecate.Exec(key, PROJECT.Value())
 
-	insert, err := tx.Prepare("INSERT INTO environment(key, value, project, deprecated) VALUES(?, ?, ?, 0);")
+	insert, err := tx.Prepare("INSERT INTO environments(key, value, project, deprecated) VALUES(?, ?, ?, 0);")
 	if err != nil {
 		panic(err)
 	}
@@ -173,6 +173,13 @@ func SetEnv(db *sql.DB, key string, value string) {
 
 func open() (db *sql.DB, close func() error) {
 	db, err := sql.Open("sqlite3", DSN.Value())
+	if err != nil {
+		panic(err)
+	}
+
+	createTable := `CREATE TABLE IF NOT EXISTS
+	environments (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, value TEXT, project TEXT, deprecated INTEGER);`
+	_, err = db.Exec(createTable)
 	if err != nil {
 		panic(err)
 	}
