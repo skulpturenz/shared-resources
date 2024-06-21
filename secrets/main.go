@@ -177,8 +177,13 @@ func open() (db *sql.DB, close func() error) {
 		panic(err)
 	}
 
-	createTable := `CREATE TABLE IF NOT EXISTS
-	environments (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, value TEXT, project TEXT, deprecated INTEGER);`
+	createTable := `CREATE TABLE IF NOT EXISTS environments (
+		id INTEGER AUTOINCREMENT,
+		key TEXT,
+		value TEXT,
+		project TEXT,
+		deprecated INTEGER,
+		PRIMARY KEY(id, key, project));`
 	_, err = db.Exec(createTable)
 	if err != nil {
 		panic(err)
