@@ -11,17 +11,6 @@ import (
 
 var ENVS = map[string]string{}
 
-func init() {
-	db, close := kryptos.Open()
-	defer close()
-
-	kryptos.GetEnvs(db)
-
-	for key, value := range ENVS {
-		os.Setenv(key, value)
-	}
-}
-
 func main() {
 	usage := `Kryptos
 
