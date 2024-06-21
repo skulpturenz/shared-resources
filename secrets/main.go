@@ -1,33 +1,105 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"log/slog"
 	"os"
 
+	"github.com/docopt/docopt-go"
 	"github.com/dogmatiq/ferrite"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
+	VERSION = "0.0.1"
 	PROJECT = ferrite.
-		String("Project", "Project to load environment for").
-		WithDefault("").
+		String("PROJECT", "Project to load environment for").
+		WithDefault("*").
 		Required()
 	DSN = ferrite.
 		String("DSN", "SQLite connection string").
 		Required()
+	KEY = ferrite.
+		String("ENCRYPTION_KEY", "Encryption key").
+		Required()
 )
 
+var ENVS = map[string]string{}
+
 func init() {
-	db, err := sql.Open("sqlite3", DSN.Value())
+	db, close := open()
+	defer close()
+
+	GetEnvs(db)
+
+	for key, value := range ENVS {
+		os.Setenv(key, value)
+	}
+}
+
+func main() {
+	usage := `Kryptos
+	
+Usage:
+	kryptos set <key> <value>
+	kryptos rm <key>
+	kryptos grep <key>
+	kryptos cat
+	kryptos -h | kryptos --help
+	
+Options:
+	-h --help	Show this screen
+	--version	Show version`
+
+	options, err := docopt.ParseArgs(usage, nil, VERSION)
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
 
-	rows, err := db.Query(fmt.Sprintf("SELECT key, value FROM secrets WHERE deprecated = 0 AND (project = %s OR project = '*');", PROJECT.Value()))
+	db, close := open()
+	defer close()
+
+	GetEnvs(db)
+
+	setFlag, _ := options.Bool("set")
+	rmFlag, _ := options.Bool("rm")
+	grepFlag, _ := options.Bool("grep")
+	catFlag, _ := options.Bool("cat")
+
+	if setFlag {
+		key, _ := options.String("<key>")
+		value, _ := options.String("<value>")
+
+		SetEnv(db, key, value)
+	} else if rmFlag {
+		key, _ := options.String("<key>")
+
+		DeleteEnv(db, key)
+	} else if grepFlag {
+		key, _ := options.String("<key>")
+
+		fmt.Println(ENVS[key])
+	} else if catFlag {
+		// eval $(kryptos cat)
+		for key, value := range ENVS {
+			fmt.Printf("%s=%s\n", key, value)
+		}
+	}
+}
+
+func GetEnvs(db *sql.DB) {
+	rows, err := db.Query(fmt.Sprintf(`SELECT 
+		key, value 
+	FROM
+		secrets
+	WHERE 
+		deprecated = 0 AND 
+		(project = %s OR project = '*');`, PROJECT.Value()))
 	if err != nil {
 		panic(err)
 	}
@@ -35,19 +107,122 @@ func init() {
 
 	for rows.Next() {
 		var key string
-		var value string
-		err = rows.Scan(&key, &value)
-
-		os.Setenv(key, value)
+		var encrypted string
+		err = rows.Scan(&key, &encrypted)
 		if err != nil {
 			panic(err)
 		}
 
-		slog.Info("loaded", "env", key)
+		decrypted := decrypt(encrypted, KEY.Value())
+		ENVS[key] = decrypted
+
+		slog.Info("get", "env", key)
 	}
 
 	err = rows.Err()
 	if err != nil {
 		panic(err)
 	}
+}
+
+func DeleteEnv(db *sql.DB, key string) {
+	statement, err := db.Prepare("DELETE FROM environment WHERE key = ? AND project = ?;")
+	if err != nil {
+		panic(err)
+	}
+	defer statement.Close()
+
+	statement.Exec(key, PROJECT.Value())
+
+	delete(ENVS, key)
+
+	slog.Info("rm", "env", key)
+}
+
+func SetEnv(db *sql.DB, key string, value string) {
+	tx, err := db.Begin()
+	if err != nil {
+		panic(err)
+	}
+
+	deprecate, err := tx.Prepare("UPDATE environment SET deprecated = 1 WHERE key = ? AND project = ?;")
+	if err != nil {
+		panic(err)
+	}
+	defer deprecate.Close()
+
+	deprecate.Exec(key, PROJECT.Value())
+
+	insert, err := tx.Prepare("INSERT INTO environment(key, value, project, deprecated) VALUES(?, ?, ?, 0);")
+	if err != nil {
+		panic(err)
+	}
+	defer insert.Close()
+
+	insert.Exec(key, encrypt(value, KEY.Value()), PROJECT.Value())
+
+	ENVS[key] = value
+
+	err = tx.Commit()
+	if err != nil {
+		panic(err)
+	}
+
+	slog.Info("set", "env", key)
+}
+
+func open() (db *sql.DB, close func() error) {
+	db, err := sql.Open("sqlite3", DSN.Value())
+	if err != nil {
+		panic(err)
+	}
+
+	return db, db.Close
+}
+
+// From: https://www.melvinvivas.com/how-to-encrypt-and-decrypt-data-using-aes
+func encrypt(plain string, key string) (encrypted string) {
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		panic(err)
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		panic(err)
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	rand.Read(nonce)
+
+	sealed := gcm.Seal(nonce, nonce, []byte(plain), nil)
+
+	return fmt.Sprintf("%x", sealed)
+}
+
+func decrypt(encrypted string, key string) (plain string) {
+	decoded, err := hex.DecodeString(encrypted)
+	if err != nil {
+		panic(err)
+	}
+
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		panic(err)
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		panic(err)
+	}
+
+	nonce := decoded[:gcm.NonceSize()]
+	data := decoded[gcm.NonceSize():]
+
+	bytes, err := gcm.Open(nil, nonce, data, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(bytes)
 }
