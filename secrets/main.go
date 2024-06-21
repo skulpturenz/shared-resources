@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"skulpture/secrets/kryptos"
@@ -15,18 +16,20 @@ func main() {
 	usage := `Kryptos
 
 Usage:
-    kryptos set <key> <value>
-    kryptos (rm|grep) <key>
-	kryptos rotate (-e <encryption> | --encryption-key=<encryption>)
+    kryptos set <key> <value> [-d | --debug]
+    kryptos (rm|grep) <key> [-d | --debug]
+	kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
     kryptos cat
     kryptos dump [-o <output> | --output=<output>]
+	kryptos prune <offset> [-d | --debug]
 	kryptos info
     kryptos -h | --help
     kryptos -v | --version
 
 Options:
     -o --output=<output>              Output file [default: ./.env]
-	-e --encryption-key=<encryption>  Encryption key
+    -e --encryption-key=<encryption>  Encryption key
+    -d --debug                        Enable debug logs [default: false]
     -h --help                         Show this screen
     -v --version                      Show version
 
@@ -37,10 +40,13 @@ Options:
 		panic(err)
 	}
 
-	db, close := kryptos.Open()
+	debug, _ := options.Bool("--debug")
+	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, debug)
+
+	db, close := kryptos.Open(ctx)
 	defer close()
 
-	kryptos.GetEnvs(db)
+	kryptos.GetEnvs(ctx, db)
 
 	set, _ := options.Bool("set")
 	rm, _ := options.Bool("rm")
@@ -48,17 +54,18 @@ Options:
 	rotate, _ := options.Bool("rotate")
 	cat, _ := options.Bool("cat")
 	dump, _ := options.Bool("dump")
+	prune, _ := options.Bool("offset")
 	info, _ := options.Bool("info")
 
 	if set {
 		key, _ := options.String("<key>")
 		value, _ := options.String("<value>")
 
-		kryptos.SetEnv(db, key, value)
+		kryptos.SetEnv(ctx, db, key, value)
 	} else if rm {
 		key, _ := options.String("<key>")
 
-		kryptos.DeleteEnv(db, key)
+		kryptos.DeleteEnv(ctx, db, key)
 	} else if grep {
 		key, _ := options.String("<key>")
 
@@ -69,7 +76,7 @@ Options:
 		os.Setenv("ENCRYPTION_KEY", encryptionKey)
 
 		for key, value := range ENVS {
-			kryptos.SetEnv(db, key, value)
+			kryptos.SetEnv(ctx, db, key, value)
 		}
 	} else if cat {
 		// eval $(kryptos cat)
@@ -97,6 +104,10 @@ Options:
 		}
 
 		file.Sync()
+	} else if prune {
+		offset, _ := options.Int("offset")
+
+		kryptos.PruneEnv(ctx, db, offset)
 	} else if info {
 		fmt.Printf("Project: %s\n", kryptos.PROJECT.Value())
 		fmt.Printf("Database driver: %s\n", kryptos.DB_DRIVER.Value())

@@ -1,12 +1,14 @@
 package kryptos
 
 import (
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/dogmatiq/ferrite"
@@ -14,12 +16,15 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+type contextKey string
+
 var (
-	VERSION = "0.0.1"
-	PROJECT = ferrite.
-		String("PROJECT", "Project to load environments for").
-		WithDefault("*").
-		Required()
+	ContextKeyDebug = contextKey("debug")
+	VERSION         = "0.0.1"
+	PROJECT         = ferrite.
+			String("PROJECT", "Project to load environments for").
+			WithDefault("*").
+			Required()
 	DB_DRIVER = ferrite.
 			Enum("DB_DRIVER", "Database driver").
 			WithMembers("sqlite3", "pgx").
@@ -36,26 +41,30 @@ var (
 var ENVS = map[string]string{}
 
 func init() {
-	db, close := Open()
+	ctx := context.WithValue(context.Background(), ContextKeyDebug, false)
+
+	db, close := Open(ctx)
 	defer close()
 
-	GetEnvs(db)
+	GetEnvs(ctx, db)
 
 	for key, value := range ENVS {
 		os.Setenv(key, value)
 	}
 }
 
-func GetEnvs(db *sql.DB) {
-	envs, err := db.Prepare(`SELECT key, value 
-	FROM environments
-	WHERE deprecated = 0 AND (project = ? OR project = '*');`)
+func GetEnvs(ctx context.Context, db *sql.DB) {
+	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
+
+	envs, err := db.PrepareContext(ctx, `SELECT key, value 
+		FROM environments
+		WHERE deprecated = 0 AND (project = ? OR project = '*');`)
 	if err != nil {
 		panic(err)
 	}
 	defer envs.Close()
 
-	rows, err := envs.Query(PROJECT.Value())
+	rows, err := envs.QueryContext(ctx, PROJECT.Value())
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +78,16 @@ func GetEnvs(db *sql.DB) {
 			panic(err)
 		}
 
+		if isDebugEnabled {
+			slog.InfoContext(ctx, "get", "env", key)
+		}
+
 		decrypted := decrypt(encrypted, KEY.Value())
+
+		if isDebugEnabled {
+			slog.InfoContext(ctx, "decrypt", "env", key)
+		}
+
 		ENVS[key] = decrypted
 	}
 
@@ -79,47 +97,63 @@ func GetEnvs(db *sql.DB) {
 	}
 }
 
-func DeleteEnv(db *sql.DB, key string) {
-	deleteEnv, err := db.Prepare("DELETE FROM environments WHERE key = ? AND project = ?;")
+func DeleteEnv(ctx context.Context, db *sql.DB, key string) {
+	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
+
+	deleteEnv, err := db.PrepareContext(ctx, "DELETE FROM environments WHERE key = ? AND project = ?;")
 	if err != nil {
 		panic(err)
 	}
 	defer deleteEnv.Close()
 
-	_, err = deleteEnv.Exec(key, PROJECT.Value())
+	_, err = deleteEnv.ExecContext(ctx, key, PROJECT.Value())
 	if err != nil {
 		panic(err)
 	}
 
 	delete(ENVS, key)
+
+	if isDebugEnabled {
+		slog.InfoContext(ctx, "delete", "env", key, "project", PROJECT.Value())
+	}
 }
 
-func SetEnv(db *sql.DB, key string, value string) {
+func SetEnv(ctx context.Context, db *sql.DB, key string, value string) {
+	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
+
 	tx, err := db.Begin()
 	if err != nil {
 		panic(err)
 	}
 
-	deprecate, err := tx.Prepare("UPDATE environments SET deprecated = 1 WHERE key = ? AND project = ?;")
+	deprecate, err := tx.PrepareContext(ctx, "UPDATE environments SET deprecated = 1 WHERE key = ? AND project = ?;")
 	if err != nil {
 		panic(err)
 	}
 	defer deprecate.Close()
 
-	_, err = deprecate.Exec(key, PROJECT.Value())
+	_, err = deprecate.ExecContext(ctx, key, PROJECT.Value())
 	if err != nil {
 		panic(err)
 	}
 
-	insert, err := tx.Prepare("INSERT INTO environments(key, value, project, deprecated) VALUES(?, ?, ?, 0);")
+	if isDebugEnabled {
+		slog.InfoContext(ctx, "deprecate", "env", key, "project", PROJECT.Value())
+	}
+
+	insert, err := tx.PrepareContext(ctx, "INSERT INTO environments(key, value, project, deprecated) VALUES(?, ?, ?, 0);")
 	if err != nil {
 		panic(err)
 	}
 	defer insert.Close()
 
-	_, err = insert.Exec(key, encrypt(value, KEY.Value()), PROJECT.Value())
+	_, err = insert.ExecContext(ctx, key, encrypt(value, KEY.Value()), PROJECT.Value())
 	if err != nil {
 		panic(err)
+	}
+
+	if isDebugEnabled {
+		slog.InfoContext(ctx, "insert", "env", key, "project", PROJECT.Value())
 	}
 
 	ENVS[key] = value
@@ -130,7 +164,34 @@ func SetEnv(db *sql.DB, key string, value string) {
 	}
 }
 
-func Open() (db *sql.DB, close func() error) {
+func PruneEnv(ctx context.Context, db *sql.DB, offset int) {
+	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
+
+	prune, err := db.PrepareContext(ctx, `DELETE FROM environments 
+		WHERE id 
+		IN (
+			SELECT id 
+			FROM environments 
+			WHERE project = ? AND deprecated = 1
+			ORDER BY id DESC OFFSET ?)`)
+	if err != nil {
+		panic(err)
+	}
+	prune.Close()
+
+	_, err = prune.ExecContext(ctx, PROJECT.Value(), offset)
+	if err != nil {
+		panic(err)
+	}
+
+	if isDebugEnabled {
+		slog.InfoContext(ctx, "prune", "offset", offset, "project", PROJECT.Value())
+	}
+}
+
+func Open(ctx context.Context) (db *sql.DB, close func() error) {
+	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
+
 	db, err := sql.Open(DB_DRIVER.Value(), DB_CONNECTION_STRING.Value())
 	if err != nil {
 		panic(err)
@@ -143,9 +204,13 @@ func Open() (db *sql.DB, close func() error) {
 		project TEXT,
 		deprecated INTEGER,
 		PRIMARY KEY(id, key, project));`
-	_, err = db.Exec(createTable)
+	_, err = db.ExecContext(ctx, createTable)
 	if err != nil {
 		panic(err)
+	}
+
+	if isDebugEnabled {
+		slog.InfoContext(ctx, "create", "table", "environments", "project", PROJECT.Value())
 	}
 
 	return db, db.Close
