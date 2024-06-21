@@ -50,11 +50,13 @@ Usage:
 	kryptos rm <key>
 	kryptos grep <key>
 	kryptos cat
+	kryptos dump -o=<output> | --output=<output>
 	kryptos -h | kryptos --help
 	
 Options:
-	-h --help	Show this screen
-	--version	Show version`
+	-h --help		Show this screen
+	--version		Show version
+	-o --output		Output file [default: ./.env]`
 
 	options, err := docopt.ParseArgs(usage, nil, VERSION)
 	if err != nil {
@@ -66,29 +68,51 @@ Options:
 
 	GetEnvs(db)
 
-	setFlag, _ := options.Bool("set")
-	rmFlag, _ := options.Bool("rm")
-	grepFlag, _ := options.Bool("grep")
-	catFlag, _ := options.Bool("cat")
+	set, _ := options.Bool("set")
+	rm, _ := options.Bool("rm")
+	grep, _ := options.Bool("grep")
+	cat, _ := options.Bool("cat")
+	dump, _ := options.Bool("dump")
 
-	if setFlag {
+	if set {
 		key, _ := options.String("<key>")
 		value, _ := options.String("<value>")
 
 		SetEnv(db, key, value)
-	} else if rmFlag {
+	} else if rm {
 		key, _ := options.String("<key>")
 
 		DeleteEnv(db, key)
-	} else if grepFlag {
+	} else if grep {
 		key, _ := options.String("<key>")
 
 		fmt.Println(ENVS[key])
-	} else if catFlag {
+	} else if cat {
 		// eval $(kryptos cat)
 		for key, value := range ENVS {
 			fmt.Printf("%s=%s\n", key, value)
 		}
+	} else if dump {
+		path, _ := options.String("<output>")
+
+		out := ""
+
+		for key, value := range ENVS {
+			out += fmt.Sprintf("%s=%s\n", key, value)
+		}
+
+		file, err := os.Create(path)
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+
+		_, err = file.WriteString(out)
+		if err != nil {
+			panic(err)
+		}
+
+		file.Sync()
 	}
 }
 
