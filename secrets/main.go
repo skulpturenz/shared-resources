@@ -25,7 +25,7 @@ var (
 		String("DSN", "SQLite connection string").
 		Required()
 	KEY = ferrite.
-		String("ENCRYPTION_KEY", "Encryption key").
+		String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 32`").
 		Required()
 )
 
