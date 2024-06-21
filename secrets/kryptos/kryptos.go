@@ -47,13 +47,15 @@ func init() {
 }
 
 func GetEnvs(db *sql.DB) {
-	rows, err := db.Query(fmt.Sprintf(`SELECT 
-		key, value 
-	FROM
-		environments
-	WHERE 
-		deprecated = 0 AND 
-		(project = '%s' OR project = '*');`, PROJECT.Value()))
+	envs, err := db.Prepare(`SELECT key, value 
+	FROM environments
+	WHERE deprecated = 0 AND (project = ? OR project = '*');`)
+	if err != nil {
+		panic(err)
+	}
+	defer envs.Close()
+
+	rows, err := envs.Query(PROJECT.Value())
 	if err != nil {
 		panic(err)
 	}
@@ -78,13 +80,13 @@ func GetEnvs(db *sql.DB) {
 }
 
 func DeleteEnv(db *sql.DB, key string) {
-	statement, err := db.Prepare("DELETE FROM environments WHERE key = ? AND project = ?;")
+	deleteEnv, err := db.Prepare("DELETE FROM environments WHERE key = ? AND project = ?;")
 	if err != nil {
 		panic(err)
 	}
-	defer statement.Close()
+	defer deleteEnv.Close()
 
-	_, err = statement.Exec(key, PROJECT.Value())
+	_, err = deleteEnv.Exec(key, PROJECT.Value())
 	if err != nil {
 		panic(err)
 	}
