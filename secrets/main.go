@@ -16,18 +16,35 @@ func main() {
 Usage:
     kryptos set <key> <value> [-d | --debug]
     kryptos (rm|grep) <key> [-d | --debug]
-	kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
+    kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
     kryptos cat
     kryptos dump [-o <output> | --output=<output>]
-	kryptos prune <offset> [-d | --debug] [-a | --all]
-	kryptos info
+    kryptos prune <offset> [-d | --debug] [-a | --all]
+    kryptos info
     kryptos -h | --help
     kryptos -v | --version
+
+Description:
+    Manages environment variables
+    Environment variables are encrypted and versioned by default
+
+    Supported database drivers: sqlite3, postgres
+
+Command reference:
+    set     Set an environment variable
+    rm      Remove an environment variable
+    grep    Get the value of an environment variable
+    rotate  Change the encryption key used
+    cat     List all environment variables
+    dump    Print all environment variables to a file
+    prune   Delete all environment variables linked to a project
+    info    Kryptos information
 
 Options:
     -o --output=<output>              Output file [default: ./.env]
     -e --encryption-key=<encryption>  Encryption key
     -d --debug                        Enable debug logs [default: false]
+    -a --all                          Include current variables
     -h --help                         Show this screen
     -v --version                      Show version
 

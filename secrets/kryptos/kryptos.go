@@ -156,12 +156,13 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string) {
 		slog.InfoContext(ctx, "insert", "env", key, "project", PROJECT.Value())
 	}
 
-	ENVS[key] = value
-
 	err = tx.Commit()
 	if err != nil {
 		panic(err)
 	}
+
+	ENVS[key] = value
+	os.Setenv(key, value)
 }
 
 func PruneEnv(ctx context.Context, db *sql.DB, offset int) {
