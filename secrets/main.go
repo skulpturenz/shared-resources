@@ -10,8 +10,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var ENVS = map[string]string{}
-
 func main() {
 	usage := `Kryptos
 
@@ -69,18 +67,18 @@ Options:
 	} else if grep {
 		key, _ := options.String("<key>")
 
-		fmt.Println(ENVS[key])
+		fmt.Println(kryptos.ENVS[key])
 	} else if rotate {
 		encryptionKey, _ := options.String("--encryption-key")
 
 		os.Setenv("ENCRYPTION_KEY", encryptionKey)
 
-		for key, value := range ENVS {
+		for key, value := range kryptos.ENVS {
 			kryptos.SetEnv(ctx, db, key, value)
 		}
 	} else if cat {
 		// eval $(kryptos cat)
-		for key, value := range ENVS {
+		for key, value := range kryptos.ENVS {
 			fmt.Printf("%s=%s\n", key, value)
 		}
 	} else if dump {
@@ -88,7 +86,7 @@ Options:
 
 		out := ""
 
-		for key, value := range ENVS {
+		for key, value := range kryptos.ENVS {
 			out += fmt.Sprintf("%s=%s\n", key, value)
 		}
 
