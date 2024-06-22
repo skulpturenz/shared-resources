@@ -21,7 +21,7 @@ func TestDumpMixed(t *testing.T) {
 		stop := init(t)
 		defer stop()
 
-		db, close := kryptos.Open(ctx)
+		db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
 		defer close()
 
 		kryptos.GetEnvs(ctx, db)
@@ -76,7 +76,6 @@ func TestDumpMixed(t *testing.T) {
 		PROJECT_ENV_DECLARATION := fmt.Sprintf("%s=%s\n", envs[1].Key, envs[1].Value)
 
 		assert.NotContains(t, RESULT, DEPRECATED_GLOBAL_ENV_DECLARATION)
-
 		assert.Contains(t, RESULT, GLOBAL_ENV_DECLARATION)
 		assert.Contains(t, RESULT, PROJECT_ENV_DECLARATION)
 	}

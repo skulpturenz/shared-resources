@@ -11,12 +11,16 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var (
+	MIGRATIONS_FILE_URL = "file://./migrations"
+)
+
 func init() {
 	ferrite.Init()
 
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
-	db, close := kryptos.Open(ctx)
+	db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
 	defer close()
 
 	kryptos.GetEnvs(ctx, db)
@@ -76,7 +80,7 @@ Options:
 	debug, _ := options.Bool("--debug")
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, debug)
 
-	db, close := kryptos.Open(ctx)
+	db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
 	defer close()
 
 	kryptos.GetEnvs(ctx, db)

@@ -20,7 +20,7 @@ func TestGrepMixed(t *testing.T) {
 		stop := init(t)
 		defer stop()
 
-		db, close := kryptos.Open(ctx)
+		db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
 		defer close()
 
 		kryptos.GetEnvs(ctx, db)
