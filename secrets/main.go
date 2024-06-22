@@ -31,7 +31,7 @@ func main() {
 
 Usage:
     kryptos set <key> <value> [-d | --debug] [-g | --global]
-    kryptos (rm|grep) <key> [-d | --debug] [-a | --all]
+    kryptos (rm|grep) <key> [-d | --debug] [-a | --all] [-g | --global]
     kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
     kryptos cat
     kryptos dump [-o <output> | --output=<output>]
@@ -105,11 +105,13 @@ Options:
 	} else if rm {
 		all, _ := options.Bool("--all")
 		key, _ := options.String("<key>")
+		rmGlobal, _ := options.Bool("--global")
 
 		rmCommand := commands.Rm{
-			Db:        db,
-			Key:       key,
-			DeleteAll: all,
+			Db:             db,
+			Key:            key,
+			IncludeCurrent: all,
+			PruneGlobal:    rmGlobal,
 		}
 
 		rmCommand.Execute(ctx)
@@ -154,13 +156,13 @@ Options:
 	} else if prune {
 		offset, _ := options.Int("<offset>")
 		all, _ := options.Bool("--all")
-		isGlobal, _ := options.Bool("--global")
+		pruneGlobal, _ := options.Bool("--global")
 
 		pruneCommand := commands.Prune{
 			Db:             db,
 			Offset:         offset,
 			IncludeCurrent: all,
-			PruneGlobal:    isGlobal,
+			PruneGlobal:    pruneGlobal,
 		}
 
 		pruneCommand.Execute(ctx)

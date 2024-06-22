@@ -7,11 +7,12 @@ import (
 )
 
 type Rm struct {
-	Db        *sql.DB
-	Key       string
-	DeleteAll bool
+	Db             *sql.DB
+	Key            string
+	IncludeCurrent bool
+	PruneGlobal    bool
 }
 
 func (command *Rm) Execute(ctx context.Context) {
-	kryptos.DeleteEnv(ctx, command.Db, command.Key, command.DeleteAll)
+	kryptos.DeleteEnv(ctx, command.Db, command.Key, command.IncludeCurrent, command.PruneGlobal)
 }

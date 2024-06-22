@@ -22,8 +22,8 @@ func TestDumpMixed(t *testing.T) {
 		defer close()
 
 		envs := map[string]string{
-			"hello": "world",
-			"world": "hello",
+			"ABC": "GHI",
+			"DEF": "JKL",
 		}
 
 		i := 0

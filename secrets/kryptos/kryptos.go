@@ -85,14 +85,29 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 	}
 }
 
-func DeleteEnv(ctx context.Context, db *sql.DB, key string, deleteAll bool) {
+func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeCurrent bool, withGlobal bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
-	var statement string
-	if deleteAll {
-		statement = "DELETE FROM environments WHERE key = $1 AND project IN ($2, '*') AND deprecated = 0;"
+	inFilter := ""
+	if withGlobal {
+		inFilter = "($2, '*')"
 	} else {
-		statement = "DELETE FROM environments WHERE key = $1 AND project IN ($2, '*') AND deprecated = 1;"
+		inFilter = "($2)"
+	}
+
+	statement := ""
+	if includeCurrent {
+		statement = fmt.Sprintf(`DELETE FROM environments 
+			WHERE key = $1 
+			AND project IN %s 
+			AND deprecated = 0
+			RETURNING key;`, inFilter)
+	} else {
+		statement = fmt.Sprintf(`DELETE FROM environments
+			WHERE key = $1
+			AND project IN %s
+			AND deprecated = 1
+			RETURNING key;`, inFilter)
 	}
 
 	deleteEnv, err := db.PrepareContext(ctx, statement)
@@ -101,20 +116,29 @@ func DeleteEnv(ctx context.Context, db *sql.DB, key string, deleteAll bool) {
 	}
 	defer deleteEnv.Close()
 
-	result, err := deleteEnv.ExecContext(ctx, key, PROJECT.Value())
+	var rows *sql.Rows
+	rows, err = deleteEnv.QueryContext(ctx, key, PROJECT.Value())
 	if err != nil {
 		panic(err)
 	}
+	defer rows.Close()
 
-	if deleteAll {
+	for rows.Next() {
+		var key string
+		err = rows.Scan(&key)
+		if err != nil {
+			panic(err)
+		}
+
+		if isDebugEnabled {
+			slog.InfoContext(ctx, "delete", "env", key)
+		}
+
 		delete(ENVS, key)
 	}
 
 	if isDebugEnabled {
-		rowsAffected, _ := result.RowsAffected()
-		slog.InfoContext(ctx, "deleted", "affected", rowsAffected)
-
-		slog.InfoContext(ctx, "delete", "env", key, "project", PROJECT.Value())
+		slog.InfoContext(ctx, "delete", "env", key, "project", PROJECT.Value(), "withGlobal", withGlobal)
 	}
 }
 
@@ -180,7 +204,7 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 	os.Setenv(key, value)
 }
 
-func PruneEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
+func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	prune, err := db.PrepareContext(ctx, `DELETE FROM environments 
@@ -198,7 +222,7 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 	defer prune.Close()
 
 	var project string
-	if isGlobal {
+	if withGlobal {
 		project = "*"
 	} else {
 		project = PROJECT.Value()
@@ -221,11 +245,11 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 		rowsAffected, _ := result.RowsAffected()
 
 		slog.InfoContext(ctx, "prune", "affected", rowsAffected)
-		slog.InfoContext(ctx, "prune", "offset", offset, "project", PROJECT.Value())
+		slog.InfoContext(ctx, "prune", "offset", offset, "project", PROJECT.Value(), "withGlobal", withGlobal)
 	}
 }
 
-func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
+func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	prune, err := db.PrepareContext(ctx, `DELETE FROM environments 
@@ -244,7 +268,7 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 	defer prune.Close()
 
 	var project string
-	if isGlobal {
+	if withGlobal {
 		project = "*"
 	} else {
 		project = PROJECT.Value()
@@ -271,7 +295,6 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 			panic(err)
 		}
 
-		fmt.Println(key)
 		if isDebugEnabled {
 			slog.InfoContext(ctx, "clear", "env", key)
 		}
@@ -285,7 +308,7 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 	}
 
 	if isDebugEnabled {
-		slog.InfoContext(ctx, "clear", "project", PROJECT.Value())
+		slog.InfoContext(ctx, "clear", "offset", offset, "project", PROJECT.Value(), "withGlobal", withGlobal)
 	}
 }
 
@@ -298,10 +321,10 @@ func Open(ctx context.Context) (db *sql.DB, close func() error) {
 	}
 
 	createTable := `CREATE TABLE IF NOT EXISTS environments (
-		uuid TEXT,
-		key TEXT,
-		value TEXT,
-		project TEXT,
+		uuid TEXT NOT NULL,
+		key TEXT NOT NULL,
+		value TEXT NOT NULL,
+		project TEXT NOT NULL,
 		deprecated INTEGER);`
 	_, err = db.ExecContext(ctx, createTable)
 	if err != nil {

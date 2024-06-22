@@ -3,14 +3,13 @@ package commands_test
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"skulpture/secrets/commands"
 	"skulpture/secrets/kryptos"
 	"strings"
 	"testing"
 )
 
-func TestCatMixed(t *testing.T) {
+func TestRmMixed(t *testing.T) {
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
 	for dbName, init := range DBs {
@@ -21,8 +20,8 @@ func TestCatMixed(t *testing.T) {
 		defer close()
 
 		envs := map[string]string{
-			"MNO": "PQR",
-			"STU": "VWX",
+			"a": "123",
+			"b": "456",
 		}
 
 		i := 0
@@ -39,20 +38,28 @@ func TestCatMixed(t *testing.T) {
 			i++
 		}
 
+		KEY_TO_DELETE := "a"
+		rmCommand := commands.Rm{
+			Db:             db,
+			Key:            KEY_TO_DELETE,
+			IncludeCurrent: false,
+			PruneGlobal:    true,
+		}
+
+		rmCommand.Execute(ctx)
+
 		var out bytes.Buffer
-		catCommand := commands.Cat{
+		grepCommand := commands.Grep{
+			Key:  KEY_TO_DELETE,
 			View: &out,
 		}
 
-		catCommand.Execute(ctx)
+		grepCommand.Execute(ctx)
 
-		result := out.String()
-		for key, value := range envs {
-			expect := fmt.Sprintf("%s=%s\n", key, value)
+		result := strings.TrimSpace(out.String())
 
-			if !strings.Contains(result, expect) {
-				t.Errorf("db: %s, expected '%s' to contain '%s'", dbName, result, expect)
-			}
+		if result == "" {
+			t.Errorf("db: %s, expected '%s' to be non empty", dbName, KEY_TO_DELETE)
 		}
 	}
 }

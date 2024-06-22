@@ -20,8 +20,8 @@ func TestGrepMixed(t *testing.T) {
 		defer close()
 
 		envs := map[string]string{
-			"hello": "world",
-			"world": "hello",
+			"hello": "W0RLD",
+			"world": "TE5T",
 		}
 
 		i := 0

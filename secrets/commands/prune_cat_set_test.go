@@ -21,8 +21,8 @@ func TestPruneMixed(t *testing.T) {
 		defer close()
 
 		envs := map[string]string{
-			"hello": "123",
-			"world": "456",
+			"HELLO": "123",
+			"WORLD": "456",
 		}
 
 		i := 0
@@ -72,12 +72,14 @@ func TestPruneMixed(t *testing.T) {
 		catCommand.Execute(ctx)
 
 		result = afterPruned.String()
-		if strings.Contains(result, "world") {
-			t.Errorf("db: %s, expected 'world' to not be present", dbName)
+		prunedKey := "WORLD"
+		remainingKey := "HELLO"
+		if strings.Contains(result, prunedKey) {
+			t.Errorf("db: %s, expected '%s' to not be present", dbName, prunedKey)
 		}
 
-		if !strings.Contains(result, "hello") {
-			t.Errorf("db: %s, expected 'hello' to be present", dbName)
+		if !strings.Contains(result, "HELLO") {
+			t.Errorf("db: %s, expected '%s' to be present", dbName, remainingKey)
 		}
 	}
 }
