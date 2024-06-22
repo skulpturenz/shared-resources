@@ -6,53 +6,63 @@ import (
 	"fmt"
 	"skulpture/secrets/commands"
 	"skulpture/secrets/kryptos"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCatMixed(t *testing.T) {
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
-	for dbName, init := range DBs {
+	for driver, init := range DBs {
+		t.Logf("database: %s", driver)
+
 		stop := init(t)
 		defer stop()
 
 		db, close := kryptos.Open(ctx)
 		defer close()
 
-		envs := map[string]string{
-			"MNO": "PQR",
-			"STU": "VWX",
-		}
-
-		i := 0
-		for key, value := range envs {
-			setCommand := commands.SetEnv{
+		envs := []commands.SetEnv{
+			{
 				Db:       db,
-				Key:      key,
-				Value:    value,
-				IsGlobal: i%2 == 0,
-			}
-
-			setCommand.Execute(ctx)
-
-			i++
+				Key:      "CAT1",
+				Value:    "CAT1",
+				IsGlobal: true,
+			},
+			{
+				Db:       db,
+				Key:      "CAT2",
+				Value:    "CAT2",
+				IsGlobal: false,
+			},
+			{
+				Db:       db,
+				Key:      "CAT1",
+				Value:    "CAT1.2",
+				IsGlobal: true,
+			},
 		}
 
-		var out bytes.Buffer
+		for _, command := range envs {
+			command.Execute(ctx)
+		}
+
+		out := bytes.Buffer{}
 		catCommand := commands.Cat{
 			View: &out,
 		}
 
 		catCommand.Execute(ctx)
 
-		result := out.String()
-		for key, value := range envs {
-			expect := fmt.Sprintf("%s=%s\n", key, value)
+		RESULT := out.String()
 
-			if !strings.Contains(result, expect) {
-				t.Errorf("db: %s, expected '%s' to contain '%s'", dbName, result, expect)
-			}
-		}
+		DEPRECATED_GLOBAL_ENV_DECLARATION := fmt.Sprintf("%s=%s\n", envs[0].Key, envs[0].Value)
+		GLOBAL_ENV_DECLARATION := fmt.Sprintf("%s=%s\n", envs[2].Key, envs[2].Value)
+		PROJECT_ENV_DECLARATION := fmt.Sprintf("%s=%s\n", envs[1].Key, envs[1].Value)
+
+		assert.NotContains(t, RESULT, DEPRECATED_GLOBAL_ENV_DECLARATION)
+		assert.Contains(t, RESULT, GLOBAL_ENV_DECLARATION)
+		assert.Contains(t, RESULT, PROJECT_ENV_DECLARATION)
 	}
 }

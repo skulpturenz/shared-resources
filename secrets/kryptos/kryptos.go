@@ -85,11 +85,11 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 	}
 }
 
-func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bool, withGlobal bool) {
+func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bool, includeGlobal bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	inProjectFilter := ""
-	if withGlobal {
+	if includeGlobal {
 		inProjectFilter = "($2, '*')"
 	} else {
 		inProjectFilter = "($2)"
@@ -99,23 +99,14 @@ func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bo
 	if includeDeprecated {
 		inDeprecatedFilter = "(0, 1)"
 	} else {
-		inDeprecatedFilter = "(1)"
+		inDeprecatedFilter = "(0)"
 	}
 
-	statement := ""
-	if !includeDeprecated {
-		statement = fmt.Sprintf(`DELETE FROM environments 
-			WHERE key = $1 
-			AND project IN %s 
-			AND deprecated %s
-			RETURNING key;`, inProjectFilter, inDeprecatedFilter)
-	} else {
-		statement = fmt.Sprintf(`DELETE FROM environments
-			WHERE key = $1
-			AND project IN %s
-			AND deprecated IN %s
-			RETURNING key;`, inProjectFilter, inDeprecatedFilter)
-	}
+	statement := fmt.Sprintf(`DELETE FROM environments
+		WHERE key = $1
+		AND project IN %s
+		AND deprecated IN %s
+		RETURNING key;`, inProjectFilter, inDeprecatedFilter)
 
 	deleteEnv, err := db.PrepareContext(ctx, statement)
 	if err != nil {
@@ -145,7 +136,7 @@ func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bo
 	}
 
 	if isDebugEnabled {
-		slog.InfoContext(ctx, "delete", "env", key, "project", PROJECT.Value(), "withGlobal", withGlobal)
+		slog.InfoContext(ctx, "delete", "env", key, "project", PROJECT.Value(), "includeGlobal", includeGlobal)
 	}
 }
 
@@ -235,23 +226,34 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 		project = PROJECT.Value()
 	}
 
-	var result sql.Result
+	var rows *sql.Rows
 	if DB_DRIVER.Value() == "sqlite3" {
-		result, err = prune.ExecContext(ctx, project, "-1", offset)
+		rows, err = prune.QueryContext(ctx, project, "-1", offset)
 		if err != nil {
 			panic(err)
 		}
 	} else if DB_DRIVER.Value() == "pgx" {
-		result, err = prune.ExecContext(ctx, project, nil, offset)
+		rows, err = prune.QueryContext(ctx, project, nil, offset)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	if isDebugEnabled {
-		rowsAffected, _ := result.RowsAffected()
+	for rows.Next() {
+		var key string
+		err = rows.Scan(&key)
+		if err != nil {
+			panic(err)
+		}
 
-		slog.InfoContext(ctx, "prune", "affected", rowsAffected)
+		if isDebugEnabled {
+			slog.InfoContext(ctx, "prune", "env", key)
+		}
+
+		delete(ENVS, key)
+	}
+
+	if isDebugEnabled {
 		slog.InfoContext(ctx, "prune", "offset", offset, "project", PROJECT.Value(), "withGlobal", withGlobal)
 	}
 }

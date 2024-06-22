@@ -7,59 +7,87 @@ import (
 	"skulpture/secrets/kryptos"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRmMixed(t *testing.T) {
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
-	for dbName, init := range DBs {
+	for driver, init := range DBs {
+		t.Logf("database: %s", driver)
+
 		stop := init(t)
 		defer stop()
 
 		db, close := kryptos.Open(ctx)
 		defer close()
 
-		envs := map[string]string{
-			"a": "123",
-			"b": "456",
-		}
-
-		i := 0
-		for key, value := range envs {
-			setCommand := commands.SetEnv{
+		envs := []commands.SetEnv{
+			{
 				Db:       db,
-				Key:      key,
-				Value:    value,
-				IsGlobal: i%2 == 0,
-			}
-
-			setCommand.Execute(ctx)
-
-			i++
+				Key:      "RM1",
+				Value:    "RM1",
+				IsGlobal: true,
+			},
+			{
+				Db:       db,
+				Key:      "RM2",
+				Value:    "RM2",
+				IsGlobal: false,
+			},
+			{
+				Db:       db,
+				Key:      "RM1",
+				Value:    "RM1.1",
+				IsGlobal: true,
+			},
 		}
 
-		KEY_TO_DELETE := "a"
-		rmCommand := commands.Rm{
+		for _, command := range envs {
+			command.Execute(ctx)
+		}
+
+		GLOBAL_ENV_DECLARATION := envs[2]
+		PROJECT_ENV_DECLARATION := envs[1]
+
+		rmCurrentProjectEnv := commands.Rm{
 			Db:                db,
-			Key:               KEY_TO_DELETE,
-			IncludeDeprecated: true,
-			PruneGlobal:       false,
+			Key:               PROJECT_ENV_DECLARATION.Key,
+			IncludeDeprecated: false,
+			IncludeGlobal:     false,
 		}
+		rmCurrentProjectEnv.Execute(ctx)
 
-		rmCommand.Execute(ctx)
-
-		var out bytes.Buffer
-		grepCommand := commands.Grep{
-			Key:  KEY_TO_DELETE,
+		out := bytes.Buffer{}
+		grepProjectEnvCommand := commands.Grep{
+			Key:  PROJECT_ENV_DECLARATION.Key,
 			View: &out,
 		}
 
-		grepCommand.Execute(ctx)
+		grepProjectEnvCommand.Execute(ctx)
 
-		result := strings.TrimSpace(out.String())
+		RESULT := strings.TrimSpace(out.String())
+		assert.Empty(t, RESULT)
 
-		if result == "" {
-			t.Errorf("db: %s, expected '%s' to be non empty", dbName, KEY_TO_DELETE)
+		rmCurrentGlobalEnvCommand := commands.Rm{
+			Db:                db,
+			Key:               GLOBAL_ENV_DECLARATION.Key,
+			IncludeDeprecated: false,
+			IncludeGlobal:     true,
 		}
+
+		rmCurrentGlobalEnvCommand.Execute(ctx)
+
+		out = bytes.Buffer{}
+		grepGlobalEnvCommand := commands.Grep{
+			Key:  GLOBAL_ENV_DECLARATION.Key,
+			View: &out,
+		}
+
+		grepGlobalEnvCommand.Execute(ctx)
+
+		RESULT = strings.TrimSpace(out.String())
+		assert.Empty(t, RESULT)
 	}
 }

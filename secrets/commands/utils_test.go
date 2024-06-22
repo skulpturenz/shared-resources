@@ -11,8 +11,8 @@ import (
 )
 
 var DBs = map[string]func(t *testing.T) func() error{
-	// "Postgres": InitPgEnv,
-	"SQLite": InitSqliteEnv,
+	// "pgx":     initPgxEnv,
+	"sqlite3": initSqlite3Env,
 }
 
 func init() {
@@ -30,7 +30,7 @@ func init() {
 	}
 }
 
-func InitPgEnv(t *testing.T) func() error {
+func initPgxEnv(t *testing.T) func() error {
 	database := embeddedpostgres.NewDatabase(embeddedpostgres.DefaultConfig().
 		CachePath("./.pg-go").
 		RuntimePath("./.pg-go/extracted").
@@ -51,10 +51,10 @@ func InitPgEnv(t *testing.T) func() error {
 	return database.Stop
 }
 
-func InitSqliteEnv(t *testing.T) func() error {
+func initSqlite3Env(t *testing.T) func() error {
 	t.Setenv("PROJECT", "test")
 	t.Setenv("DB_DRIVER", "sqlite3")
-	t.Setenv("DB_CONNECTION_STRING", "file:test2.db?cache=shared&mode=memory")
+	t.Setenv("DB_CONNECTION_STRING", "file:test2.db?mode=memory")
 
 	encryptionKey, _ := randomHex(32)
 	t.Setenv("ENCRYPTION_KEY", encryptionKey)

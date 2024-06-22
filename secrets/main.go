@@ -106,13 +106,13 @@ Options:
 	} else if rm {
 		key, _ := options.String("<key>")
 		includeDeprecated, _ := options.Bool("--all")
-		pruneGlobal, _ := options.Bool("--global")
+		includeGlobal, _ := options.Bool("--global")
 
 		rmCommand := commands.Rm{
 			Db:                db,
 			Key:               key,
 			IncludeDeprecated: includeDeprecated,
-			PruneGlobal:       pruneGlobal,
+			IncludeGlobal:     includeGlobal,
 		}
 
 		rmCommand.Execute(ctx)

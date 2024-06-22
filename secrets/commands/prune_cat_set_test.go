@@ -6,80 +6,113 @@ import (
 	"fmt"
 	"skulpture/secrets/commands"
 	"skulpture/secrets/kryptos"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPruneMixed(t *testing.T) {
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
-	for dbName, init := range DBs {
+	for driver, init := range DBs {
+		t.Logf("database: %s", driver)
+
 		stop := init(t)
 		defer stop()
 
 		db, close := kryptos.Open(ctx)
 		defer close()
 
-		envs := map[string]string{
-			"HELLO": "123",
-			"WORLD": "456",
-		}
-
-		i := 0
-		for key, value := range envs {
-			setCommand := commands.SetEnv{
+		envs := []commands.SetEnv{
+			{
 				Db:       db,
-				Key:      key,
-				Value:    value,
-				IsGlobal: i%2 == 0,
-			}
-
-			setCommand.Execute(ctx)
-
-			i++
+				Key:      "PRUNE1",
+				Value:    "PRUNE1",
+				IsGlobal: true,
+			},
+			{
+				Db:       db,
+				Key:      "PRUNE2",
+				Value:    "PRUNE2",
+				IsGlobal: false,
+			},
+			{
+				Db:       db,
+				Key:      "PRUNE1",
+				Value:    "PRUNE1.1",
+				IsGlobal: true,
+			},
 		}
 
-		var out bytes.Buffer
+		for _, command := range envs {
+			command.Execute(ctx)
+		}
+
+		out := bytes.Buffer{}
 		catCommand := commands.Cat{
 			View: &out,
 		}
-
 		catCommand.Execute(ctx)
 
-		result := out.String()
-		for key, value := range envs {
-			expect := fmt.Sprintf("%s=%s\n", key, value)
+		INITIAL_CAT := out.String()
 
-			if !strings.Contains(result, expect) {
-				t.Errorf("db: %s, expected '%s' to contain '%s'", dbName, result, expect)
-			}
-		}
+		DEPRECATED_GLOBAL_ENV_DECLARATION := fmt.Sprintf("%s=%s\n", envs[0].Key, envs[0].Value)
+		GLOBAL_ENV_DECLARATION := fmt.Sprintf("%s=%s\n", envs[2].Key, envs[2].Value)
+		PROJECT_ENV_DECLARATION := fmt.Sprintf("%s=%s\n", envs[1].Key, envs[1].Value)
 
-		pruneCommand := commands.Prune{
+		assert.NotContains(t, INITIAL_CAT, DEPRECATED_GLOBAL_ENV_DECLARATION)
+		assert.Contains(t, INITIAL_CAT, PROJECT_ENV_DECLARATION)
+		assert.Contains(t, INITIAL_CAT, GLOBAL_ENV_DECLARATION)
+
+		pruneCurrentProjectCommand := commands.Prune{
 			Db:             db,
 			Offset:         0,
 			IncludeCurrent: true,
 			PruneGlobal:    false,
 		}
+		pruneCurrentProjectCommand.Execute(ctx)
 
-		pruneCommand.Execute(ctx)
-
-		var afterPruned bytes.Buffer
-		catCommand = commands.Cat{
-			View: &afterPruned,
-		}
-
+		out = bytes.Buffer{}
 		catCommand.Execute(ctx)
 
-		result = afterPruned.String()
-		prunedKey := "WORLD"
-		remainingKey := "HELLO"
-		if strings.Contains(result, prunedKey) {
-			t.Errorf("db: %s, expected '%s' to not be present", dbName, prunedKey)
-		}
+		AFTER_PRUNE_CAT := out.String()
 
-		if !strings.Contains(result, "HELLO") {
-			t.Errorf("db: %s, expected '%s' to be present", dbName, remainingKey)
+		assert.NotContains(t, AFTER_PRUNE_CAT, DEPRECATED_GLOBAL_ENV_DECLARATION)
+		assert.Contains(t, AFTER_PRUNE_CAT, GLOBAL_ENV_DECLARATION)
+		assert.NotContains(t, AFTER_PRUNE_CAT, PROJECT_ENV_DECLARATION)
+
+		pruneDeprecatedGlobalCommand := commands.Prune{
+			Db:             db,
+			Offset:         0,
+			IncludeCurrent: false,
+			PruneGlobal:    true,
 		}
+		pruneDeprecatedGlobalCommand.Execute(ctx)
+
+		out = bytes.Buffer{}
+		catCommand.Execute(ctx)
+
+		AFTER_PRUNE_CAT = out.String()
+
+		assert.NotContains(t, AFTER_PRUNE_CAT, DEPRECATED_GLOBAL_ENV_DECLARATION)
+		assert.Contains(t, AFTER_PRUNE_CAT, GLOBAL_ENV_DECLARATION)
+		assert.NotContains(t, AFTER_PRUNE_CAT, PROJECT_ENV_DECLARATION)
+
+		pruneCurrentGlobalCommand := commands.Prune{
+			Db:             db,
+			Offset:         0,
+			IncludeCurrent: true,
+			PruneGlobal:    true,
+		}
+		pruneCurrentGlobalCommand.Execute(ctx)
+
+		out = bytes.Buffer{}
+		catCommand.Execute(ctx)
+
+		AFTER_PRUNE_CAT = out.String()
+
+		assert.NotContains(t, AFTER_PRUNE_CAT, DEPRECATED_GLOBAL_ENV_DECLARATION)
+		assert.NotContains(t, AFTER_PRUNE_CAT, GLOBAL_ENV_DECLARATION)
+		assert.NotContains(t, AFTER_PRUNE_CAT, PROJECT_ENV_DECLARATION)
 	}
 }

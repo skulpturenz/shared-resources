@@ -7,53 +7,61 @@ import (
 	"skulpture/secrets/commands"
 	"skulpture/secrets/kryptos"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGrepMixed(t *testing.T) {
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
-	for dbName, init := range DBs {
+	for driver, init := range DBs {
+		t.Logf("database: %s", driver)
+
 		stop := init(t)
 		defer stop()
 
 		db, close := kryptos.Open(ctx)
 		defer close()
 
-		envs := map[string]string{
-			"hello": "W0RLD",
-			"world": "TE5T",
-		}
-
-		i := 0
-		for key, value := range envs {
-			setCommand := commands.SetEnv{
+		envs := []commands.SetEnv{
+			{
 				Db:       db,
-				Key:      key,
-				Value:    value,
-				IsGlobal: i%2 == 0,
-			}
-
-			setCommand.Execute(ctx)
-
-			i++
+				Key:      "GREP1",
+				Value:    "GREP1",
+				IsGlobal: true,
+			},
+			{
+				Db:       db,
+				Key:      "GREP2",
+				Value:    "GREP2",
+				IsGlobal: false,
+			},
+			{
+				Db:       db,
+				Key:      "GREP1",
+				Value:    "GREP1.1",
+				IsGlobal: true,
+			},
 		}
 
-		for key, value := range envs {
+		for _, command := range envs {
+			command.Execute(ctx)
+		}
+
+		for _, command := range envs[1:] {
 			var out bytes.Buffer
 			grepCommand := commands.Grep{
-				Key:  key,
+				Key:  command.Key,
 				View: &out,
 			}
 
-			expect := fmt.Sprintf("%s\n", value)
+			EXPECT := fmt.Sprintf("%s\n", command.Value)
 
 			grepCommand.Execute(ctx)
 
-			result := out.String()
+			RESULT := out.String()
 
-			if result != expect {
-				t.Errorf("db: %s, expected '%s' but got '%s'", dbName, expect, result)
-			}
+			assert.Equal(t, EXPECT, RESULT)
 		}
 	}
 }
