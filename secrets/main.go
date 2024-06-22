@@ -2,8 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"os"
+	"skulpture/secrets/commands"
 	"skulpture/secrets/kryptos"
 
 	"github.com/docopt/docopt-go"
@@ -78,65 +77,74 @@ Options:
 		value, _ := options.String("<value>")
 		isGlobal, _ := options.Bool("--global")
 
-		kryptos.SetEnv(ctx, db, key, value, isGlobal)
+		setEnvCommand := commands.SetEnv{
+			Ctx:      ctx,
+			Db:       db,
+			Key:      key,
+			Value:    value,
+			IsGlobal: isGlobal,
+		}
+
+		setEnvCommand.Execute()
 	} else if rm {
 		all, _ := options.Bool("--all")
 		key, _ := options.String("<key>")
 
-		kryptos.DeleteEnv(ctx, db, key, all)
+		rmCommand := commands.Rm{
+			Ctx:       ctx,
+			Db:        db,
+			Key:       key,
+			DeleteAll: all,
+		}
+
+		rmCommand.Execute()
 	} else if grep {
 		key, _ := options.String("<key>")
 
-		fmt.Println(kryptos.ENVS[key])
+		grepCommand := commands.Grep{
+			Key: key,
+		}
+
+		grepCommand.Execute()
 	} else if rotate {
 		encryptionKey, _ := options.String("--encryption-key")
 
-		os.Setenv("ENCRYPTION_KEY", encryptionKey)
+		rotateCommand := commands.Rotate{
+			Ctx:           ctx,
+			Db:            db,
+			EncryptionKey: encryptionKey,
+		}
 
-		for key, value := range kryptos.ENVS {
-			kryptos.SetEnv(ctx, db, key, value, false)
-		}
+		rotateCommand.Execute()
 	} else if cat {
-		// eval $(kryptos cat)
-		for key, value := range kryptos.ENVS {
-			fmt.Printf("%s=%s\n", key, value)
-		}
+		catCommand := commands.Cat{}
+
+		catCommand.Execute()
 	} else if dump {
 		path, _ := options.String("--output")
 
-		out := ""
-
-		for key, value := range kryptos.ENVS {
-			out += fmt.Sprintf("%s=%s\n", key, value)
+		dumpCommand := commands.Dump{
+			Path: path,
 		}
 
-		file, err := os.Create(path)
-		if err != nil {
-			panic(err)
-		}
-		defer file.Close()
-
-		_, err = file.WriteString(out)
-		if err != nil {
-			panic(err)
-		}
-
-		file.Sync()
+		dumpCommand.Execute()
 	} else if prune {
 		offset, _ := options.Int("<offset>")
 		all, _ := options.Bool("--all")
 		isGlobal, _ := options.Bool("--global")
 
-		if !all {
-			kryptos.PruneEnv(ctx, db, offset, isGlobal)
-		} else {
-			kryptos.ClearEnv(ctx, db, offset, isGlobal)
+		pruneCommand := commands.Prune{
+			Ctx:            ctx,
+			Db:             db,
+			Offset:         offset,
+			IncludeCurrent: all,
+			PruneGlobal:    isGlobal,
 		}
+
+		pruneCommand.Execute()
 	} else if info {
-		fmt.Printf("Project: %s\n", kryptos.PROJECT.Value())
-		fmt.Printf("Database driver: %s\n", kryptos.DB_DRIVER.Value())
-		fmt.Printf("Database connection string: %s\n", kryptos.DB_CONNECTION_STRING.Value())
-		fmt.Printf("Encryption key: %s\n", kryptos.ENCRYPTION_KEY.Value())
-		fmt.Printf("Version: v%s\n", kryptos.VERSION)
+		infoCommand := commands.Info{}
+
+		infoCommand.Execute()
 	}
 }
