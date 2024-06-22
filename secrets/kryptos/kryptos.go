@@ -159,7 +159,7 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 	defer insert.Close()
 
 	uuid, _ := uuid.NewV7()
-	result, err = insert.ExecContext(ctx, uuid, key, encrypt(value, ENCRYPTION_KEY.Value()), PROJECT.Value())
+	result, err = insert.ExecContext(ctx, uuid, key, encrypt(value, ENCRYPTION_KEY.Value()), project)
 	if err != nil {
 		panic(err)
 	}
@@ -236,7 +236,8 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 			WHERE project = $1
 			ORDER BY uuid DESC
 			LIMIT $2
-			OFFSET $3);`)
+			OFFSET $3)
+		RETURNING key;`)
 	if err != nil {
 		panic(err)
 	}
@@ -249,25 +250,41 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 		project = PROJECT.Value()
 	}
 
-	var result sql.Result
+	var rows *sql.Rows
 	if DB_DRIVER.Value() == "sqlite3" {
-		result, err = prune.ExecContext(ctx, project, "-1", offset)
+		rows, err = prune.QueryContext(ctx, project, "-1", offset)
 		if err != nil {
 			panic(err)
 		}
 	} else if DB_DRIVER.Value() == "pgx" {
-		result, err = prune.ExecContext(ctx, project, nil, offset)
+		rows, err = prune.QueryContext(ctx, project, nil, offset)
 		if err != nil {
 			panic(err)
 		}
 	}
+	defer rows.Close()
 
-	ENVS = map[string]string{}
+	for rows.Next() {
+		var key string
+		err = rows.Scan(&key)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(key)
+		if isDebugEnabled {
+			slog.InfoContext(ctx, "clear", "env", key)
+		}
+
+		delete(ENVS, key)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
 
 	if isDebugEnabled {
-		rowsAffected, _ := result.RowsAffected()
-
-		slog.InfoContext(ctx, "clear", "affected", rowsAffected)
 		slog.InfoContext(ctx, "clear", "project", PROJECT.Value())
 	}
 }
