@@ -12,6 +12,11 @@ import (
 	"os"
 
 	"github.com/dogmatiq/ferrite"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database"
+	"github.com/golang-migrate/migrate/v4/database/pgx"
+	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/mattn/go-sqlite3"
@@ -332,7 +337,7 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 	}
 }
 
-func Open(ctx context.Context) (db *sql.DB, close func() error) {
+func Open(ctx context.Context, migrationsFileUrl string) (db *sql.DB, close func() error) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	db, err := sql.Open(DB_DRIVER.Value(), DB_CONNECTION_STRING.Value())
@@ -340,14 +345,25 @@ func Open(ctx context.Context) (db *sql.DB, close func() error) {
 		panic(err)
 	}
 
-	createTable := `CREATE TABLE IF NOT EXISTS environments (
-		uuid TEXT NOT NULL,
-		key TEXT NOT NULL,
-		value TEXT NOT NULL,
-		project TEXT NOT NULL,
-		deprecated INTEGER);`
-	_, err = db.ExecContext(ctx, createTable)
+	var driver database.Driver
+	if DB_DRIVER.Value() == "sqlite3" {
+		driver, err = sqlite3.WithInstance(db, &sqlite3.Config{})
+		if err != nil {
+			panic(err)
+		}
+	} else if DB_DRIVER.Value() == "pgx" {
+		driver, err = pgx.WithInstance(db, &pgx.Config{})
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(migrationsFileUrl, "kryptos", driver)
 	if err != nil {
+		panic(err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		panic(err)
 	}
 

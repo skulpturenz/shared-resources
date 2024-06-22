@@ -9,10 +9,13 @@ import (
 	embeddedpostgres "github.com/fergusstrange/embedded-postgres"
 )
 
-var DBs = map[string]func(t *testing.T) func() error{
-	// "pgx":     initPgxEnv,
-	"sqlite3": initSqlite3Env,
-}
+var (
+	DBs = map[string]func(t *testing.T) func() error{
+		// "pgx":     initPgxEnv,
+		"sqlite3": initSqlite3Env,
+	}
+	MIGRATIONS_FILE_URL = "file://../migrations"
+)
 
 func init() {
 	envs := []string{
@@ -51,7 +54,7 @@ func initPgxEnv(t *testing.T) func() error {
 func initSqlite3Env(t *testing.T) func() error {
 	t.Setenv("PROJECT", "test")
 	t.Setenv("DB_DRIVER", "sqlite3")
-	t.Setenv("DB_CONNECTION_STRING", "file:test2.db?mode=memory")
+	t.Setenv("DB_CONNECTION_STRING", "file:test.db?mode=memory")
 
 	encryptionKey, _ := RandomHex(32)
 	t.Setenv("ENCRYPTION_KEY", encryptionKey)
