@@ -45,7 +45,7 @@ func initPgxEnv(t *testing.T) func() error {
 	t.Setenv("DB_DRIVER", "pgx")
 	t.Setenv("DB_CONNECTION_STRING", "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable")
 
-	encryptionKey, _ := randomHex(32)
+	encryptionKey, _ := RandomHex(32)
 	t.Setenv("ENCRYPTION_KEY", encryptionKey)
 
 	return database.Stop
@@ -56,7 +56,7 @@ func initSqlite3Env(t *testing.T) func() error {
 	t.Setenv("DB_DRIVER", "sqlite3")
 	t.Setenv("DB_CONNECTION_STRING", "file:test2.db?mode=memory")
 
-	encryptionKey, _ := randomHex(32)
+	encryptionKey, _ := RandomHex(32)
 	t.Setenv("ENCRYPTION_KEY", encryptionKey)
 
 	return func() error {
@@ -64,7 +64,7 @@ func initSqlite3Env(t *testing.T) func() error {
 	}
 }
 
-func randomHex(n int) (string, error) {
+func RandomHex(n int) (string, error) {
 	bytes := make([]byte, n)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err

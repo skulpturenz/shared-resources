@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRmMixed(t *testing.T) {
+func TestRotateMixed(t *testing.T) {
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
 	for driver, init := range DBs {
@@ -26,20 +26,20 @@ func TestRmMixed(t *testing.T) {
 		envs := []commands.SetEnv{
 			{
 				Db:       db,
-				Key:      "RM1",
-				Value:    "RM1",
+				Key:      "ROTATE1",
+				Value:    "ROTATE1",
 				IsGlobal: true,
 			},
 			{
 				Db:       db,
-				Key:      "RM2",
-				Value:    "RM2",
+				Key:      "ROTATE2",
+				Value:    "ROTATE2",
 				IsGlobal: false,
 			},
 			{
 				Db:       db,
-				Key:      "RM1",
-				Value:    "RM1.1",
+				Key:      "ROTATE1",
+				Value:    "ROTATE1.1",
 				IsGlobal: true,
 			},
 		}
@@ -51,13 +51,13 @@ func TestRmMixed(t *testing.T) {
 		GLOBAL_ENV_DECLARATION := envs[2]
 		PROJECT_ENV_DECLARATION := envs[1]
 
-		rmCurrentProjectEnvCommand := commands.Rm{
-			Db:                db,
-			Key:               PROJECT_ENV_DECLARATION.Key,
-			IncludeDeprecated: false,
-			IncludeGlobal:     false,
+		encryptionKey, _ := RandomHex(32)
+		rotateCommand := commands.Rotate{
+			Db:            db,
+			EncryptionKey: encryptionKey,
 		}
-		rmCurrentProjectEnvCommand.Execute(ctx)
+
+		rotateCommand.Execute(ctx)
 
 		out := bytes.Buffer{}
 		grepProjectEnvCommand := commands.Grep{
@@ -68,16 +68,7 @@ func TestRmMixed(t *testing.T) {
 		grepProjectEnvCommand.Execute(ctx)
 
 		RESULT := strings.TrimSpace(out.String())
-		assert.Empty(t, RESULT)
-
-		rmCurrentGlobalEnvCommand := commands.Rm{
-			Db:                db,
-			Key:               GLOBAL_ENV_DECLARATION.Key,
-			IncludeDeprecated: false,
-			IncludeGlobal:     true,
-		}
-
-		rmCurrentGlobalEnvCommand.Execute(ctx)
+		assert.Equal(t, PROJECT_ENV_DECLARATION.Value, RESULT)
 
 		out = bytes.Buffer{}
 		grepGlobalEnvCommand := commands.Grep{
@@ -88,6 +79,6 @@ func TestRmMixed(t *testing.T) {
 		grepGlobalEnvCommand.Execute(ctx)
 
 		RESULT = strings.TrimSpace(out.String())
-		assert.Empty(t, RESULT)
+		assert.Equal(t, GLOBAL_ENV_DECLARATION.Value, RESULT)
 	}
 }
