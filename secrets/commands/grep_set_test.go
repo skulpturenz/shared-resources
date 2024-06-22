@@ -1,17 +1,15 @@
 package commands_test
 
 import (
-	"bufio"
+	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"skulpture/secrets/commands"
 	"skulpture/secrets/kryptos"
-	"strings"
 	"testing"
 )
 
-func TestDumpMixed(t *testing.T) {
+func TestGrepMixed(t *testing.T) {
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
 	for dbName, init := range DBs {
@@ -40,31 +38,21 @@ func TestDumpMixed(t *testing.T) {
 			i++
 		}
 
-		tmp, err := os.CreateTemp("./", "secrets-dump")
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer tmp.Close()
-		defer os.Remove(tmp.Name())
-
-		dumpCommand := commands.Dump{
-			File: tmp,
-		}
-
-		dumpCommand.Execute(ctx)
-
-		tmp.Seek(0, 0)
-		s := bufio.NewScanner(tmp)
-		result := ""
-		for s.Scan() {
-			result += fmt.Sprintf("%s\n", s.Text())
-		}
-
 		for key, value := range envs {
-			expect := fmt.Sprintf("%s=%s\n", key, value)
+			var out bytes.Buffer
+			grepCommand := commands.Grep{
+				Key:  key,
+				View: &out,
+			}
 
-			if !strings.Contains(result, expect) {
-				t.Errorf("db: %s, expected '%s' to contain '%s'", dbName, result, expect)
+			expect := fmt.Sprintf("%s\n", value)
+
+			grepCommand.Execute(ctx)
+
+			result := out.String()
+
+			if result != expect {
+				t.Errorf("db: %s, expected '%s' but got '%s'", dbName, expect, result)
 			}
 		}
 	}

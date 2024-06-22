@@ -24,11 +24,9 @@ func TestCatMixed(t *testing.T) {
 			"hello": "world",
 			"world": "hello",
 		}
-		expect := ""
 
 		i := 0
 		for key, value := range envs {
-			expect += fmt.Sprintf("%s=%s\n", key, value)
 			setCommand := commands.SetEnv{
 				Db:       db,
 				Key:      key,
@@ -50,8 +48,10 @@ func TestCatMixed(t *testing.T) {
 
 		result := out.String()
 		for key, value := range envs {
-			if !strings.Contains(result, fmt.Sprintf("%s=%s\n", key, value)) {
-				t.Errorf("db: %s, expected %s but got %s", dbName, expect, result)
+			expect := fmt.Sprintf("%s=%s\n", key, value)
+
+			if !strings.Contains(result, expect) {
+				t.Errorf("db: %s, expected '%s' to contain '%s'", dbName, result, expect)
 			}
 		}
 	}
