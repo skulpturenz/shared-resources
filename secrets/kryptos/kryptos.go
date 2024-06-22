@@ -35,24 +35,11 @@ var (
 				String("DB_CONNECTION_STRING", "Database connection string").
 				Required()
 	ENCRYPTION_KEY = ferrite.
-			String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 16`").
+			String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 32`").
 			Required()
 )
 
 var ENVS = map[string]string{}
-
-func init() {
-	ctx := context.WithValue(context.Background(), ContextKeyDebug, false)
-
-	db, close := Open(ctx)
-	defer close()
-
-	GetEnvs(ctx, db)
-
-	for key, value := range ENVS {
-		os.Setenv(key, value)
-	}
-}
 
 func GetEnvs(ctx context.Context, db *sql.DB) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
@@ -313,7 +300,9 @@ func Open(ctx context.Context) (db *sql.DB, close func() error) {
 
 // From: https://www.melvinvivas.com/how-to-encrypt-and-decrypt-data-using-aes
 func encrypt(plain string, key string) (encrypted string) {
-	block, err := aes.NewCipher([]byte(key))
+	decodedKey, _ := hex.DecodeString(key)
+
+	block, err := aes.NewCipher(decodedKey)
 	if err != nil {
 		panic(err)
 	}
@@ -332,12 +321,14 @@ func encrypt(plain string, key string) (encrypted string) {
 }
 
 func decrypt(encrypted string, key string) (plain string) {
+	decodedKey, _ := hex.DecodeString(key)
+
 	decoded, err := hex.DecodeString(encrypted)
 	if err != nil {
 		panic(err)
 	}
 
-	block, err := aes.NewCipher([]byte(key))
+	block, err := aes.NewCipher(decodedKey)
 	if err != nil {
 		panic(err)
 	}

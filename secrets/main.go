@@ -7,8 +7,24 @@ import (
 	"skulpture/secrets/kryptos"
 
 	"github.com/docopt/docopt-go"
+	"github.com/dogmatiq/ferrite"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+func init() {
+	ferrite.Init()
+
+	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
+
+	db, close := kryptos.Open(ctx)
+	defer close()
+
+	kryptos.GetEnvs(ctx, db)
+
+	for key, value := range kryptos.ENVS {
+		os.Setenv(key, value)
+	}
+}
 
 func main() {
 	usage := `Kryptos
