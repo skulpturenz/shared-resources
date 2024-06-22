@@ -5,6 +5,7 @@ go 1.22.4
 require (
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
 	github.com/dogmatiq/ferrite v1.3.0
+	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/mattn/go-sqlite3 v1.14.22
 )

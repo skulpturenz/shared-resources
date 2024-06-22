@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/dogmatiq/ferrite"
+	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -33,9 +34,9 @@ var (
 	DB_CONNECTION_STRING = ferrite.
 				String("DB_CONNECTION_STRING", "Database connection string").
 				Required()
-	KEY = ferrite.
-		String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 16`").
-		Required()
+	ENCRYPTION_KEY = ferrite.
+			String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 16`").
+			Required()
 )
 
 var ENVS = map[string]string{}
@@ -82,7 +83,7 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 			slog.InfoContext(ctx, "get", "env", key)
 		}
 
-		decrypted := decrypt(encrypted, KEY.Value())
+		decrypted := decrypt(encrypted, ENCRYPTION_KEY.Value())
 
 		if isDebugEnabled {
 			slog.InfoContext(ctx, "decrypt", "env", key)
@@ -97,28 +98,40 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 	}
 }
 
-func DeleteEnv(ctx context.Context, db *sql.DB, key string) {
+func DeleteEnv(ctx context.Context, db *sql.DB, key string, deleteAll bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
-	deleteEnv, err := db.PrepareContext(ctx, "DELETE FROM environments WHERE key = ? AND project = ?;")
+	var statement string
+	if deleteAll {
+		statement = "DELETE FROM environments WHERE key = ? AND (project = ? OR project = '*') AND deprecated = 0;"
+	} else {
+		statement = "DELETE FROM environments WHERE key = ? AND (project = ? OR project = '*') AND deprecated = 1;"
+	}
+
+	deleteEnv, err := db.PrepareContext(ctx, statement)
 	if err != nil {
 		panic(err)
 	}
 	defer deleteEnv.Close()
 
-	_, err = deleteEnv.ExecContext(ctx, key, PROJECT.Value())
+	result, err := deleteEnv.ExecContext(ctx, key, PROJECT.Value())
 	if err != nil {
 		panic(err)
 	}
 
-	delete(ENVS, key)
+	if deleteAll {
+		delete(ENVS, key)
+	}
 
 	if isDebugEnabled {
+		rowsAffected, _ := result.RowsAffected()
+		slog.InfoContext(ctx, "deleted", "affected", rowsAffected)
+
 		slog.InfoContext(ctx, "delete", "env", key, "project", PROJECT.Value())
 	}
 }
 
-func SetEnv(ctx context.Context, db *sql.DB, key string, value string) {
+func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	tx, err := db.Begin()
@@ -132,27 +145,42 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string) {
 	}
 	defer deprecate.Close()
 
-	_, err = deprecate.ExecContext(ctx, key, PROJECT.Value())
+	var project string
+	if isGlobal {
+		project = "*"
+	} else {
+		project = PROJECT.Value()
+	}
+
+	result, err := deprecate.ExecContext(ctx, key, project)
 	if err != nil {
 		panic(err)
 	}
 
 	if isDebugEnabled {
+		rowsAffected, _ := result.RowsAffected()
+
+		slog.InfoContext(ctx, "deprecated", "affected", rowsAffected)
 		slog.InfoContext(ctx, "deprecate", "env", key, "project", PROJECT.Value())
 	}
 
-	insert, err := tx.PrepareContext(ctx, "INSERT INTO environments(key, value, project, deprecated) VALUES(?, ?, ?, 0);")
+	insert, err := tx.PrepareContext(ctx, `INSERT INTO environments(uuid, key, value, project, deprecated)
+		VALUES(?, ?, ?, ?, 0);`)
 	if err != nil {
 		panic(err)
 	}
 	defer insert.Close()
 
-	_, err = insert.ExecContext(ctx, key, encrypt(value, KEY.Value()), PROJECT.Value())
+	uuid, _ := uuid.NewV7()
+	result, err = insert.ExecContext(ctx, uuid, key, encrypt(value, ENCRYPTION_KEY.Value()), PROJECT.Value())
 	if err != nil {
 		panic(err)
 	}
 
 	if isDebugEnabled {
+		rowsAffected, _ := result.RowsAffected()
+
+		slog.InfoContext(ctx, "insert", "affected", rowsAffected)
 		slog.InfoContext(ctx, "insert", "env", key, "project", PROJECT.Value())
 	}
 
@@ -165,52 +193,77 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string) {
 	os.Setenv(key, value)
 }
 
-func PruneEnv(ctx context.Context, db *sql.DB, offset int) {
+func PruneEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	prune, err := db.PrepareContext(ctx, `DELETE FROM environments 
-		WHERE id 
+		WHERE uuid 
 		IN (
-			SELECT id 
+			SELECT uuid 
 			FROM environments 
 			WHERE project = ? AND deprecated = 1
-			ORDER BY id DESC OFFSET ?)`)
+			ORDER BY uuid DESC
+			LIMIT -1
+			OFFSET ?);`)
 	if err != nil {
 		panic(err)
 	}
-	prune.Close()
+	defer prune.Close()
 
-	_, err = prune.ExecContext(ctx, PROJECT.Value(), offset)
+	var project string
+	if isGlobal {
+		project = "*"
+	} else {
+		project = PROJECT.Value()
+	}
+
+	result, err := prune.ExecContext(ctx, project, offset)
 	if err != nil {
 		panic(err)
 	}
 
 	if isDebugEnabled {
+		rowsAffected, _ := result.RowsAffected()
+
+		slog.InfoContext(ctx, "prune", "affected", rowsAffected)
 		slog.InfoContext(ctx, "prune", "offset", offset, "project", PROJECT.Value())
 	}
 }
 
-func ClearEnv(ctx context.Context, db *sql.DB, offset int) {
+func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	prune, err := db.PrepareContext(ctx, `DELETE FROM environments 
-		WHERE id
+		WHERE uuid
 		IN (
-			SELECT id
+			SELECT uuid
 			FROM environments
 			WHERE project = ?
-			ORDER BY id DESC OFFSET ?)`)
+			ORDER BY uuid DESC
+			LIMIT -1
+			OFFSET ?);`)
 	if err != nil {
 		panic(err)
 	}
-	prune.Close()
+	defer prune.Close()
 
-	_, err = prune.ExecContext(ctx, PROJECT.Value(), offset)
+	var project string
+	if isGlobal {
+		project = "*"
+	} else {
+		project = PROJECT.Value()
+	}
+	result, err := prune.ExecContext(ctx, project, offset)
 	if err != nil {
 		panic(err)
 	}
+
+	ENVS = map[string]string{}
 
 	if isDebugEnabled {
+		rowsAffected, _ := result.RowsAffected()
+
+		slog.InfoContext(ctx, "clear", "affected", rowsAffected)
 		slog.InfoContext(ctx, "clear", "project", PROJECT.Value())
 	}
 }
@@ -224,12 +277,11 @@ func Open(ctx context.Context) (db *sql.DB, close func() error) {
 	}
 
 	createTable := `CREATE TABLE IF NOT EXISTS environments (
-		id INTEGER AUTO INCREMENT,
+		uuid TEXT,
 		key TEXT,
 		value TEXT,
 		project TEXT,
-		deprecated INTEGER,
-		PRIMARY KEY(id, key, project));`
+		deprecated INTEGER);`
 	_, err = db.ExecContext(ctx, createTable)
 	if err != nil {
 		panic(err)

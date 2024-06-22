@@ -14,19 +14,19 @@ func main() {
 	usage := `Kryptos
 
 Usage:
-    kryptos set <key> <value> [-d | --debug]
-    kryptos (rm|grep) <key> [-d | --debug]
+    kryptos set <key> <value> [-d | --debug] [-g | --global]
+    kryptos (rm|grep) <key> [-d | --debug] [-a | --all]
     kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
     kryptos cat
     kryptos dump [-o <output> | --output=<output>]
-    kryptos prune <offset> [-d | --debug] [-a | --all]
+    kryptos prune <offset> [-d | --debug] [-a | --all] [-g | --global]
     kryptos info
     kryptos -h | --help
     kryptos -v | --version
 
 Description:
     Manages environment variables
-    Environment variables are encrypted and versioned by default
+    Environment variables are encrypted and versioned
 
     Supported database drivers: sqlite3, postgres
 
@@ -45,6 +45,7 @@ Options:
     -e --encryption-key=<encryption>  Encryption key
     -d --debug                        Enable debug logs [default: false]
     -a --all                          Include current variables
+	-g --global                       Include global variables [default: false]
     -h --help                         Show this screen
     -v --version                      Show version
 
@@ -69,18 +70,20 @@ Options:
 	rotate, _ := options.Bool("rotate")
 	cat, _ := options.Bool("cat")
 	dump, _ := options.Bool("dump")
-	prune, _ := options.Bool("offset")
+	prune, _ := options.Bool("prune")
 	info, _ := options.Bool("info")
 
 	if set {
 		key, _ := options.String("<key>")
 		value, _ := options.String("<value>")
+		isGlobal, _ := options.Bool("--global")
 
-		kryptos.SetEnv(ctx, db, key, value)
+		kryptos.SetEnv(ctx, db, key, value, isGlobal)
 	} else if rm {
+		all, _ := options.Bool("--all")
 		key, _ := options.String("<key>")
 
-		kryptos.DeleteEnv(ctx, db, key)
+		kryptos.DeleteEnv(ctx, db, key, all)
 	} else if grep {
 		key, _ := options.String("<key>")
 
@@ -91,7 +94,7 @@ Options:
 		os.Setenv("ENCRYPTION_KEY", encryptionKey)
 
 		for key, value := range kryptos.ENVS {
-			kryptos.SetEnv(ctx, db, key, value)
+			kryptos.SetEnv(ctx, db, key, value, false)
 		}
 	} else if cat {
 		// eval $(kryptos cat)
@@ -120,19 +123,20 @@ Options:
 
 		file.Sync()
 	} else if prune {
-		offset, _ := options.Int("offset")
+		offset, _ := options.Int("<offset>")
 		all, _ := options.Bool("--all")
+		isGlobal, _ := options.Bool("--global")
 
 		if !all {
-			kryptos.PruneEnv(ctx, db, offset)
+			kryptos.PruneEnv(ctx, db, offset, isGlobal)
 		} else {
-			kryptos.ClearEnv(ctx, db, offset)
+			kryptos.ClearEnv(ctx, db, offset, isGlobal)
 		}
 	} else if info {
 		fmt.Printf("Project: %s\n", kryptos.PROJECT.Value())
 		fmt.Printf("Database driver: %s\n", kryptos.DB_DRIVER.Value())
 		fmt.Printf("Database connection string: %s\n", kryptos.DB_CONNECTION_STRING.Value())
-		fmt.Printf("Encryption key: %s\n", kryptos.KEY.Value())
+		fmt.Printf("Encryption key: %s\n", kryptos.ENCRYPTION_KEY.Value())
 		fmt.Printf("Version: v%s\n", kryptos.VERSION)
 	}
 }
