@@ -3,7 +3,7 @@ package commands
 import (
 	"context"
 	"database/sql"
-	"skulpture/secrets/kryptos"
+	"skulpture/kryptos/kryptos"
 )
 
 type Rm struct {

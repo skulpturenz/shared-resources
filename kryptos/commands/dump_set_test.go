@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"skulpture/secrets/commands"
-	"skulpture/secrets/kryptos"
+	"skulpture/kryptos/commands"
+	"skulpture/kryptos/kryptos"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

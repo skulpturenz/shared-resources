@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"os"
-	"skulpture/secrets/kryptos"
+	"skulpture/kryptos/kryptos"
 )
 
 type Rotate struct {

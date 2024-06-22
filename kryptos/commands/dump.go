@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"skulpture/secrets/kryptos"
+	"skulpture/kryptos/kryptos"
 )
 
 type Dump struct {

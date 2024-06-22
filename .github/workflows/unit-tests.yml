@@ -17,4 +17,4 @@ jobs:
     
       - name: Unit test (kryptos)
         run: go test -cover
-        working-directory: secrets/commands
+        working-directory: kryptos/commands

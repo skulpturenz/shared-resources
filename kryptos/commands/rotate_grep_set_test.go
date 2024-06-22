@@ -3,8 +3,8 @@ package commands_test
 import (
 	"bytes"
 	"context"
-	"skulpture/secrets/commands"
-	"skulpture/secrets/kryptos"
+	"skulpture/kryptos/commands"
+	"skulpture/kryptos/kryptos"
 	"strings"
 	"testing"
 

@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"os"
-	"skulpture/secrets/commands"
-	"skulpture/secrets/kryptos"
+	"skulpture/kryptos/commands"
+	"skulpture/kryptos/kryptos"
 
 	"github.com/docopt/docopt-go"
 	"github.com/dogmatiq/ferrite"

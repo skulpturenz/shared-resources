@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"skulpture/secrets/kryptos"
+	"skulpture/kryptos/kryptos"
 )
 
 type Info struct {
