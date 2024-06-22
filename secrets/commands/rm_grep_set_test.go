@@ -40,10 +40,10 @@ func TestRmMixed(t *testing.T) {
 
 		KEY_TO_DELETE := "a"
 		rmCommand := commands.Rm{
-			Db:             db,
-			Key:            KEY_TO_DELETE,
-			IncludeCurrent: false,
-			PruneGlobal:    true,
+			Db:                db,
+			Key:               KEY_TO_DELETE,
+			IncludeDeprecated: true,
+			PruneGlobal:       false,
 		}
 
 		rmCommand.Execute(ctx)

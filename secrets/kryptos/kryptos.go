@@ -85,29 +85,36 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 	}
 }
 
-func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeCurrent bool, withGlobal bool) {
+func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bool, withGlobal bool) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
-	inFilter := ""
+	inProjectFilter := ""
 	if withGlobal {
-		inFilter = "($2, '*')"
+		inProjectFilter = "($2, '*')"
 	} else {
-		inFilter = "($2)"
+		inProjectFilter = "($2)"
+	}
+
+	inDeprecatedFilter := ""
+	if includeDeprecated {
+		inDeprecatedFilter = "(0, 1)"
+	} else {
+		inDeprecatedFilter = "(1)"
 	}
 
 	statement := ""
-	if includeCurrent {
+	if !includeDeprecated {
 		statement = fmt.Sprintf(`DELETE FROM environments 
 			WHERE key = $1 
 			AND project IN %s 
-			AND deprecated = 0
-			RETURNING key;`, inFilter)
+			AND deprecated %s
+			RETURNING key;`, inProjectFilter, inDeprecatedFilter)
 	} else {
 		statement = fmt.Sprintf(`DELETE FROM environments
 			WHERE key = $1
 			AND project IN %s
-			AND deprecated = 1
-			RETURNING key;`, inFilter)
+			AND deprecated IN %s
+			RETURNING key;`, inProjectFilter, inDeprecatedFilter)
 	}
 
 	deleteEnv, err := db.PrepareContext(ctx, statement)

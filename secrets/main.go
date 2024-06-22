@@ -31,9 +31,10 @@ func main() {
 
 Usage:
     kryptos set <key> <value> [-d | --debug] [-g | --global]
-    kryptos (rm|grep) <key> [-d | --debug] [-a | --all] [-g | --global]
+	kryptos rm <key> [-d | --debug] [-a | --all] [-g | --global]
+    kryptos grep <key>
     kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
-    kryptos cat
+    kryptos cat [-a | --all]
     kryptos dump [-o <output> | --output=<output>]
     kryptos prune <offset> [-d | --debug] [-a | --all] [-g | --global]
     kryptos info
@@ -103,15 +104,15 @@ Options:
 
 		setEnvCommand.Execute(ctx)
 	} else if rm {
-		all, _ := options.Bool("--all")
 		key, _ := options.String("<key>")
-		rmGlobal, _ := options.Bool("--global")
+		includeDeprecated, _ := options.Bool("--all")
+		pruneGlobal, _ := options.Bool("--global")
 
 		rmCommand := commands.Rm{
-			Db:             db,
-			Key:            key,
-			IncludeCurrent: all,
-			PruneGlobal:    rmGlobal,
+			Db:                db,
+			Key:               key,
+			IncludeDeprecated: includeDeprecated,
+			PruneGlobal:       pruneGlobal,
 		}
 
 		rmCommand.Execute(ctx)
@@ -155,13 +156,13 @@ Options:
 		dumpCommand.Execute(ctx)
 	} else if prune {
 		offset, _ := options.Int("<offset>")
-		all, _ := options.Bool("--all")
+		includeCurrent, _ := options.Bool("--all")
 		pruneGlobal, _ := options.Bool("--global")
 
 		pruneCommand := commands.Prune{
 			Db:             db,
 			Offset:         offset,
-			IncludeCurrent: all,
+			IncludeCurrent: includeCurrent,
 			PruneGlobal:    pruneGlobal,
 		}
 
