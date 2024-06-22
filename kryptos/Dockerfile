@@ -1,6 +1,6 @@
 FROM golang:alpine
 
-VOLUME . .
+COPY . .
 RUN go install
 
 ENTRYPOINT ["secrets"]
