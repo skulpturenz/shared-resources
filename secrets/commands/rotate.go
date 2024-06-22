@@ -8,15 +8,14 @@ import (
 )
 
 type Rotate struct {
-	Ctx           context.Context
 	Db            *sql.DB
 	EncryptionKey string
 }
 
-func (command *Rotate) Execute() {
+func (command *Rotate) Execute(ctx context.Context) {
 	os.Setenv("ENCRYPTION_KEY", command.EncryptionKey)
 
 	for key, value := range kryptos.ENVS {
-		kryptos.SetEnv(command.Ctx, command.Db, key, value, false)
+		kryptos.SetEnv(ctx, command.Db, key, value, false)
 	}
 }

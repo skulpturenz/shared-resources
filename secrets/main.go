@@ -78,26 +78,24 @@ Options:
 		isGlobal, _ := options.Bool("--global")
 
 		setEnvCommand := commands.SetEnv{
-			Ctx:      ctx,
 			Db:       db,
 			Key:      key,
 			Value:    value,
 			IsGlobal: isGlobal,
 		}
 
-		setEnvCommand.Execute()
+		setEnvCommand.Execute(ctx)
 	} else if rm {
 		all, _ := options.Bool("--all")
 		key, _ := options.String("<key>")
 
 		rmCommand := commands.Rm{
-			Ctx:       ctx,
 			Db:        db,
 			Key:       key,
 			DeleteAll: all,
 		}
 
-		rmCommand.Execute()
+		rmCommand.Execute(ctx)
 	} else if grep {
 		key, _ := options.String("<key>")
 
@@ -105,21 +103,20 @@ Options:
 			Key: key,
 		}
 
-		grepCommand.Execute()
+		grepCommand.Execute(ctx)
 	} else if rotate {
 		encryptionKey, _ := options.String("--encryption-key")
 
 		rotateCommand := commands.Rotate{
-			Ctx:           ctx,
 			Db:            db,
 			EncryptionKey: encryptionKey,
 		}
 
-		rotateCommand.Execute()
+		rotateCommand.Execute(ctx)
 	} else if cat {
 		catCommand := commands.Cat{}
 
-		catCommand.Execute()
+		catCommand.Execute(ctx)
 	} else if dump {
 		path, _ := options.String("--output")
 
@@ -127,24 +124,23 @@ Options:
 			Path: path,
 		}
 
-		dumpCommand.Execute()
+		dumpCommand.Execute(ctx)
 	} else if prune {
 		offset, _ := options.Int("<offset>")
 		all, _ := options.Bool("--all")
 		isGlobal, _ := options.Bool("--global")
 
 		pruneCommand := commands.Prune{
-			Ctx:            ctx,
 			Db:             db,
 			Offset:         offset,
 			IncludeCurrent: all,
 			PruneGlobal:    isGlobal,
 		}
 
-		pruneCommand.Execute()
+		pruneCommand.Execute(ctx)
 	} else if info {
 		infoCommand := commands.Info{}
 
-		infoCommand.Execute()
+		infoCommand.Execute(ctx)
 	}
 }

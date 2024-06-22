@@ -7,13 +7,12 @@ import (
 )
 
 type SetEnv struct {
-	Ctx      context.Context
 	Db       *sql.DB
 	Key      string
 	Value    string
 	IsGlobal bool
 }
 
-func (command *SetEnv) Execute() {
-	kryptos.SetEnv(command.Ctx, command.Db, command.Key, command.Value, command.IsGlobal)
+func (command *SetEnv) Execute(ctx context.Context) {
+	kryptos.SetEnv(ctx, command.Db, command.Key, command.Value, command.IsGlobal)
 }

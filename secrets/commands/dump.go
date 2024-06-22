@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"skulpture/secrets/kryptos"
@@ -10,7 +11,7 @@ type Dump struct {
 	Path string
 }
 
-func (command *Dump) Execute() {
+func (command *Dump) Execute(ctx context.Context) {
 	out := ""
 
 	for key, value := range kryptos.ENVS {

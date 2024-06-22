@@ -7,17 +7,16 @@ import (
 )
 
 type Prune struct {
-	Ctx            context.Context
 	Db             *sql.DB
 	Offset         int
 	IncludeCurrent bool
 	PruneGlobal    bool
 }
 
-func (command *Prune) Execute() {
+func (command *Prune) Execute(ctx context.Context) {
 	if !command.IncludeCurrent {
-		kryptos.PruneEnv(command.Ctx, command.Db, command.Offset, command.PruneGlobal)
+		kryptos.PruneEnv(ctx, command.Db, command.Offset, command.PruneGlobal)
 	} else {
-		kryptos.ClearEnv(command.Ctx, command.Db, command.Offset, command.PruneGlobal)
+		kryptos.ClearEnv(ctx, command.Db, command.Offset, command.PruneGlobal)
 	}
 }
