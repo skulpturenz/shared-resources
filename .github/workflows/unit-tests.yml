@@ -16,4 +16,5 @@ jobs:
           go-version: stable
     
       - name: Unit test (kryptos)
+        working-directory: kryptos
         run: go test ./... -cover
