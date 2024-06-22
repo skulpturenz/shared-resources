@@ -134,6 +134,16 @@ jobs:
           tags: |
             skulpture/apm-server:${{ env.TAG }}
 
+      - name: "Build and push Docker image: kryptos"
+        uses: docker/build-push-action@v5
+        env:
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
+        with:
+          context: "{{defaultContext}}:kryptos"
+          push: true
+          tags: |
+            skulpture/kryptos:${{ env.TAG }}
+
   deploy:    
     permissions:
       contents: read
