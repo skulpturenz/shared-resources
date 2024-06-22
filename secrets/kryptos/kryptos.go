@@ -59,7 +59,7 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 
 	envs, err := db.PrepareContext(ctx, `SELECT key, value 
 		FROM environments
-		WHERE deprecated = 0 AND (project = ? OR project = '*');`)
+		WHERE deprecated = 0 AND project IN ($1, '*');`)
 	if err != nil {
 		panic(err)
 	}
@@ -103,9 +103,9 @@ func DeleteEnv(ctx context.Context, db *sql.DB, key string, deleteAll bool) {
 
 	var statement string
 	if deleteAll {
-		statement = "DELETE FROM environments WHERE key = ? AND (project = ? OR project = '*') AND deprecated = 0;"
+		statement = "DELETE FROM environments WHERE key = $1 AND project IN ($2, '*') AND deprecated = 0;"
 	} else {
-		statement = "DELETE FROM environments WHERE key = ? AND (project = ? OR project = '*') AND deprecated = 1;"
+		statement = "DELETE FROM environments WHERE key = $1 AND project IN ($2, '*') AND deprecated = 1;"
 	}
 
 	deleteEnv, err := db.PrepareContext(ctx, statement)
@@ -139,7 +139,7 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 		panic(err)
 	}
 
-	deprecate, err := tx.PrepareContext(ctx, "UPDATE environments SET deprecated = 1 WHERE key = ? AND project = ?;")
+	deprecate, err := tx.PrepareContext(ctx, "UPDATE environments SET deprecated = 1 WHERE key = $1 AND project = $2;")
 	if err != nil {
 		panic(err)
 	}
@@ -165,7 +165,7 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 	}
 
 	insert, err := tx.PrepareContext(ctx, `INSERT INTO environments(uuid, key, value, project, deprecated)
-		VALUES(?, ?, ?, ?, 0);`)
+		VALUES($1, $2, $3, $4, 0);`)
 	if err != nil {
 		panic(err)
 	}
@@ -201,10 +201,10 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 		IN (
 			SELECT uuid 
 			FROM environments 
-			WHERE project = ? AND deprecated = 1
+			WHERE project = $1 AND deprecated = 1
 			ORDER BY uuid DESC
-			LIMIT -1
-			OFFSET ?);`)
+			LIMIT $2
+			OFFSET $3);`)
 	if err != nil {
 		panic(err)
 	}
@@ -217,9 +217,17 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 		project = PROJECT.Value()
 	}
 
-	result, err := prune.ExecContext(ctx, project, offset)
-	if err != nil {
-		panic(err)
+	var result sql.Result
+	if DB_DRIVER.Value() == "sqlite3" {
+		result, err = prune.ExecContext(ctx, project, "-1", offset)
+		if err != nil {
+			panic(err)
+		}
+	} else if DB_DRIVER.Value() == "pgx" {
+		result, err = prune.ExecContext(ctx, project, nil, offset)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	if isDebugEnabled {
@@ -238,10 +246,10 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 		IN (
 			SELECT uuid
 			FROM environments
-			WHERE project = ?
+			WHERE project = $1
 			ORDER BY uuid DESC
-			LIMIT -1
-			OFFSET ?);`)
+			LIMIT $2
+			OFFSET $3);`)
 	if err != nil {
 		panic(err)
 	}
@@ -253,9 +261,18 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, isGlobal bool) {
 	} else {
 		project = PROJECT.Value()
 	}
-	result, err := prune.ExecContext(ctx, project, offset)
-	if err != nil {
-		panic(err)
+
+	var result sql.Result
+	if DB_DRIVER.Value() == "sqlite3" {
+		result, err = prune.ExecContext(ctx, project, "-1", offset)
+		if err != nil {
+			panic(err)
+		}
+	} else if DB_DRIVER.Value() == "pgx" {
+		result, err = prune.ExecContext(ctx, project, nil, offset)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	ENVS = map[string]string{}
