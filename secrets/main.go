@@ -34,7 +34,7 @@ Usage:
 	kryptos rm <key> [-d | --debug] [-a | --all] [-g | --global]
     kryptos grep <key>
     kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
-    kryptos cat [-a | --all]
+    kryptos cat
     kryptos dump [-o <output> | --output=<output>]
     kryptos prune <offset> [-d | --debug] [-a | --all] [-g | --global]
     kryptos info
