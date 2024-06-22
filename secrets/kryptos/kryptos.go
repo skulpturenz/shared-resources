@@ -44,9 +44,20 @@ var ENVS = map[string]string{}
 func GetEnvs(ctx context.Context, db *sql.DB) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
-	envs, err := db.PrepareContext(ctx, `SELECT key, value 
-		FROM environments
-		WHERE deprecated = 0 AND project IN ($1, '*');`)
+	envs, err := db.PrepareContext(ctx, `WITH 
+		project_environments AS (SELECT key, value 
+			FROM environments
+			WHERE deprecated = 0 AND project = $1),
+		global_environments AS (SELECT key, value
+			FROM environments
+			WHERE deprecated = 0 AND project = '*')
+
+		SELECT key, value
+		FROM project_environments
+		UNION ALL
+		SELECT key, value
+		FROM global_environments
+		WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key);`)
 	if err != nil {
 		panic(err)
 	}

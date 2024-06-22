@@ -23,6 +23,8 @@ func TestCatMixed(t *testing.T) {
 		db, close := kryptos.Open(ctx)
 		defer close()
 
+		kryptos.GetEnvs(ctx, db)
+
 		envs := []commands.SetEnv{
 			{
 				Db:       db,
