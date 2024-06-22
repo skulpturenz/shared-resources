@@ -75,3 +75,13 @@ jobs:
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
             skulpture/apm-server:${{ env.TAG }}
+
+      - name: "Build Docker image: secrets"
+        uses: docker/build-push-action@v5
+        env:
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
+        with:
+          context: "{{defaultContext}}:secrets"
+          push: false
+          tags: |
+            skulpture/kryptos:${{ env.TAG }}
