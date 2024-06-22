@@ -3,7 +3,6 @@ package commands_test
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"log"
 	"os"
 	"testing"
 
@@ -24,9 +23,7 @@ func init() {
 	}
 
 	for _, env := range envs {
-		if _, isPresent := os.LookupEnv(env); isPresent {
-			log.Fatalf("expected env `%s` to not be present", env)
-		}
+		os.Unsetenv(env)
 	}
 }
 
