@@ -3,15 +3,17 @@ package commands
 import (
 	"context"
 	"fmt"
+	"io"
 	"skulpture/secrets/kryptos"
 )
 
 type Cat struct {
+	View io.Writer
 }
 
 // eval $(kryptos cat)
 func (command *Cat) Execute(ctx context.Context) {
 	for key, value := range kryptos.ENVS {
-		fmt.Printf("%s=%s\n", key, value)
+		command.View.Write([]byte(fmt.Sprintf("%s=%s\n", key, value)))
 	}
 }

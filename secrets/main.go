@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"skulpture/secrets/commands"
 	"skulpture/secrets/kryptos"
 
@@ -100,7 +101,8 @@ Options:
 		key, _ := options.String("<key>")
 
 		grepCommand := commands.Grep{
-			Key: key,
+			Key:  key,
+			View: os.Stdout,
 		}
 
 		grepCommand.Execute(ctx)
@@ -114,14 +116,22 @@ Options:
 
 		rotateCommand.Execute(ctx)
 	} else if cat {
-		catCommand := commands.Cat{}
+		catCommand := commands.Cat{
+			View: os.Stdout,
+		}
 
 		catCommand.Execute(ctx)
 	} else if dump {
 		path, _ := options.String("--output")
 
+		file, err := os.Create(path)
+		if err != nil {
+			panic(err)
+		}
+		defer file.Close()
+
 		dumpCommand := commands.Dump{
-			Path: path,
+			File: file,
 		}
 
 		dumpCommand.Execute(ctx)
@@ -139,7 +149,9 @@ Options:
 
 		pruneCommand.Execute(ctx)
 	} else if info {
-		infoCommand := commands.Info{}
+		infoCommand := commands.Info{
+			View: os.Stdout,
+		}
 
 		infoCommand.Execute(ctx)
 	}

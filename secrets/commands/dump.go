@@ -8,7 +8,7 @@ import (
 )
 
 type Dump struct {
-	Path string
+	File *os.File
 }
 
 func (command *Dump) Execute(ctx context.Context) {
@@ -18,16 +18,10 @@ func (command *Dump) Execute(ctx context.Context) {
 		out += fmt.Sprintf("%s=%s\n", key, value)
 	}
 
-	file, err := os.Create(command.Path)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(out)
+	_, err := command.File.WriteString(out)
 	if err != nil {
 		panic(err)
 	}
 
-	file.Sync()
+	command.File.Sync()
 }
