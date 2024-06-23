@@ -13,10 +13,18 @@ type Prune struct {
 	PruneGlobal    bool
 }
 
-func (command *Prune) Execute(ctx context.Context) {
+func (command *Prune) Execute(ctx context.Context) error {
 	if !command.IncludeCurrent {
-		kryptos.PruneEnv(ctx, command.Db, command.Offset, command.PruneGlobal)
+		err := kryptos.PruneEnv(ctx, command.Db, command.Offset, command.PruneGlobal)
+		if err != nil {
+			return err
+		}
 	} else {
-		kryptos.ClearEnv(ctx, command.Db, command.Offset, command.PruneGlobal)
+		err := kryptos.ClearEnv(ctx, command.Db, command.Offset, command.PruneGlobal)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

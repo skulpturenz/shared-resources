@@ -12,8 +12,13 @@ type Cat struct {
 }
 
 // eval $(kryptos cat)
-func (command *Cat) Execute(ctx context.Context) {
+func (command *Cat) Execute(ctx context.Context) error {
 	for key, value := range kryptos.ENVS {
-		command.View.Write([]byte(fmt.Sprintf("%s=%s\n", key, value)))
+		_, err := command.View.Write([]byte(fmt.Sprintf("%s=%s\n", key, value)))
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

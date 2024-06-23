@@ -12,10 +12,15 @@ type Rotate struct {
 	EncryptionKey string
 }
 
-func (command *Rotate) Execute(ctx context.Context) {
+func (command *Rotate) Execute(ctx context.Context) error {
 	os.Setenv("ENCRYPTION_KEY", command.EncryptionKey)
 
 	for key, value := range kryptos.ENVS {
-		kryptos.SetEnv(ctx, command.Db, key, value, false)
+		err := kryptos.SetEnv(ctx, command.Db, key, value, false)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

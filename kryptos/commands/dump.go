@@ -11,7 +11,7 @@ type Dump struct {
 	File *os.File
 }
 
-func (command *Dump) Execute(ctx context.Context) {
+func (command *Dump) Execute(ctx context.Context) error {
 	out := ""
 
 	for key, value := range kryptos.ENVS {
@@ -20,8 +20,10 @@ func (command *Dump) Execute(ctx context.Context) {
 
 	_, err := command.File.WriteString(out)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	command.File.Sync()
+
+	return nil
 }

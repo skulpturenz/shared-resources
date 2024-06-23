@@ -46,7 +46,7 @@ var (
 
 var ENVS = map[string]string{}
 
-func GetEnvs(ctx context.Context, db *sql.DB) {
+func GetEnvs(ctx context.Context, db *sql.DB) error {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	envs, err := db.PrepareContext(ctx, `WITH 
@@ -64,13 +64,13 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 		FROM global_environments
 		WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key);`)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer envs.Close()
 
 	rows, err := envs.QueryContext(ctx, PROJECT.Value())
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer rows.Close()
 
@@ -79,14 +79,17 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 		var encrypted string
 		err = rows.Scan(&key, &encrypted)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		if isDebugEnabled {
 			slog.InfoContext(ctx, "get", "env", key)
 		}
 
-		decrypted := decrypt(encrypted, ENCRYPTION_KEY.Value())
+		decrypted, err := decrypt(encrypted, ENCRYPTION_KEY.Value())
+		if err != nil {
+			return err
+		}
 
 		if isDebugEnabled {
 			slog.InfoContext(ctx, "decrypt", "env", key)
@@ -97,11 +100,13 @@ func GetEnvs(ctx context.Context, db *sql.DB) {
 
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
-func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bool, includeGlobal bool) {
+func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bool, includeGlobal bool) error {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	inProjectFilter := ""
@@ -126,14 +131,14 @@ func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bo
 
 	deleteEnv, err := db.PrepareContext(ctx, statement)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer deleteEnv.Close()
 
 	var rows *sql.Rows
 	rows, err = deleteEnv.QueryContext(ctx, key, PROJECT.Value())
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer rows.Close()
 
@@ -141,7 +146,7 @@ func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bo
 		var key string
 		err = rows.Scan(&key)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		if isDebugEnabled {
@@ -154,19 +159,21 @@ func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bo
 	if isDebugEnabled {
 		slog.InfoContext(ctx, "delete", "env", key, "project", PROJECT.Value(), "includeGlobal", includeGlobal)
 	}
+
+	return nil
 }
 
-func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal bool) {
+func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal bool) error {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	tx, err := db.Begin()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	deprecate, err := tx.PrepareContext(ctx, "UPDATE environments SET deprecated = 1 WHERE key = $1 AND project = $2;")
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer deprecate.Close()
 
@@ -179,7 +186,7 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 
 	result, err := deprecate.ExecContext(ctx, key, project)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if isDebugEnabled {
@@ -192,14 +199,18 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 	insert, err := tx.PrepareContext(ctx, `INSERT INTO environments(uuid, key, value, project, deprecated)
 		VALUES($1, $2, $3, $4, 0);`)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer insert.Close()
 
 	uuid, _ := uuid.NewV7()
-	result, err = insert.ExecContext(ctx, uuid, key, encrypt(value, ENCRYPTION_KEY.Value()), project)
+	encrypted, err := encrypt(value, ENCRYPTION_KEY.Value())
 	if err != nil {
-		panic(err)
+		return err
+	}
+	result, err = insert.ExecContext(ctx, uuid, key, encrypted, project)
+	if err != nil {
+		return err
 	}
 
 	if isDebugEnabled {
@@ -211,31 +222,33 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 
 	err = tx.Commit()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	_, ok := ENVS[key]
 	if project == "*" && PROJECT.Value() != "*" && ok {
 		find, err := db.PrepareContext(ctx, "SELECT uuid FROM environments WHERE key = $1 AND project = $2 AND deprecated = 0;")
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		rows, err := find.QueryContext(ctx, key, PROJECT.Value())
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		if rows.Next() {
-			return
+			return nil
 		}
 	}
 
 	ENVS[key] = value
 	os.Setenv(key, value)
+
+	return nil
 }
 
-func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
+func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) error {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	prune, err := db.PrepareContext(ctx, `DELETE FROM environments 
@@ -248,7 +261,7 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 			LIMIT $2
 			OFFSET $3);`)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer prune.Close()
 
@@ -263,12 +276,12 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 	if DB_DRIVER.Value() == "sqlite3" {
 		rows, err = prune.QueryContext(ctx, project, "-1", offset)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	} else if DB_DRIVER.Value() == "pgx" {
 		rows, err = prune.QueryContext(ctx, project, nil, offset)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
 
@@ -276,7 +289,7 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 		var key string
 		err = rows.Scan(&key)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		if isDebugEnabled {
@@ -289,9 +302,11 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 	if isDebugEnabled {
 		slog.InfoContext(ctx, "prune", "offset", offset, "project", PROJECT.Value(), "withGlobal", withGlobal)
 	}
+
+	return nil
 }
 
-func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
+func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) error {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	prune, err := db.PrepareContext(ctx, `DELETE FROM environments 
@@ -305,7 +320,7 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 			OFFSET $3)
 		RETURNING key;`)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer prune.Close()
 
@@ -320,12 +335,12 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 	if DB_DRIVER.Value() == "sqlite3" {
 		rows, err = prune.QueryContext(ctx, project, "-1", offset)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	} else if DB_DRIVER.Value() == "pgx" {
 		rows, err = prune.QueryContext(ctx, project, nil, offset)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
 	defer rows.Close()
@@ -334,7 +349,7 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 		var key string
 		err = rows.Scan(&key)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		if isDebugEnabled {
@@ -346,63 +361,65 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) {
 
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if isDebugEnabled {
 		slog.InfoContext(ctx, "clear", "offset", offset, "project", PROJECT.Value(), "withGlobal", withGlobal)
 	}
+
+	return err
 }
 
-func Open(ctx context.Context, migrationsFileUrl string) (db *sql.DB, close func() error) {
+func Open(ctx context.Context, migrationsFileUrl string) (*sql.DB, func() error, error) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	db, err := sql.Open(DB_DRIVER.Value(), DB_CONNECTION_STRING.Value())
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
 	var driver database.Driver
 	if DB_DRIVER.Value() == "sqlite3" {
 		driver, err = sqlite3.WithInstance(db, &sqlite3.Config{})
 		if err != nil {
-			panic(err)
+			return nil, nil, err
 		}
 	} else if DB_DRIVER.Value() == "pgx" {
 		driver, err = pgx.WithInstance(db, &pgx.Config{})
 		if err != nil {
-			panic(err)
+			return nil, nil, err
 		}
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(migrationsFileUrl, "kryptos", driver)
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		panic(err)
+		return nil, nil, err
 	}
 
 	if isDebugEnabled {
 		slog.InfoContext(ctx, "create", "table", "environments", "project", PROJECT.Value())
 	}
 
-	return db, db.Close
+	return db, db.Close, nil
 }
 
 // From: https://www.melvinvivas.com/how-to-encrypt-and-decrypt-data-using-aes
-func encrypt(plain string, key string) (encrypted string) {
+func encrypt(plain string, key string) (string, error) {
 	decodedKey, _ := hex.DecodeString(key)
 
 	block, err := aes.NewCipher(decodedKey)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
@@ -410,25 +427,25 @@ func encrypt(plain string, key string) (encrypted string) {
 
 	sealed := gcm.Seal(nonce, nonce, []byte(plain), nil)
 
-	return fmt.Sprintf("%x", sealed)
+	return fmt.Sprintf("%x", sealed), nil
 }
 
-func decrypt(encrypted string, key string) (plain string) {
+func decrypt(encrypted string, key string) (string, error) {
 	decodedKey, _ := hex.DecodeString(key)
 
 	decoded, err := hex.DecodeString(encrypted)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	block, err := aes.NewCipher(decodedKey)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	nonce := decoded[:gcm.NonceSize()]
@@ -436,8 +453,8 @@ func decrypt(encrypted string, key string) (plain string) {
 
 	bytes, err := gcm.Open(nil, nonce, data, nil)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	return string(bytes)
+	return string(bytes), nil
 }
