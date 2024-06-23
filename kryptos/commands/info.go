@@ -12,35 +12,19 @@ type Info struct {
 }
 
 func (command *Info) Execute(ctx context.Context) error {
-	project := fmt.Sprintf("Project: %s\n", kryptos.PROJECT.Value())
-	driver := fmt.Sprintf("Database driver: %s\n", kryptos.DB_DRIVER.Value())
-	dbConnectionString := fmt.Sprintf("Database connection string: %s\n", kryptos.DB_CONNECTION_STRING.Value())
-	encryptionKey := fmt.Sprintf("Encryption key: %s\n", kryptos.ENCRYPTION_KEY.Value())
-	version := fmt.Sprintf("Version: v%s\n", kryptos.VERSION)
-
-	_, err := command.View.Write([]byte(project))
-	if err != nil {
-		return err
+	info := []string{
+		fmt.Sprintf("Project: %s\n", kryptos.PROJECT.Value()),
+		fmt.Sprintf("Database driver: %s\n", kryptos.DB_DRIVER.Value()),
+		fmt.Sprintf("Database connection string: %s\n", kryptos.DB_CONNECTION_STRING.Value()),
+		fmt.Sprintf("Encryption key: %s\n", kryptos.ENCRYPTION_KEY.Value()),
+		fmt.Sprintf("Version: v%s\n", kryptos.VERSION),
 	}
 
-	_, err = command.View.Write([]byte(driver))
-	if err != nil {
-		return err
-	}
-
-	_, err = command.View.Write([]byte(dbConnectionString))
-	if err != nil {
-		return err
-	}
-
-	_, err = command.View.Write([]byte(encryptionKey))
-	if err != nil {
-		return err
-	}
-
-	_, err = command.View.Write([]byte(version))
-	if err != nil {
-		return err
+	for _, info := range info {
+		_, err := command.View.Write([]byte(info))
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
