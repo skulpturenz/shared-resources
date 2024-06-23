@@ -214,6 +214,23 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 		panic(err)
 	}
 
+	_, ok := ENVS[key]
+	if project == "*" && PROJECT.Value() != "*" && ok {
+		find, err := db.PrepareContext(ctx, "SELECT uuid FROM environments WHERE key = $1 AND project = $2 AND deprecated = 0;")
+		if err != nil {
+			panic(err)
+		}
+
+		rows, err := find.QueryContext(ctx, key, PROJECT.Value())
+		if err != nil {
+			panic(err)
+		}
+
+		if rows.Next() {
+			return
+		}
+	}
+
 	ENVS[key] = value
 	os.Setenv(key, value)
 }
