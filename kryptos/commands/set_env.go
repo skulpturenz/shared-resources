@@ -13,6 +13,11 @@ type SetEnv struct {
 	IsGlobal bool
 }
 
-func (command *SetEnv) Execute(ctx context.Context) {
-	kryptos.SetEnv(ctx, command.Db, command.Key, command.Value, command.IsGlobal)
+func (command *SetEnv) Execute(ctx context.Context) error {
+	err := kryptos.SetEnv(ctx, command.Db, command.Key, command.Value, command.IsGlobal)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

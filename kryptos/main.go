@@ -20,10 +20,16 @@ func init() {
 
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
-	db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+	db, close, err := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+	if err != nil {
+		panic(err)
+	}
 	defer close()
 
-	kryptos.GetEnvs(ctx, db)
+	err = kryptos.GetEnvs(ctx, db)
+	if err != nil {
+		panic(err)
+	}
 
 	for key, value := range kryptos.ENVS {
 		os.Setenv(key, value)
@@ -80,10 +86,16 @@ Options:
 	debug, _ := options.Bool("--debug")
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, debug)
 
-	db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+	db, close, err := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+	if err != nil {
+		panic(err)
+	}
 	defer close()
 
-	kryptos.GetEnvs(ctx, db)
+	err = kryptos.GetEnvs(ctx, db)
+	if err != nil {
+		panic(err)
+	}
 
 	set, _ := options.Bool("set")
 	rm, _ := options.Bool("rm")
@@ -106,7 +118,10 @@ Options:
 			IsGlobal: isGlobal,
 		}
 
-		setEnvCommand.Execute(ctx)
+		err = setEnvCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
 	} else if rm {
 		key, _ := options.String("<key>")
 		includeDeprecated, _ := options.Bool("--all")
@@ -119,7 +134,10 @@ Options:
 			IncludeGlobal:     includeGlobal,
 		}
 
-		rmCommand.Execute(ctx)
+		err = rmCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
 	} else if grep {
 		key, _ := options.String("<key>")
 
@@ -128,7 +146,10 @@ Options:
 			View: os.Stdout,
 		}
 
-		grepCommand.Execute(ctx)
+		err = grepCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
 	} else if rotate {
 		encryptionKey, _ := options.String("--encryption-key")
 
@@ -137,13 +158,19 @@ Options:
 			EncryptionKey: encryptionKey,
 		}
 
-		rotateCommand.Execute(ctx)
+		err = rotateCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
 	} else if cat {
 		catCommand := commands.Cat{
 			View: os.Stdout,
 		}
 
-		catCommand.Execute(ctx)
+		err = catCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
 	} else if dump {
 		path, _ := options.String("--output")
 
@@ -157,7 +184,10 @@ Options:
 			File: file,
 		}
 
-		dumpCommand.Execute(ctx)
+		err = dumpCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
 	} else if prune {
 		offset, _ := options.Int("<offset>")
 		includeCurrent, _ := options.Bool("--all")
@@ -170,12 +200,18 @@ Options:
 			PruneGlobal:    pruneGlobal,
 		}
 
-		pruneCommand.Execute(ctx)
+		err = pruneCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
 	} else if info {
 		infoCommand := commands.Info{
 			View: os.Stdout,
 		}
 
-		infoCommand.Execute(ctx)
+		err = infoCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
 	}
 }

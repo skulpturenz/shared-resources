@@ -20,10 +20,16 @@ func TestGrepMixed(t *testing.T) {
 		stop := init(t)
 		defer stop()
 
-		db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+		db, close, err := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+		if err != nil {
+			t.Fatal(err)
+		}
 		defer close()
 
-		kryptos.GetEnvs(ctx, db)
+		err = kryptos.GetEnvs(ctx, db)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		envs := []commands.SetEnv{
 			{
@@ -47,7 +53,10 @@ func TestGrepMixed(t *testing.T) {
 		}
 
 		for _, command := range envs {
-			command.Execute(ctx)
+			err = command.Execute(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
 		}
 
 		for _, command := range envs[1:] {
@@ -59,7 +68,10 @@ func TestGrepMixed(t *testing.T) {
 
 			EXPECT := fmt.Sprintf("%s\n", command.Value)
 
-			grepCommand.Execute(ctx)
+			err = grepCommand.Execute(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			RESULT := out.String()
 

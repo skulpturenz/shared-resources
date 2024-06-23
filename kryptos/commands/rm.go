@@ -13,6 +13,11 @@ type Rm struct {
 	IncludeGlobal     bool
 }
 
-func (command *Rm) Execute(ctx context.Context) {
-	kryptos.DeleteEnv(ctx, command.Db, command.Key, command.IncludeDeprecated, command.IncludeGlobal)
+func (command *Rm) Execute(ctx context.Context) error {
+	err := kryptos.DeleteEnv(ctx, command.Db, command.Key, command.IncludeDeprecated, command.IncludeGlobal)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

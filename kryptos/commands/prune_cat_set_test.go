@@ -20,10 +20,16 @@ func TestPruneMixed(t *testing.T) {
 		stop := init(t)
 		defer stop()
 
-		db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+		db, close, err := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+		if err != nil {
+			t.Fatal(err)
+		}
 		defer close()
 
-		kryptos.GetEnvs(ctx, db)
+		err = kryptos.GetEnvs(ctx, db)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		envs := []commands.SetEnv{
 			{
@@ -47,14 +53,20 @@ func TestPruneMixed(t *testing.T) {
 		}
 
 		for _, command := range envs {
-			command.Execute(ctx)
+			err = command.Execute(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
 		}
 
 		out := bytes.Buffer{}
 		catCommand := commands.Cat{
 			View: &out,
 		}
-		catCommand.Execute(ctx)
+		err = catCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		INITIAL_CAT := out.String()
 
@@ -72,10 +84,16 @@ func TestPruneMixed(t *testing.T) {
 			IncludeCurrent: true,
 			PruneGlobal:    false,
 		}
-		pruneCurrentProjectCommand.Execute(ctx)
+		err = pruneCurrentProjectCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		out = bytes.Buffer{}
-		catCommand.Execute(ctx)
+		err = catCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		AFTER_PRUNE_CAT := out.String()
 
@@ -89,10 +107,16 @@ func TestPruneMixed(t *testing.T) {
 			IncludeCurrent: false,
 			PruneGlobal:    true,
 		}
-		pruneDeprecatedGlobalCommand.Execute(ctx)
+		err = pruneDeprecatedGlobalCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		out = bytes.Buffer{}
-		catCommand.Execute(ctx)
+		err = catCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		AFTER_PRUNE_CAT = out.String()
 
@@ -106,10 +130,16 @@ func TestPruneMixed(t *testing.T) {
 			IncludeCurrent: true,
 			PruneGlobal:    true,
 		}
-		pruneCurrentGlobalCommand.Execute(ctx)
+		err = pruneCurrentGlobalCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		out = bytes.Buffer{}
-		catCommand.Execute(ctx)
+		err = catCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		AFTER_PRUNE_CAT = out.String()
 

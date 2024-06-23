@@ -12,6 +12,11 @@ type Grep struct {
 	View io.Writer
 }
 
-func (command *Grep) Execute(ctx context.Context) {
-	command.View.Write([]byte(fmt.Sprintf("%s\n", kryptos.ENVS[command.Key])))
+func (command *Grep) Execute(ctx context.Context) error {
+	_, err := command.View.Write([]byte(fmt.Sprintf("%s\n", kryptos.ENVS[command.Key])))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

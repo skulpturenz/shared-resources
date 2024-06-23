@@ -20,10 +20,16 @@ func TestGetMixed(t *testing.T) {
 		stop := init(t)
 		defer stop()
 
-		db, close := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+		db, close, err := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+		if err != nil {
+			t.Fatal(err)
+		}
 		defer close()
 
-		kryptos.GetEnvs(ctx, db)
+		err = kryptos.GetEnvs(ctx, db)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		envs := []commands.SetEnv{
 			{
@@ -47,7 +53,10 @@ func TestGetMixed(t *testing.T) {
 		}
 
 		for _, command := range envs {
-			command.Execute(ctx)
+			err = command.Execute(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
 		}
 
 		GLOBAL_ENV_DECLARATION := envs[2]
@@ -59,7 +68,10 @@ func TestGetMixed(t *testing.T) {
 			View: &out,
 		}
 
-		grepProjectEnvCommand.Execute(ctx)
+		err = grepProjectEnvCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		RESULT := strings.TrimSpace(out.String())
 		assert.Equal(t, PROJECT_ENV_DECLARATION.Value, RESULT)
@@ -70,7 +82,10 @@ func TestGetMixed(t *testing.T) {
 			View: &out,
 		}
 
-		grepGlobalEnvCommand.Execute(ctx)
+		err = grepGlobalEnvCommand.Execute(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		RESULT = strings.TrimSpace(out.String())
 		assert.Equal(t, PROJECT_ENV_DECLARATION.Value, RESULT)
