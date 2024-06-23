@@ -35,7 +35,7 @@ func main() {
 
 Usage:
     kryptos set <key> <value> [-d | --debug] [-g | --global]
-	kryptos rm <key> [-d | --debug] [-a | --all] [-g | --global]
+    kryptos rm <key> [-d | --debug] [-a | --all] [-g | --global]
     kryptos grep <key>
     kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
     kryptos cat
@@ -66,7 +66,7 @@ Options:
     -e --encryption-key=<encryption>  Encryption key
     -d --debug                        Enable debug logs [default: false]
     -a --all                          Include current variables
-	-g --global                       Include global variables [default: false]
+    -g --global                       Include global variables [default: false]
     -h --help                         Show this screen
     -v --version                      Show version
 
