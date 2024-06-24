@@ -66,7 +66,8 @@ func (watchdog *Watchdog) Start(ctx context.Context) error {
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
 
-			router.(http.Handler).ServeHTTP(w, r)
+			handler, _ := router.(*http.Handler)
+			(*handler).ServeHTTP(w, r)
 		}
 
 		return http.HandlerFunc(fn)
