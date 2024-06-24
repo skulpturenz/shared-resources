@@ -36,6 +36,7 @@ func main() {
 	watchdog := watchdog.Watchdog{
 		ServiceName: SERVICE_NAME.Value(),
 		Env:         GO_ENV.Value(),
+		PluginDir:   PLUGIN_DIR.Value(),
 		Port:        PORT.Value(),
 	}
 

@@ -63,7 +63,7 @@ func (watchdog *Watchdog) Start(ctx context.Context) error {
 
 			router, ok := stack.Load(uuid)
 			if !ok {
-				http.Error(w, http.StatusText(http.StatusInsufficientStorage), http.StatusInternalServerError)
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
 
 			router.(http.Handler).ServeHTTP(w, r)
