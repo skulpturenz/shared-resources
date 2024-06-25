@@ -49,7 +49,6 @@ services:
       ELASTIC_CLUSTER_NAME: ${ELASTIC_CLUSTER_NAME}
       ELASTICSEARCH_PORT: ${ELASTICSEARCH_PORT}
       ES_JAVA_OPTS: "-Xmx${ELASTICSEARCH_HEAP} -Xms${ELASTICSEARCH_HEAP} -Des.enforce.bootstrap.checks=true -Dlog4j2.formatMsgNoLookups=true"
-      bootstrap.memory_lock: "true"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
