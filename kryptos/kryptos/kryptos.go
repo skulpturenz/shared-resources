@@ -248,6 +248,51 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 	return nil
 }
 
+func Rename(ctx context.Context, db *sql.DB, previous string, next string, isGlobal bool, isProject bool) error {
+	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
+
+	projectStatement := "UPDATE environments SET project = $1 WHERE project = $2 AND project != '*';"
+	environmentStatement := "UPDATE environments SET key = $1 WHERE key = $2 AND project = $3;"
+
+	statement := ""
+	if isProject {
+		statement = projectStatement
+	} else {
+		statement = environmentStatement
+	}
+
+	project := PROJECT.Value()
+	if isGlobal && !isProject {
+		project = "*"
+	}
+
+	mv, err := db.PrepareContext(ctx, statement)
+	if err != nil {
+		return err
+	}
+	defer mv.Close()
+
+	rows, err := mv.QueryContext(ctx, next, previous, project)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if !isProject {
+		value := ENVS[previous]
+
+		delete(ENVS, previous)
+
+		ENVS[next] = value
+	}
+
+	if isDebugEnabled {
+		slog.InfoContext(ctx, "rename", "previous", previous, "next", next, "isProject", isProject)
+	}
+
+	return nil
+}
+
 func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) error {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
