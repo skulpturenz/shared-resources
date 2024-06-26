@@ -57,6 +57,7 @@ func main() {
 
 Usage:
     kryptos set <key> <value> [-d | --debug] [-g | --global]
+    kryptos mv <previous> <next> [-p | --project] [-g | --global]
     kryptos rm <key> [-d | --debug] [-a | --all] [-g | --global]
     kryptos grep <key>
     kryptos rotate (-e <encryption> | --encryption-key=<encryption>) [-d | --debug]
@@ -75,6 +76,7 @@ Description:
 
 Command reference:
     set     Set an environment variable
+    mv      Rename an environment variable or project
     rm      Remove an environment variable
     grep    Get the value of an environment variable
     rotate  Change the encryption key used
@@ -86,6 +88,7 @@ Command reference:
 Options:
     -o --output=<output>              Output file [default: ./.env]
     -e --encryption-key=<encryption>  Encryption key
+    -p --project=<project>            Project
     -d --debug                        Enable debug logs [default: false]
     -a --all                          Include current variables
     -g --global                       Include global variables [default: false]
@@ -114,6 +117,7 @@ Options:
 	}
 
 	set, _ := options.Bool("set")
+	mv, _ := options.Bool("mv")
 	rm, _ := options.Bool("rm")
 	grep, _ := options.Bool("grep")
 	rotate, _ := options.Bool("rotate")
@@ -135,6 +139,24 @@ Options:
 		}
 
 		err = setEnvCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
+	} else if mv {
+		previous, _ := options.String("<previous>")
+		next, _ := options.String("<next>")
+		isProject, _ := options.Bool("--project")
+		isGlobal, _ := options.Bool("--global")
+
+		mvCommand := commands.Mv{
+			Db:        db,
+			Previous:  previous,
+			Next:      next,
+			IsProject: isProject,
+			IsGlobal:  isGlobal,
+		}
+
+		err = mvCommand.Execute(ctx)
 		if err != nil {
 			panic(err)
 		}
