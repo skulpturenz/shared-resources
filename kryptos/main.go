@@ -8,10 +8,14 @@ import (
 
 	"github.com/docopt/docopt-go"
 	"github.com/dogmatiq/ferrite"
+	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
+	ENV_FILE_PATH = ferrite.
+			String("ENV_FILE_PATH", "Load environment from file at path").
+			Optional()
 	MIGRATIONS_FILE_URL = "file://./migrations"
 )
 
@@ -33,6 +37,18 @@ func init() {
 
 	for key, value := range kryptos.ENVS {
 		os.Setenv(key, value)
+	}
+
+	envFilePath, ok := ENV_FILE_PATH.Value()
+	if ok {
+		loadedEnvs, err := godotenv.Read(envFilePath)
+		if err != nil {
+			panic(err)
+		}
+
+		for key, value := range loadedEnvs {
+			kryptos.SetEnv(ctx, db, key, value, false)
+		}
 	}
 }
 
