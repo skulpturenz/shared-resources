@@ -46,6 +46,67 @@ var (
 
 var ENVS = map[string]string{}
 
+type envStat struct {
+	Key     string
+	Project string
+	Count   int
+}
+
+func Stats(ctx context.Context, db *sql.DB) ([]envStat, error) {
+	rows, err := db.QueryContext(ctx, `WITH 
+		project_environments AS (SELECT key, project 
+			FROM environments
+			WHERE project = $1),
+		global_environments AS (SELECT key, project
+			FROM environments
+			WHERE project = '*'),
+		scoped_environments AS (SELECT key, project
+			FROM project_environments
+			UNION ALL
+			SELECT key, project
+			FROM global_environments
+			WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key)),
+		counts AS (SELECT key, COUNT(key)
+			FROM scoped_environments
+			GROUP BY key)
+		
+		SELECT counts.key, scoped_environments.project, counts.count FROM counts
+		INNER JOIN scoped_environments
+		ON scoped_environments.key = counts.key
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	envs := []envStat{}
+
+	for rows.Next() {
+		var key string
+		var project string
+		var count int
+		err = rows.Scan(&key, &project, &count)
+		if err != nil {
+			return nil, err
+		}
+
+		envStat := envStat{
+			Key:     key,
+			Project: project,
+			Count:   count,
+		}
+
+		envs = append(envs, envStat)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return envs, nil
+}
+
 func GetEnvs(ctx context.Context, db *sql.DB) error {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 

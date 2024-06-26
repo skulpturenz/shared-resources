@@ -65,6 +65,7 @@ Usage:
     kryptos dump [-o <output> | --output=<output>]
     kryptos prune <offset> [-d | --debug] [-a | --all] [-g | --global]
     kryptos info
+    kryptos stat
     kryptos -h | --help
     kryptos -v | --version
 
@@ -84,6 +85,7 @@ Command reference:
     dump    Print all environment variables to a file
     prune   Delete all environment variables linked to a project
     info    Kryptos information
+    stat    Environment variable information
 
 Options:
     -o --output=<output>              Output file [default: ./.env]
@@ -125,6 +127,7 @@ Options:
 	dump, _ := options.Bool("dump")
 	prune, _ := options.Bool("prune")
 	info, _ := options.Bool("info")
+	stat, _ := options.Bool("stat")
 
 	if set {
 		key, _ := options.String("<key>")
@@ -248,6 +251,16 @@ Options:
 		}
 
 		err = infoCommand.Execute(ctx)
+		if err != nil {
+			panic(err)
+		}
+	} else if stat {
+		statCommand := commands.Stat{
+			Db:   db,
+			View: os.Stdout,
+		}
+
+		err := statCommand.Execute(ctx)
 		if err != nil {
 			panic(err)
 		}
