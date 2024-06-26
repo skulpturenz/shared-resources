@@ -25,7 +25,7 @@ func (command *Stat) Execute(ctx context.Context) error {
 	}
 
 	for _, stat := range envStats {
-		fmt.Fprintf(w, "%s\t%s\t%d", stat.Key, stat.Project, stat.Count)
+		fmt.Fprintf(w, "%s\t%s\t%d\n", stat.Key, stat.Project, stat.Count)
 	}
 
 	return nil
