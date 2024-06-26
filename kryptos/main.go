@@ -65,7 +65,7 @@ Usage:
     kryptos dump [-o <output> | --output=<output>]
     kryptos prune <offset> [-d | --debug] [-a | --all] [-g | --global]
     kryptos info
-    kryptos stats
+    kryptos stat
     kryptos -h | --help
     kryptos -v | --version
 
@@ -127,7 +127,7 @@ Options:
 	dump, _ := options.Bool("dump")
 	prune, _ := options.Bool("prune")
 	info, _ := options.Bool("info")
-	stat, _ := options.Bool("stats")
+	stat, _ := options.Bool("stat")
 
 	if set {
 		key, _ := options.String("<key>")
