@@ -65,7 +65,7 @@ Usage:
     kryptos dump [-o <output> | --output=<output>]
     kryptos prune <offset> [-d | --debug] [-a | --all] [-g | --global]
     kryptos info
-	kryptos stats
+    kryptos stats
     kryptos -h | --help
     kryptos -v | --version
 
