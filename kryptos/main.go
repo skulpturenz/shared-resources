@@ -90,7 +90,7 @@ Command reference:
 Options:
     -o --output=<output>              Output file [default: ./.env]
     -e --encryption-key=<encryption>  Encryption key
-    -p --project=<project>            Project
+    -p --project                      Project
     -d --debug                        Enable debug logs [default: false]
     -a --all                          Include current variables
     -g --global                       Include global variables [default: false]
