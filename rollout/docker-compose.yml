@@ -6,8 +6,8 @@ networks:
 
 volumes:
   filebeat-data:
-  heartbeat-data:
-  metricbeat-data:
+    # heartbeat-data:
+    # metricbeat-data:
 
 
 services:
@@ -50,30 +50,30 @@ services:
       mode: replicated
       replicas: 3
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
-    restart: unless-stopped
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-    environment:
-      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
-      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
-      LS_JAVA_OPTS: "-Xmx${LOGSTASH_HEAP} -Xms${LOGSTASH_HEAP} -Dlog4j2.formatMsgNoLookups=true"
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-s",
-          "-XGET",
-          "http://127.0.0.1:9600"
-        ]
-    deploy:
-      mode: replicated
-      replicas: 1
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+  #     - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+  #     - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+  #   environment:
+  #     ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+  #     ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+  #     ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+  #     LS_JAVA_OPTS: "-Xmx${LOGSTASH_HEAP} -Xms${LOGSTASH_HEAP} -Dlog4j2.formatMsgNoLookups=true"
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "curl",
+  #         "-s",
+  #         "-XGET",
+  #         "http://127.0.0.1:9600"
+  #       ]
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
@@ -103,59 +103,58 @@ services:
           "-XGET",
           "localhost:5066/?pretty"
         ]
+  # heartbeat:
+  #   image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
+  #   volumes:
+  #     - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
+  #     - heartbeat-data:/var/lib/heartbeat/data
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   user: root
+  #   cap_add: [ "NET_RAW" ]
+  #   command: -e --strict.perms=false
+  #   environment:
+  #     ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+  #     ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+  #     ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+  #     FLIPT_PUBLIC_HOST: ${FLIPT_AUTHENTICATION_SESSION_DOMAIN}
+  #     GO_ENV: ${GO_ENV}
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "curl",
+  #         "-sf",
+  #         "-XGET",
+  #         "localhost:5066/?pretty"
+  #       ]
 
-  heartbeat:
-    image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
-    volumes:
-      - ./heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml:ro
-      - heartbeat-data:/var/lib/heartbeat/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    user: root
-    cap_add: [ "NET_RAW" ]
-    command: -e --strict.perms=false
-    environment:
-      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
-      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
-      FLIPT_PUBLIC_HOST: ${FLIPT_AUTHENTICATION_SESSION_DOMAIN}
-      GO_ENV: ${GO_ENV}
-    deploy:
-      mode: replicated
-      replicas: 1
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
-
-  metricbeat:
-    image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
-    user: root
-    command: --strict.perms=false -e
-    volumes:
-      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
-      - /proc:/hostfs/proc:ro # Only available on Linux
-      - /:/hostfs:ro
-      - metricbeat-data:/var/lib/metricbeat/data
-    environment:
-      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
-      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
-    deploy:
-      mode: replicated
-      replicas: 1
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
+  # metricbeat:
+  #   image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
+  #   user: root
+  #   command: --strict.perms=false -e
+  #   volumes:
+  #     - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro # Only available on Linux
+  #     - /proc:/hostfs/proc:ro # Only available on Linux
+  #     - /:/hostfs:ro
+  #     - metricbeat-data:/var/lib/metricbeat/data
+  #   environment:
+  #     ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+  #     ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+  #     ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "curl",
+  #         "-sf",
+  #         "-XGET",
+  #         "localhost:5066/?pretty"
+  #       ]

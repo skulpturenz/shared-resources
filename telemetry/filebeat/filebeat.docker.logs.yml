@@ -31,8 +31,8 @@ processors:
       host: "unix:///var/run/docker.sock"
 
 # Output to Logstash
-output.logstash:
-  hosts: ["logstash:5044"]
+# output.logstash:
+#   hosts: ["logstash:5044"]
 
 #=================================== Kibana ==========================================
 # Enable setting up Kibana

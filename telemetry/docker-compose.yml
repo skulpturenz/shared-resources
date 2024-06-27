@@ -83,35 +83,35 @@ services:
       mode: replicated
       replicas: 3
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
-    restart: unless-stopped
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-    secrets:
-      - source: elastic.ca
-        target: /certs/ca.crt
-    environment:
-      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
-      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
-      LS_JAVA_OPTS: "-Xmx${LOGSTASH_HEAP} -Xms${LOGSTASH_HEAP} -Dlog4j2.formatMsgNoLookups=true"
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "http://127.0.0.1:9600"
-        ]
-    depends_on:
-      - elasticsearch
-    deploy:
-      mode: replicated
-      replicas: 1
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+  #     - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+  #     - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+  #   secrets:
+  #     - source: elastic.ca
+  #       target: /certs/ca.crt
+  #   environment:
+  #     ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+  #     ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+  #     ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+  #     LS_JAVA_OPTS: "-Xmx${LOGSTASH_HEAP} -Xms${LOGSTASH_HEAP} -Dlog4j2.formatMsgNoLookups=true"
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD",
+  #         "curl",
+  #         "-sf",
+  #         "-XGET",
+  #         "http://127.0.0.1:9600"
+  #       ]
+  #   depends_on:
+  #     - elasticsearch
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
 
   kibana:
     image: skulpture/kibana:${TAG:-latest}
