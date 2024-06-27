@@ -70,10 +70,10 @@ func Stats(ctx context.Context, db *sql.DB) ([]envStat, error) {
 			FROM scoped_environments
 			GROUP BY key)
 		
-		SELECT counts.key, scoped_environments.project, counts.count FROM counts
+		SELECT DISTINCT counts.key, scoped_environments.project, counts.count FROM counts
 		INNER JOIN scoped_environments
 		ON scoped_environments.key = counts.key
-	`)
+	`, PROJECT.Value())
 	if err != nil {
 		return nil, err
 	}
