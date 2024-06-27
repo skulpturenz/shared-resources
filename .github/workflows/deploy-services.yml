@@ -185,6 +185,7 @@ jobs:
           LOGS_DOCKER_COMPOSE_FILE: docker-compose.logs.yml
           PROXY_DOCKER_COMPOSE_FILE: docker-compose.proxy.yml
           ENV_FILE: ~/.env
+          KRYPTOS: skulpture/kryptos:${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           host: ${{ secrets.GCP_VM_HOST }}
           username: ${{ secrets.GCP_VM_USERNAME }}
@@ -202,7 +203,7 @@ jobs:
 
             sleep 30s
 
-            set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
+            eval $(docker run --rm --env-file ${{ env.ENV_FILE }} ${{ env.KRYPTOS }} cat)      
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
               export TAG=${{ env.BRANCH_NAME }}
