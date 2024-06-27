@@ -203,7 +203,6 @@ jobs:
 
             sleep 30s
 
-            set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
             eval $(docker run --rm --env-file ${{ env.ENV_FILE }} ${{ env.KRYPTOS }} cat)      
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
