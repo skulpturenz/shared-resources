@@ -15,7 +15,7 @@ type Stat struct {
 }
 
 func (command *Stat) Execute(ctx context.Context) error {
-	w := tabwriter.NewWriter(command.View, 1, 4, 1, ' ', 0)
+	w := tabwriter.NewWriter(command.View, 1, 4, 4, ' ', 0)
 
 	fmt.Fprintln(w, "Key\tProject\tVersions")
 
@@ -26,6 +26,11 @@ func (command *Stat) Execute(ctx context.Context) error {
 
 	for _, stat := range envStats {
 		fmt.Fprintf(w, "%s\t%s\t%d\n", stat.Key, stat.Project, stat.Count)
+	}
+
+	err = w.Flush()
+	if err != nil {
+		return err
 	}
 
 	return nil
