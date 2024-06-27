@@ -13,7 +13,7 @@ type Grep struct {
 }
 
 func (command *Grep) Execute(ctx context.Context) error {
-	_, err := command.View.Write([]byte(fmt.Sprintf("%s\n", kryptos.ENVS[command.Key])))
+	_, err := fmt.Fprintf(command.View, "%s\n", kryptos.ENVS[command.Key])
 	if err != nil {
 		return err
 	}
