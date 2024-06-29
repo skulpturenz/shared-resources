@@ -1,0 +1,33 @@
+name: Fitness tests
+
+on:
+  pull_request:
+    branches: [master, staging, dev]
+  workflow_dispatch:
+
+jobs:
+  fitness-tests:
+    strategy:
+        fail-fast: false
+        matrix:
+          compute: [authnz, rollout, telemetry]
+  
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+    
+      - name: Initialize Docker Swarm
+        working-directory: ${{ matrix.compute }}
+        run: |
+           docker swarm init
+           docker stack deploy --compose-file docker-compose.yml ${{ matrix.compute }}
+           docker stack deploy --compose-file docker-compose.proxy.yml ${{ matrix.compute }}
+           docker stack deploy --compose-file docker-compose.logs.yml ${{ matrix.compute }}
+
+      - name: Fitness test (${{ matrix.compute }})
+        working-directory: ${{ matrix.compute }}
+        run: go test -run (?i)${{ matrix.compute }} -cover
