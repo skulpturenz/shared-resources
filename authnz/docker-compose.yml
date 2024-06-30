@@ -38,7 +38,7 @@ services:
     command: "start --optimized --proxy-headers xforwarded"
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       endpoint_mode: dnsrr
 
   logstash:

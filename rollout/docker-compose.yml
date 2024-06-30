@@ -48,7 +48,7 @@ services:
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV},deployment.node={{.Task.Slot}}"
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
 
   logstash:
     image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
