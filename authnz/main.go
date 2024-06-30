@@ -44,7 +44,7 @@ func main() {
 
 		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			MachineType: pulumi.String("e2-standard-2"),
+			MachineType: pulumi.String("e2-small"),
 			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
@@ -66,6 +66,9 @@ func main() {
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
 			// Permanently increase vm.max_map_count value: https://thetechdarts.com/how-to-change-default-vm-max_map_count-on-linux/
 			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
+				curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+				sudo bash add-google-cloud-ops-agent-repo.sh --also-install
+
 				sudo apt update &&
 				sudo apt install certbot python3-certbot-dns-cloudflare make git ca-certificates curl gnupg apt-transport-https gpg -y &&
 				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
