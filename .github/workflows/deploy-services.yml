@@ -203,6 +203,7 @@ jobs:
 
             sleep 30s
 
+            docker pull ${{ env.KRYPTOS }}
             export $(docker run --rm --env-file ${{ env.ENV_FILE }} ${{ env.KRYPTOS }} cat | xargs)
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
