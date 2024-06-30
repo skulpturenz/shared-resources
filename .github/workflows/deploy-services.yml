@@ -203,7 +203,7 @@ jobs:
 
             sleep 30s
 
-            eval $(docker run --rm --env-file ${{ env.ENV_FILE }} ${{ env.KRYPTOS }} cat)      
+            export $(docker run --rm --env-file ${{ env.ENV_FILE }} ${{ env.KRYPTOS }} cat | xargs)
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
               export TAG=${{ env.BRANCH_NAME }}
