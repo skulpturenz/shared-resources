@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/dogmatiq/ferrite"
 	"github.com/golang-migrate/migrate/v4"
@@ -477,7 +479,7 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) erro
 	return err
 }
 
-func Open(ctx context.Context, migrationsFileUrl string) (*sql.DB, func() error, error) {
+func Open(ctx context.Context) (*sql.DB, func() error, error) {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
 	db, err := sql.Open(DB_DRIVER.Value(), DB_CONNECTION_STRING.Value())
@@ -498,7 +500,11 @@ func Open(ctx context.Context, migrationsFileUrl string) (*sql.DB, func() error,
 		}
 	}
 
-	m, err := migrate.NewWithDatabaseInstance(migrationsFileUrl, "kryptos", driver)
+	_, basePath, _, _ := runtime.Caller(0)
+	rootDirectory := filepath.Dir(basePath)
+
+	path, _ := filepath.Abs(fmt.Sprintf("%s/../migrations", rootDirectory))
+	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://%s", path), "kryptos", driver)
 	if err != nil {
 		return nil, nil, err
 	}

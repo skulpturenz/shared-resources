@@ -14,7 +14,6 @@ var (
 		// "pgx":     initPgxEnv,
 		"sqlite3": initSqlite3Env,
 	}
-	MIGRATIONS_FILE_URL = "file://../migrations"
 )
 
 func init() {
