@@ -20,7 +20,7 @@ func TestSetMixed(t *testing.T) {
 		stop := init(t)
 		defer stop()
 
-		db, close, err := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+		db, close, err := kryptos.Open(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}

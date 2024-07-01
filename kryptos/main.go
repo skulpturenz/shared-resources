@@ -14,9 +14,8 @@ import (
 
 var (
 	ENV_FILE_PATH = ferrite.
-			String("ENV_FILE_PATH", "Load environment from file at path").
-			Optional()
-	MIGRATIONS_FILE_URL = "file://./migrations"
+		String("ENV_FILE_PATH", "Load environment from file at path").
+		Optional()
 )
 
 func init() {
@@ -24,7 +23,7 @@ func init() {
 
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
 
-	db, close, err := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+	db, close, err := kryptos.Open(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -107,7 +106,7 @@ Options:
 	debug, _ := options.Bool("--debug")
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, debug)
 
-	db, close, err := kryptos.Open(ctx, MIGRATIONS_FILE_URL)
+	db, close, err := kryptos.Open(ctx)
 	if err != nil {
 		panic(err)
 	}
