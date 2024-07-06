@@ -14,15 +14,10 @@ services:
   keycloak:
     image: skulpture/authnz:${TAG:-latest}
     hostname: keycloak.{{.Task.Slot}}
-    build:
-      context: keycloak/
-      args:
-        KEYCLOAK_VERSION: ${KEYCLOAK_VERSION}
-        KEYCLOAK_CACHE: ispn
-        KEYCLOAK_CACHE_STACK: kubernetes
-        KEYCLOAK_DB: ${KC_DB}
     restart: unless-stopped
     environment:
+      KC_CACHE: ispn
+      KC_CACHE_STACK: kubernetes
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_DB_URL: ${KC_DB_URL}
@@ -43,7 +38,7 @@ services:
     command: "start --optimized --proxy-headers xforwarded"
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       endpoint_mode: dnsrr
 
   logstash:

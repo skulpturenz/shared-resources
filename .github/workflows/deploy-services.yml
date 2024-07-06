@@ -91,9 +91,10 @@ jobs:
           push: true
           build-args: |
             KEYCLOAK_VERSION=${{ vars.KEYCLOAK_VERSION }}
+            KEYCLOAK_DB=${{ vars.KEYCLOAK_DB }}
+            KEYCLOAK_FEATURES=persistent-user-sessions
             KEYCLOAK_CACHE=ispn
             KEYCLOAK_CACHE_STACK=kubernetes
-            KEYCLOAK_DB=${{ vars.KEYCLOAK_DB }}
           tags: |
             skulpture/authnz:${{ env.TAG }}
 
@@ -132,6 +133,16 @@ jobs:
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
             skulpture/apm-server:${{ env.TAG }}
+
+      - name: "Build and push Docker image: kryptos"
+        uses: docker/build-push-action@v5
+        env:
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
+        with:
+          context: "{{defaultContext}}:kryptos"
+          push: true
+          tags: |
+            skulpture/kryptos:${{ env.TAG }}
 
   deploy:    
     permissions:
@@ -174,6 +185,7 @@ jobs:
           LOGS_DOCKER_COMPOSE_FILE: docker-compose.logs.yml
           PROXY_DOCKER_COMPOSE_FILE: docker-compose.proxy.yml
           ENV_FILE: ~/.env
+          KRYPTOS: skulpture/kryptos:${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           host: ${{ secrets.GCP_VM_HOST }}
           username: ${{ secrets.GCP_VM_USERNAME }}
@@ -191,7 +203,8 @@ jobs:
 
             sleep 30s
 
-            set -o allexport && . ${{ env.ENV_FILE }} && set +o allexport
+            docker pull ${{ env.KRYPTOS }}
+            export $(docker run --rm --env-file ${{ env.ENV_FILE }} ${{ env.KRYPTOS }} cat | xargs)
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
               export TAG=${{ env.BRANCH_NAME }}
