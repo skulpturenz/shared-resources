@@ -4,7 +4,7 @@ FROM node:lts-alpine AS theme_builder
 
 WORKDIR /build
 
-COPY ../authnz-theme .
+COPY ../../authnz-theme .
 
 RUN apk add maven bash && bash -c "corepack enable pnpm && pnpm config set store-dir /home/node/.local/share/pnpm/store"
 RUN bash -c "corepack pnpm build-keycloak-theme"
