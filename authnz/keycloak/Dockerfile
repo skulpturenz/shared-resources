@@ -27,7 +27,7 @@ ENV KC_DB $KEYCLOAK_DB
 
 WORKDIR /opt/keycloak
 
-COPY --from=keycloak_builder /build/dist_keycloak/keycloak-theme-for-kc-25-and-above.jar /opt/keycloak/providers/
+COPY --from=theme_builder /build/dist_keycloak/keycloak-theme-for-kc-25-and-above.jar /opt/keycloak/providers/
 
 RUN /opt/keycloak/bin/kc.sh build
 
