@@ -16,7 +16,9 @@ if (import.meta.env.DEV) {
 */
 
 const KcLoginThemePage = lazy(() => import("./keycloak-theme/login/KcPage"));
-const KcAccountThemePage = lazy(() => import("./keycloak-theme/account/KcPage"));
+const KcAccountThemePage = lazy(
+	() => import("./keycloak-theme/account/KcPage"),
+);
 
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
