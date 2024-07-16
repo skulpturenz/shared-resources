@@ -6,7 +6,10 @@ WORKDIR /build
 
 COPY --from=theme . .
 
-RUN apk add maven && corepack enable pnpm && pnpm config set store-dir /home/node/.local/share/pnpm/store
+RUN apk add maven && \
+    corepack enable pnpm && \
+    pnpm config set store-dir /home/node/.local/share/pnpm/store && \
+    corepack pnpm install
 RUN corepack pnpm build-keycloak-theme
 
 FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} as keycloak_builder
