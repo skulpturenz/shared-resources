@@ -4,10 +4,10 @@ FROM node:lts-alpine AS theme_builder
 
 WORKDIR /build
 
-COPY ../../authnz-theme .
+COPY --from=theme . .
 
-RUN apk add maven bash && bash -c "corepack enable pnpm && pnpm config set store-dir /home/node/.local/share/pnpm/store"
-RUN bash -c "corepack pnpm build-keycloak-theme"
+RUN apk add maven && corepack enable pnpm && pnpm config set store-dir /home/node/.local/share/pnpm/store
+RUN corepack pnpm build-keycloak-theme
 
 FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} as keycloak_builder
 
