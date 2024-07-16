@@ -2,7 +2,7 @@ ARG KEYCLOAK_VERSION
 
 FROM node:lts-alpine AS theme_builder
 
-WORKDIR /build/theme
+WORKDIR /build
 
 COPY ../authnz-theme .
 
@@ -27,7 +27,7 @@ ENV KC_DB $KEYCLOAK_DB
 
 WORKDIR /opt/keycloak
 
-COPY --from=keycloak_builder /opt/app/dist_keycloak/keycloak-theme-for-kc-25-and-above.jar /opt/keycloak/providers/
+COPY --from=keycloak_builder /build/dist_keycloak/keycloak-theme-for-kc-25-and-above.jar /opt/keycloak/providers/
 
 RUN /opt/keycloak/bin/kc.sh build
 
