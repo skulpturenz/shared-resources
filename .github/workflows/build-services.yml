@@ -12,6 +12,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       
@@ -30,6 +32,8 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:authnz/keycloak"
+          build-contexts: |
+            theme=./authnz-theme
           push: false
           build-args: |
             KEYCLOAK_VERSION=${{ vars.KEYCLOAK_VERSION }}
