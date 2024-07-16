@@ -1,6 +1,15 @@
 ARG KEYCLOAK_VERSION
 
-FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} as builder
+FROM node:lts-alpine AS theme_builder
+
+WORKDIR /build/theme
+
+COPY ../authnz-theme .
+
+RUN apk add maven bash && bash -c "corepack enable pnpm && pnpm config set store-dir /home/node/.local/share/pnpm/store"
+RUN bash -c "corepack pnpm build-keycloak-theme"
+
+FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} as keycloak_builder
 
 ARG KEYCLOAK_CACHE
 ARG KEYCLOAK_CACHE_STACK
@@ -18,10 +27,12 @@ ENV KC_DB $KEYCLOAK_DB
 
 WORKDIR /opt/keycloak
 
+COPY --from=keycloak_builder /opt/app/dist_keycloak/keycloak-theme-for-kc-25-and-above.jar /opt/keycloak/providers/
+
 RUN /opt/keycloak/bin/kc.sh build
 
 FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
-COPY --from=builder /opt/keycloak/ /opt/keycloak/
+COPY --from=keycloak_builder /opt/keycloak/ /opt/keycloak/
 
 ADD --chown=keycloak:keycloak https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar /tmp/opentelemetry-javaagent.jar
 
