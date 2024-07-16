@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { keycloakify } from "keycloakify/vite-plugin";
@@ -10,5 +11,12 @@ export default defineConfig({
 		alias: {
 			"@": resolve(__dirname, "./src"),
 		},
+	},
+	test: {
+		coverage: {
+			provider: "v8",
+			reporter: ["html", "text"],
+		},
+		environment: "jsdom",
 	},
 });
