@@ -23,6 +23,7 @@ export interface ComboboxProps {
 	searchPlaceholder: string;
 	noResultsText: string;
 	options: ComboboxOption[];
+	onChange?: (option: ComboboxOption | null) => void;
 }
 
 export interface ComboboxOption {
@@ -37,6 +38,7 @@ export const Combobox = ({
 	searchPlaceholder,
 	noResultsText,
 	options,
+	onChange,
 }: ComboboxProps) => {
 	const [open, setOpen] = React.useState(Boolean(isOpen));
 	const [value, setValue] = React.useState(initialValue?.value ?? "");
@@ -66,8 +68,15 @@ export const Combobox = ({
 								const onSelect = (next: string) => {
 									setValue(previous => {
 										if (next === previous) {
+											onChange?.(null);
+
 											return "";
 										}
+
+										const nextOption = options.find(
+											option => option.value === next,
+										) as ComboboxOption;
+										onChange?.(nextOption);
 
 										return next;
 									});
