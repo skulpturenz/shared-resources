@@ -8,8 +8,15 @@ import { useInsertLinkTags } from "keycloakify/tools/useInsertLinkTags";
 import { useSetClassName } from "keycloakify/tools/useSetClassName";
 import type { I18n } from "./i18n";
 import type { KcContext } from "./KcContext";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 
-export default function Template(props: TemplateProps<KcContext, I18n>) {
+export const Template = (props: TemplateProps<KcContext, I18n>) => (
+	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+		<TemplateWithoutTheme {...props} />
+	</ThemeProvider>
+);
+
+const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	const {
 		displayInfo = false,
 		displayMessage = true,
@@ -129,6 +136,8 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
 	if (!areAllStyleSheetsLoaded) {
 		return null;
 	}
+
+	return <div className="bg-background">Hello world!!</div>;
 
 	return (
 		<div className={kcClsx("kcLoginClass")}>
@@ -357,4 +366,4 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
 			</div>
 		</div>
 	);
-}
+};
