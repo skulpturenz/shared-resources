@@ -2,7 +2,7 @@ import React from "react";
 import type { TypographyProps } from "./types";
 import { cn } from "@/lib/utils";
 
-export const P = React.forwardRef<React.ElementRef<"p">, TypographyProps>(
+export const P = React.forwardRef<React.ElementRef<"p">, TypographyProps<"p">>(
 	({ className, ...props }, ref) => (
 		<p
 			ref={ref}

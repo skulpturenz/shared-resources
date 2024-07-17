@@ -1,6 +1,4 @@
 import React from "react";
 
-export interface TypographyProps {
-	children?: React.ReactNode;
-	className?: string;
-}
+export type TypographyProps<T extends keyof React.JSX.IntrinsicElements> =
+	React.ComponentPropsWithRef<T>;
