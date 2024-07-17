@@ -8,7 +8,25 @@ import { useInsertLinkTags } from "keycloakify/tools/useInsertLinkTags";
 import { useSetClassName } from "keycloakify/tools/useSetClassName";
 import type { I18n } from "./i18n";
 import type { KcContext } from "./KcContext";
-import { ThemeProvider } from "@/components/ui/theme-provider";
+import { ThemeProvider, useTheme } from "@/components/ui/theme-provider";
+import { H1, H3, H4, Large } from "@/components/typography";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuTrigger,
+	DropdownMenuContent,
+	DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Sun, Moon } from "lucide-react";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
@@ -32,6 +50,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		classes,
 		children,
 	} = props;
+
+	const { setTheme } = useTheme();
 
 	const { kcClsx } = getKcClsx({ doUseDefaultCss, classes });
 
@@ -137,7 +157,99 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		return null;
 	}
 
-	return <div className="bg-background">Hello world!!</div>;
+	if (realm.internationalizationEnabled) {
+		assert(locale !== undefined);
+	}
+
+	const localizationOptions =
+		locale?.supported.map(locale => ({
+			value: locale.languageTag,
+			label: labelBySupportedLanguageTag[locale.languageTag],
+		})) ?? [];
+	const currentLocalizationOption = localizationOptions.find(
+		option => option.value === currentLanguageTag,
+	);
+
+	const onClickLightTheme = () => setTheme("light");
+	const onClickDarkTheme = () => setTheme("dark");
+	const onClickSystemTheme = () => setTheme("system");
+	const onChangeLocale = (next: ComboboxOption | null) => {
+		if (!next) {
+			return;
+		}
+
+		// TODO: <a> is more appropriate
+		location.href = getChangeLocaleUrl(next.value.toString());
+	};
+
+	return (
+		<div
+			className={clsx(
+				"kcLoginClass",
+				"h-screen w-screen bg-background flex flex-col items-center justify-center",
+			)}>
+			<div id="kc-header" className={clsx("kcHeaderClass")}>
+				<H1
+					id="kc-header-wrapper"
+					className={clsx("kcHeaderWrapperClass", "uppercase")}>
+					{msg("loginTitleHtml", realm.displayNameHtml)}
+				</H1>
+			</div>
+
+			<div className={clsx("kcFormCardClass", "w-4/5")}>
+				<Card>
+					<CardHeader>
+						{localizationOptions.length > 0 && (
+							<>
+								<CardTitle className="flex w-full justify-end gap-2">
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button
+												variant="outline"
+												size="icon">
+												<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+												<Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+												<span className="sr-only">
+													Toggle theme
+												</span>
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="end">
+											<DropdownMenuItem
+												onClick={onClickLightTheme}>
+												Light
+											</DropdownMenuItem>
+											<DropdownMenuItem
+												onClick={onClickDarkTheme}>
+												Dark
+											</DropdownMenuItem>
+											<DropdownMenuItem
+												onClick={onClickSystemTheme}>
+												System
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+
+									{/* TODO: unable to select option for some reason, unsure if from storybook */}
+									<Combobox
+										options={localizationOptions}
+										initialValue={currentLocalizationOption}
+										selectPlaceholder="Select language" // TODO: resources
+										searchPlaceholder="Search language..." // TODO: resources
+										noResultsText="No language found" // TODO: resources
+										onChange={onChangeLocale}
+									/>
+								</CardTitle>
+							</>
+						)}
+						<CardDescription>Card Description</CardDescription>
+					</CardHeader>
+					<CardContent></CardContent>
+					<CardFooter></CardFooter>
+				</Card>
+			</div>
+		</div>
+	);
 
 	return (
 		<div className={kcClsx("kcLoginClass")}>
