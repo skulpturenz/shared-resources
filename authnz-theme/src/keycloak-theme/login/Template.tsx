@@ -190,14 +190,22 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			className={clsx(
 				"h-screen w-screen bg-background flex flex-col items-center justify-center",
 			)}>
-			<div className="flex items-center gap-4 m-4">
+			<div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 m-4">
 				<img
 					className="w-72 h-auto"
 					src={logo}
 					alt={"Skulpture"} // TODO: resources
 				/>
-				<span className={clsx("font-light text-7xl")}>/</span>
-				<span className={clsx("uppercase font-bold text-4xl")}>
+				<span
+					className={clsx(
+						"hidden md:block font-light text-7xl pb-4",
+					)}>
+					/
+				</span>
+				<span
+					className={clsx(
+						"uppercase font-semibold md:font-bold text-2xl md:text-4xl",
+					)}>
 					{msg("loginTitleHtml", realm.displayNameHtml)}
 				</span>
 			</div>
