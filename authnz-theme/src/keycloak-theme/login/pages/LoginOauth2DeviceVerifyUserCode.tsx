@@ -1,9 +1,9 @@
 import { getKcClsx } from "keycloakify/login/lib/kcClsx";
-import { PageProps } from "keycloakify/login/pages/PageProps";
-import { KcContext } from "../KcContext";
+import type { PageProps } from "keycloakify/login/pages/PageProps";
+import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 
-export default function LoginOauth2DeviceVerifyUserCode(
+export const LoginOauth2DeviceVerifyUserCode = (
 	props: PageProps<
 		Extract<
 			KcContext,
@@ -11,7 +11,7 @@ export default function LoginOauth2DeviceVerifyUserCode(
 		>,
 		I18n
 	>,
-) {
+) => {
 	const { kcContext, i18n, doUseDefaultCss, classes, Template } = props;
 	const { url } = kcContext;
 
@@ -84,4 +84,4 @@ export default function LoginOauth2DeviceVerifyUserCode(
 			</form>
 		</Template>
 	);
-}
+};

@@ -2,12 +2,12 @@ import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 
-export default function LoginIdpLinkEmail(
+export const LoginIdpLinkEmail = (
 	props: PageProps<
 		Extract<KcContext, { pageId: "login-idp-link-email.ftl" }>,
 		I18n
 	>,
-) {
+) => {
 	const { kcContext, i18n, doUseDefaultCss, Template, classes } = props;
 
 	const { url, realm, brokerContext, idpAlias } = kcContext;
@@ -41,4 +41,4 @@ export default function LoginIdpLinkEmail(
 			</p>
 		</Template>
 	);
-}
+};

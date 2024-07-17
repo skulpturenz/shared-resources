@@ -6,12 +6,12 @@ import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 
-export default function LoginRecoveryAuthnCodeConfig(
+export const LoginRecoveryAuthnCodeConfig = (
 	props: PageProps<
 		Extract<KcContext, { pageId: "login-recovery-authn-code-config.ftl" }>,
 		I18n
 	>,
-) {
+) => {
 	const { kcContext, i18n, doUseDefaultCss, Template, classes } = props;
 
 	const { kcClsx } = getKcClsx({
@@ -227,6 +227,7 @@ export default function LoginRecoveryAuthnCodeConfig(
 						//@ts-expect-error: This is code from the original theme, we trust it.
 						document.getElementById(
 							"saveRecoveryAuthnCodesBtn",
+							//@ts-expect-error: This is code from the original theme, we trust it.
 						).disabled = !this.checked;
 					}}
 				/>
@@ -304,7 +305,7 @@ export default function LoginRecoveryAuthnCodeConfig(
 			</form>
 		</Template>
 	);
-}
+};
 
 function LogoutOtherSessions(props: { kcClsx: KcClsx; i18n: I18n }) {
 	const { kcClsx, i18n } = props;

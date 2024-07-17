@@ -4,9 +4,9 @@ import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 
-export default function LoginOtp(
+export const LoginOtp = (
 	props: PageProps<Extract<KcContext, { pageId: "login-otp.ftl" }>, I18n>,
-) {
+) => {
 	const { kcContext, i18n, doUseDefaultCss, Template, classes } = props;
 
 	const { kcClsx } = getKcClsx({
@@ -143,4 +143,4 @@ export default function LoginOtp(
 			</form>
 		</Template>
 	);
-}
+};

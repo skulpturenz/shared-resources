@@ -16,7 +16,7 @@ type RegisterProps = PageProps<
 	doMakeUserConfirmPassword: boolean;
 };
 
-export default function Register(props: RegisterProps) {
+export const Register = (props: RegisterProps) => {
 	const {
 		kcContext,
 		i18n,
@@ -117,7 +117,7 @@ export default function Register(props: RegisterProps) {
 			</form>
 		</Template>
 	);
-}
+};
 
 function TermsAcceptance(props: {
 	i18n: I18n;

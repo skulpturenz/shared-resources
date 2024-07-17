@@ -2,9 +2,9 @@ import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 
-export default function Error(
+export const Error = (
 	props: PageProps<Extract<KcContext, { pageId: "error.ftl" }>, I18n>,
-) {
+) => {
 	const { kcContext, i18n, doUseDefaultCss, Template, classes } = props;
 
 	const { message, client, skipLink } = kcContext;
@@ -36,4 +36,4 @@ export default function Error(
 			</div>
 		</Template>
 	);
-}
+};
