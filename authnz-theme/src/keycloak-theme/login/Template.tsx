@@ -9,7 +9,7 @@ import { useSetClassName } from "keycloakify/tools/useSetClassName";
 import type { I18n } from "./i18n";
 import type { KcContext } from "./KcContext";
 import { ThemeProvider, useTheme } from "@/components/ui/theme-provider";
-import { H1, H3, H4, Large } from "@/components/typography";
+import { H1, H2, H3, H4, Large, Small } from "@/components/typography";
 import {
 	Card,
 	CardContent,
@@ -27,6 +27,8 @@ import {
 	DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Sun, Moon } from "lucide-react";
+import logoLight from "@/components/assets/logo-light.svg";
+import logoDark from "@/components/assets/logo-dark.svg";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
@@ -51,7 +53,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		children,
 	} = props;
 
-	const { setTheme } = useTheme();
+	const { theme, setTheme } = useTheme();
+	const logo = theme === "light" ? logoLight : logoDark;
 
 	const { kcClsx } = getKcClsx({ doUseDefaultCss, classes });
 
@@ -185,18 +188,21 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	return (
 		<div
 			className={clsx(
-				"kcLoginClass",
 				"h-screen w-screen bg-background flex flex-col items-center justify-center",
 			)}>
-			<div id="kc-header" className={clsx("kcHeaderClass")}>
-				<H1
-					id="kc-header-wrapper"
-					className={clsx("kcHeaderWrapperClass", "uppercase")}>
+			<div className="flex items-center m-4">
+				<img
+					className="w-72 h-auto"
+					src={logo}
+					alt={"Skulpture"} // TODO: resources
+				/>
+				<span className={clsx("font-light text-7xl mx-4")}>/</span>
+				<span className={clsx("uppercase font-bold text-4xl")}>
 					{msg("loginTitleHtml", realm.displayNameHtml)}
-				</H1>
+				</span>
 			</div>
 
-			<div className={clsx("kcFormCardClass", "w-4/5")}>
+			<div className={clsx("w-4/5")}>
 				<Card>
 					<CardHeader>
 						{localizationOptions.length > 0 && (
@@ -242,9 +248,171 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								</CardTitle>
 							</>
 						)}
-						<CardDescription>Card Description</CardDescription>
+						<CardDescription>
+							{(() => {
+								const node = !(
+									auth !== undefined &&
+									auth.showUsername &&
+									!auth.showResetCredentials
+								) ? (
+									<h1 id="kc-page-title">{headerNode}</h1>
+								) : (
+									<div
+										id="kc-username"
+										className={kcClsx("kcFormGroupClass")}>
+										<label id="kc-attempted-username">
+											{auth.attemptedUsername}
+										</label>
+										<a
+											id="reset-login"
+											href={url.loginRestartFlowUrl}
+											aria-label={msgStr(
+												"restartLoginTooltip",
+											)}>
+											<div className="kc-login-tooltip">
+												<i
+													className={kcClsx(
+														"kcResetFlowIcon",
+													)}></i>
+												<span className="kc-tooltip-text">
+													{msg("restartLoginTooltip")}
+												</span>
+											</div>
+										</a>
+									</div>
+								);
+
+								if (displayRequiredFields) {
+									return (
+										<div
+											className={kcClsx(
+												"kcContentWrapperClass",
+											)}>
+											<div
+												className={clsx(
+													kcClsx(
+														"kcLabelWrapperClass",
+													),
+													"subtitle",
+												)}>
+												<span className="subtitle">
+													<span className="required">
+														*
+													</span>
+													{msg("requiredFields")}
+												</span>
+											</div>
+											<div className="col-md-10">
+												{node}
+											</div>
+										</div>
+									);
+								}
+
+								return node;
+							})()}
+						</CardDescription>
 					</CardHeader>
-					<CardContent></CardContent>
+					<CardContent id="kc-content">
+						<div id="kc-content-wrapper">
+							{/* App-initiated actions should not see warning messages about the need to complete the action during login. */}
+							{displayMessage &&
+								message !== undefined &&
+								(message.type !== "warning" ||
+									!isAppInitiatedAction) && (
+									<div
+										className={clsx(
+											`alert-${message.type}`,
+											kcClsx("kcAlertClass"),
+											`pf-m-${message?.type === "error" ? "danger" : message.type}`,
+										)}>
+										<div className="pf-c-alert__icon">
+											{message.type === "success" && (
+												<span
+													className={kcClsx(
+														"kcFeedbackSuccessIcon",
+													)}></span>
+											)}
+											{message.type === "warning" && (
+												<span
+													className={kcClsx(
+														"kcFeedbackWarningIcon",
+													)}></span>
+											)}
+											{message.type === "error" && (
+												<span
+													className={kcClsx(
+														"kcFeedbackErrorIcon",
+													)}></span>
+											)}
+											{message.type === "info" && (
+												<span
+													className={kcClsx(
+														"kcFeedbackInfoIcon",
+													)}></span>
+											)}
+										</div>
+										<span
+											className={kcClsx(
+												"kcAlertTitleClass",
+											)}
+											dangerouslySetInnerHTML={{
+												__html: message.summary,
+											}}
+										/>
+									</div>
+								)}
+							{children}
+							{auth !== undefined &&
+								auth.showTryAnotherWayLink && (
+									<form
+										id="kc-select-try-another-way-form"
+										action={url.loginAction}
+										method="post">
+										<div
+											className={kcClsx(
+												"kcFormGroupClass",
+											)}>
+											<div
+												className={kcClsx(
+													"kcFormGroupClass",
+												)}>
+												<input
+													type="hidden"
+													name="tryAnotherWay"
+													value="on"
+												/>
+												<a
+													href="#"
+													id="try-another-way"
+													onClick={() => {
+														document.forms[
+															"kc-select-try-another-way-form" as never
+														].submit();
+														return false;
+													}}>
+													{msg("doTryAnotherWay")}
+												</a>
+											</div>
+										</div>
+									</form>
+								)}
+							{socialProvidersNode}
+							{displayInfo && (
+								<div
+									id="kc-info"
+									className={kcClsx("kcSignUpClass")}>
+									<div
+										id="kc-info-wrapper"
+										className={kcClsx(
+											"kcInfoAreaWrapperClass",
+										)}>
+										{infoNode}
+									</div>
+								</div>
+							)}
+						</div>
+					</CardContent>
 					<CardFooter></CardFooter>
 				</Card>
 			</div>
