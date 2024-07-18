@@ -249,7 +249,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				</span>
 				<span
 					className={clsx(
-						"uppercase font-semibold md:font-bold text-2xl md:text-4xl",
+						"uppercase md:lowercase font-semibold md:font-bold text-2xl md:text-5xl pb-3",
 					)}>
 					{msg("loginTitleHtml", realm.displayNameHtml)}
 				</span>
@@ -259,7 +259,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				<Card>
 					<CardHeader className="flex flex-col gap-2">
 						{localizationOptions.length > 0 && (
-							<div className="flex  md:justify-end gap-2">
+							<div className="flex md:justify-end gap-2">
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
 										<Button variant="outline" size="icon">
