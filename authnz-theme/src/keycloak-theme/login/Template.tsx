@@ -483,19 +483,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								</div>
 							</div>
 						)}
-						{displayInfo && (
-							<div
-								id="kc-info"
-								className={kcClsx("kcSignUpClass")}>
-								<div
-									id="kc-info-wrapper"
-									className={kcClsx(
-										"kcInfoAreaWrapperClass",
-									)}>
-									{infoNode}
-								</div>
-							</div>
-						)}
+						{displayInfo && infoNode}
 					</CardFooter>
 				</Card>
 			</div>
