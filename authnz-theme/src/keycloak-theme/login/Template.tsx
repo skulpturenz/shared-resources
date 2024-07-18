@@ -257,9 +257,9 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 			<div className={clsx("w-4/5")}>
 				<Card>
-					<CardHeader>
+					<CardHeader className="flex flex-col gap-2">
 						{localizationOptions.length > 0 && (
-							<div className="flex w-full justify-end gap-2">
+							<div className="flex  md:justify-end gap-2">
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
 										<Button variant="outline" size="icon">
@@ -288,6 +288,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 								{/* TODO: unable to select option for some reason, unsure if from storybook */}
 								<Combobox
+									className="w-full md:max-w-xs"
 									options={localizationOptions}
 									initialValue={currentLocalizationOption}
 									selectPlaceholder="Select language" // TODO: resources
@@ -324,7 +325,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								(message.type !== "warning" ||
 									!isAppInitiatedAction) && (
 									<CardDescription className="flex gap-1 items-center">
-										<span>
+										<span className="hidden md:block">
 											{message.type === "success" && (
 												<CircleCheck className="h-4 w-4" />
 											)}

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/popover";
 
 export interface ComboboxProps {
+	className?: string;
 	isOpen?: boolean;
 	initialValue?: ComboboxOption;
 	selectPlaceholder: string;
@@ -32,6 +33,7 @@ export interface ComboboxOption {
 }
 
 export const Combobox = ({
+	className,
 	isOpen,
 	initialValue,
 	selectPlaceholder,
@@ -45,66 +47,70 @@ export const Combobox = ({
 
 	const selectedOption = options.find(option => option.value === value);
 
+	const Container = className ? "div" : React.Fragment;
+
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
-				<Button
-					variant="outline"
-					role="combobox"
-					aria-expanded={open}
-					className="w-[200px] justify-between">
-					{selectedOption && selectedOption.label}
-					{!selectedOption && selectPlaceholder}
-					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-				</Button>
-			</PopoverTrigger>
-			<PopoverContent className="w-[200px] p-0">
-				<Command>
-					<CommandInput placeholder={searchPlaceholder} />
-					<CommandEmpty>{noResultsText}</CommandEmpty>
-					<CommandList>
-						<CommandGroup>
-							{options.map(option => {
-								const onSelect = (next: string) => {
-									setValue(previous => {
-										if (next === previous) {
-											onChange?.(null);
+		<Container className={className}>
+			<Popover open={open} onOpenChange={setOpen}>
+				<PopoverTrigger asChild>
+					<Button
+						variant="outline"
+						role="combobox"
+						aria-expanded={open}
+						className="w-full justify-between">
+						{selectedOption && selectedOption.label}
+						{!selectedOption && selectPlaceholder}
+						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent className="w-full p-0">
+					<Command>
+						<CommandInput placeholder={searchPlaceholder} />
+						<CommandEmpty>{noResultsText}</CommandEmpty>
+						<CommandList>
+							<CommandGroup>
+								{options.map(option => {
+									const onSelect = (next: string) => {
+										setValue(previous => {
+											if (next === previous) {
+												onChange?.(null);
 
-											return "";
-										}
+												return "";
+											}
 
-										const nextOption = options.find(
-											option => option.value === next,
-										) as ComboboxOption;
-										onChange?.(nextOption);
+											const nextOption = options.find(
+												option => option.value === next,
+											) as ComboboxOption;
+											onChange?.(nextOption);
 
-										return next;
-									});
+											return next;
+										});
 
-									setOpen(false);
-								};
+										setOpen(false);
+									};
 
-								return (
-									<CommandItem
-										key={option.value}
-										value={option.value.toString()}
-										onSelect={onSelect}>
-										<Check
-											className={cn(
-												"mr-2 h-4 w-4",
-												value === option.value
-													? "opacity-100"
-													: "opacity-0",
-											)}
-										/>
-										{option.label}
-									</CommandItem>
-								);
-							})}
-						</CommandGroup>
-					</CommandList>
-				</Command>
-			</PopoverContent>
-		</Popover>
+									return (
+										<CommandItem
+											key={option.value}
+											value={option.value.toString()}
+											onSelect={onSelect}>
+											<Check
+												className={cn(
+													"mr-2 h-4 w-4",
+													value === option.value
+														? "opacity-100"
+														: "opacity-0",
+												)}
+											/>
+											{option.label}
+										</CommandItem>
+									);
+								})}
+							</CommandGroup>
+						</CommandList>
+					</Command>
+				</PopoverContent>
+			</Popover>
+		</Container>
 	);
 };
