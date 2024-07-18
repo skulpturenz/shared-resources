@@ -459,7 +459,11 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									<Button
 										key={socialProvider.id}
 										asChild
-										variant="outline"
+										variant={
+											theme === "light"
+												? "default"
+												: "outline"
+										}
 										className="px-5 py-6">
 										<a
 											className="flex gap-2 items-center"
