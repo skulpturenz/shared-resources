@@ -185,6 +185,31 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		location.href = getChangeLocaleUrl(next.value.toString());
 	};
 
+	const PageHeader = () => {
+		if (!auth?.showUsername && !displayRequiredFields) {
+			return <h1 id="kc-page-title">{headerNode}</h1>;
+		}
+
+		return (
+			<div id="kc-username" className={kcClsx("kcFormGroupClass")}>
+				<label id="kc-attempted-username">
+					{auth?.attemptedUsername}
+				</label>
+				<a
+					id="reset-login"
+					href={url.loginRestartFlowUrl}
+					aria-label={msgStr("restartLoginTooltip")}>
+					<div className="kc-login-tooltip">
+						<i className={kcClsx("kcResetFlowIcon")}></i>
+						<span className="kc-tooltip-text">
+							{msg("restartLoginTooltip")}
+						</span>
+					</div>
+				</a>
+			</div>
+		);
+	};
+
 	return (
 		<div
 			className={clsx(
@@ -214,112 +239,66 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				<Card>
 					<CardHeader>
 						{localizationOptions.length > 0 && (
-							<>
-								<CardTitle className="flex w-full justify-end gap-2">
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button
-												variant="outline"
-												size="icon">
-												<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-												<Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-												<span className="sr-only">
-													Toggle theme
-												</span>
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end">
-											<DropdownMenuItem
-												onClick={onClickLightTheme}>
-												Light
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onClick={onClickDarkTheme}>
-												Dark
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												onClick={onClickSystemTheme}>
-												System
-											</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
+							<div className="flex w-full justify-end gap-2">
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button variant="outline" size="icon">
+											<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+											<Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+											<span className="sr-only">
+												Toggle theme
+											</span>
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										<DropdownMenuItem
+											onClick={onClickLightTheme}>
+											Light
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											onClick={onClickDarkTheme}>
+											Dark
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											onClick={onClickSystemTheme}>
+											System
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
 
-									{/* TODO: unable to select option for some reason, unsure if from storybook */}
-									<Combobox
-										options={localizationOptions}
-										initialValue={currentLocalizationOption}
-										selectPlaceholder="Select language" // TODO: resources
-										searchPlaceholder="Search language..." // TODO: resources
-										noResultsText="No language found" // TODO: resources
-										onChange={onChangeLocale}
-									/>
-								</CardTitle>
-							</>
+								{/* TODO: unable to select option for some reason, unsure if from storybook */}
+								<Combobox
+									options={localizationOptions}
+									initialValue={currentLocalizationOption}
+									selectPlaceholder="Select language" // TODO: resources
+									searchPlaceholder="Search language..." // TODO: resources
+									noResultsText="No language found" // TODO: resources
+									onChange={onChangeLocale}
+								/>
+							</div>
 						)}
-						<CardDescription>
-							{(() => {
-								const node = !(
-									auth !== undefined &&
-									auth.showUsername &&
-									!auth.showResetCredentials
-								) ? (
-									<h1 id="kc-page-title">{headerNode}</h1>
-								) : (
+						<CardTitle>
+							{!displayRequiredFields && <PageHeader />}
+
+							{displayRequiredFields && (
+								<div
+									className={kcClsx("kcContentWrapperClass")}>
 									<div
-										id="kc-username"
-										className={kcClsx("kcFormGroupClass")}>
-										<label id="kc-attempted-username">
-											{auth.attemptedUsername}
-										</label>
-										<a
-											id="reset-login"
-											href={url.loginRestartFlowUrl}
-											aria-label={msgStr(
-												"restartLoginTooltip",
-											)}>
-											<div className="kc-login-tooltip">
-												<i
-													className={kcClsx(
-														"kcResetFlowIcon",
-													)}></i>
-												<span className="kc-tooltip-text">
-													{msg("restartLoginTooltip")}
-												</span>
-											</div>
-										</a>
+										className={clsx(
+											kcClsx("kcLabelWrapperClass"),
+											"subtitle",
+										)}>
+										<span className="subtitle">
+											<span className="required">*</span>
+											{msg("requiredFields")}
+										</span>
 									</div>
-								);
-
-								if (displayRequiredFields) {
-									return (
-										<div
-											className={kcClsx(
-												"kcContentWrapperClass",
-											)}>
-											<div
-												className={clsx(
-													kcClsx(
-														"kcLabelWrapperClass",
-													),
-													"subtitle",
-												)}>
-												<span className="subtitle">
-													<span className="required">
-														*
-													</span>
-													{msg("requiredFields")}
-												</span>
-											</div>
-											<div className="col-md-10">
-												{node}
-											</div>
-										</div>
-									);
-								}
-
-								return node;
-							})()}
-						</CardDescription>
+									<div className="col-md-10">
+										<PageHeader />
+									</div>
+								</div>
+							)}
+						</CardTitle>
 					</CardHeader>
 					<CardContent id="kc-content">
 						<div id="kc-content-wrapper">
