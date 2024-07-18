@@ -26,7 +26,15 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Sun, Moon } from "lucide-react";
+import {
+	Sun,
+	Moon,
+	Check,
+	CircleAlert,
+	CircleX,
+	Info,
+	CircleCheck,
+} from "lucide-react";
 import logoLight from "@/components/assets/logo-light.svg";
 import logoDark from "@/components/assets/logo-dark.svg";
 
@@ -210,6 +218,18 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		);
 	};
 
+	const toPlainText = (rawHtml: string) => {
+		const tempNode = document.createElement("div");
+
+		tempNode.innerHTML = rawHtml;
+
+		const text = tempNode.textContent || tempNode.innerText || "";
+
+		tempNode.remove();
+
+		return text.split(/\.(?=\w+\s)/gi).join(". ");
+	};
+
 	return (
 		<div
 			className={clsx(
@@ -277,7 +297,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								/>
 							</div>
 						)}
-						<CardTitle>
+						<CardTitle className="flex flex-col gap-2">
 							{!displayRequiredFields && <PageHeader />}
 
 							{displayRequiredFields && (
@@ -299,55 +319,26 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								</div>
 							)}
 
-							{displayMessage &&
-								message !== undefined &&
-								(message?.type !== "warning" ||
-									!isAppInitiatedAction) && (
-									<CardDescription>
-										{/* App-initiated actions should not see warning messages about the need to complete the action during login. */}
-										<div
-											className={clsx(
-												`alert-${message.type}`,
-												kcClsx("kcAlertClass"),
-												`pf-m-${message?.type === "error" ? "danger" : message.type}`,
-											)}>
-											<div className="pf-c-alert__icon">
-												{message.type === "success" && (
-													<span
-														className={kcClsx(
-															"kcFeedbackSuccessIcon",
-														)}></span>
-												)}
-												{message.type === "warning" && (
-													<span
-														className={kcClsx(
-															"kcFeedbackWarningIcon",
-														)}></span>
-												)}
-												{message.type === "error" && (
-													<span
-														className={kcClsx(
-															"kcFeedbackErrorIcon",
-														)}></span>
-												)}
-												{message.type === "info" && (
-													<span
-														className={kcClsx(
-															"kcFeedbackInfoIcon",
-														)}></span>
-												)}
-											</div>
-											<span
-												className={kcClsx(
-													"kcAlertTitleClass",
-												)}
-												dangerouslySetInnerHTML={{
-													__html: message.summary,
-												}}
-											/>
-										</div>
-									</CardDescription>
-								)}
+							{displayMessage && message && (
+								<CardDescription className="flex gap-1 items-center">
+									<span>
+										{message.type === "success" && (
+											<CircleCheck className="h-4 w-4" />
+										)}
+										{message.type === "warning" && (
+											<CircleAlert className="h-4 w-4" />
+										)}
+										{message.type === "error" && (
+											<CircleX className="h-4 w-4" />
+										)}
+										{message.type === "info" && (
+											<Info className="h-4 w-4" />
+										)}
+									</span>
+
+									{toPlainText(message.summary)}
+								</CardDescription>
+							)}
 						</CardTitle>
 					</CardHeader>
 					<CardContent>{children}</CardContent>
