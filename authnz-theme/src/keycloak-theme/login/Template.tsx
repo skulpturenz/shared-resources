@@ -310,7 +310,6 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			};
 		});
 
-	console.log(Logo);
 	return (
 		<div
 			className={clsx("my-20 flex flex-col items-center justify-center")}>
