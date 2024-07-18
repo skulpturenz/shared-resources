@@ -17,7 +17,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
+import { Combobox } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -218,6 +218,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		locale?.supported.map(locale => ({
 			value: locale.languageTag,
 			label: labelBySupportedLanguageTag[locale.languageTag],
+			href: getChangeLocaleUrl(locale.languageTag),
 		})) ?? [];
 	const currentLocalizationOption = localizationOptions.find(
 		option => option.value === currentLanguageTag,
@@ -226,14 +227,6 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	const onClickLightTheme = () => setTheme("light");
 	const onClickDarkTheme = () => setTheme("dark");
 	const onClickSystemTheme = () => setTheme("system");
-	const onChangeLocale = (next: ComboboxOption | null) => {
-		if (!next) {
-			return;
-		}
-
-		// TODO: <a> is more appropriate
-		location.href = getChangeLocaleUrl(next.value.toString());
-	};
 
 	const PageHeader = () => {
 		if (!auth?.showUsername && !displayRequiredFields) {
@@ -368,7 +361,6 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									selectPlaceholder="Select language" // TODO: resources
 									searchPlaceholder="Search language..." // TODO: resources
 									noResultsText="No language found" // TODO: resources
-									onChange={onChangeLocale}
 								/>
 							</div>
 						)}

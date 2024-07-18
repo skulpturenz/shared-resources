@@ -30,6 +30,7 @@ export interface ComboboxProps {
 export interface ComboboxOption {
 	value: string | number;
 	label: string;
+	href?: string;
 }
 
 export const Combobox = ({
@@ -89,20 +90,27 @@ export const Combobox = ({
 										setOpen(false);
 									};
 
+									const Container = Boolean(option.href)
+										? "a"
+										: React.Fragment;
+
 									return (
 										<CommandItem
 											key={option.value}
 											value={option.value.toString()}
+											asChild={Boolean(option.href)}
 											onSelect={onSelect}>
-											<Check
-												className={cn(
-													"mr-2 h-4 w-4",
-													value === option.value
-														? "opacity-100"
-														: "opacity-0",
-												)}
-											/>
-											{option.label}
+											<Container href={option.href}>
+												<Check
+													className={cn(
+														"mr-2 h-4 w-4",
+														value === option.value
+															? "opacity-100"
+															: "opacity-0",
+													)}
+												/>
+												{option.label}
+											</Container>
 										</CommandItem>
 									);
 								})}
