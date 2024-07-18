@@ -298,109 +298,102 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									</div>
 								</div>
 							)}
-						</CardTitle>
-					</CardHeader>
-					<CardContent id="kc-content">
-						<div id="kc-content-wrapper">
-							{/* App-initiated actions should not see warning messages about the need to complete the action during login. */}
+
 							{displayMessage &&
 								message !== undefined &&
-								(message.type !== "warning" ||
+								(message?.type !== "warning" ||
 									!isAppInitiatedAction) && (
-									<div
-										className={clsx(
-											`alert-${message.type}`,
-											kcClsx("kcAlertClass"),
-											`pf-m-${message?.type === "error" ? "danger" : message.type}`,
-										)}>
-										<div className="pf-c-alert__icon">
-											{message.type === "success" && (
-												<span
-													className={kcClsx(
-														"kcFeedbackSuccessIcon",
-													)}></span>
-											)}
-											{message.type === "warning" && (
-												<span
-													className={kcClsx(
-														"kcFeedbackWarningIcon",
-													)}></span>
-											)}
-											{message.type === "error" && (
-												<span
-													className={kcClsx(
-														"kcFeedbackErrorIcon",
-													)}></span>
-											)}
-											{message.type === "info" && (
-												<span
-													className={kcClsx(
-														"kcFeedbackInfoIcon",
-													)}></span>
-											)}
-										</div>
-										<span
-											className={kcClsx(
-												"kcAlertTitleClass",
-											)}
-											dangerouslySetInnerHTML={{
-												__html: message.summary,
-											}}
-										/>
-									</div>
-								)}
-							{children}
-							{auth !== undefined &&
-								auth.showTryAnotherWayLink && (
-									<form
-										id="kc-select-try-another-way-form"
-										action={url.loginAction}
-										method="post">
+									<CardDescription>
+										{/* App-initiated actions should not see warning messages about the need to complete the action during login. */}
 										<div
-											className={kcClsx(
-												"kcFormGroupClass",
+											className={clsx(
+												`alert-${message.type}`,
+												kcClsx("kcAlertClass"),
+												`pf-m-${message?.type === "error" ? "danger" : message.type}`,
 											)}>
-											<div
-												className={kcClsx(
-													"kcFormGroupClass",
-												)}>
-												<input
-													type="hidden"
-													name="tryAnotherWay"
-													value="on"
-												/>
-												<a
-													href="#"
-													id="try-another-way"
-													onClick={() => {
-														document.forms[
-															"kc-select-try-another-way-form" as never
-														].submit();
-														return false;
-													}}>
-													{msg("doTryAnotherWay")}
-												</a>
+											<div className="pf-c-alert__icon">
+												{message.type === "success" && (
+													<span
+														className={kcClsx(
+															"kcFeedbackSuccessIcon",
+														)}></span>
+												)}
+												{message.type === "warning" && (
+													<span
+														className={kcClsx(
+															"kcFeedbackWarningIcon",
+														)}></span>
+												)}
+												{message.type === "error" && (
+													<span
+														className={kcClsx(
+															"kcFeedbackErrorIcon",
+														)}></span>
+												)}
+												{message.type === "info" && (
+													<span
+														className={kcClsx(
+															"kcFeedbackInfoIcon",
+														)}></span>
+												)}
 											</div>
+											<span
+												className={kcClsx(
+													"kcAlertTitleClass",
+												)}
+												dangerouslySetInnerHTML={{
+													__html: message.summary,
+												}}
+											/>
 										</div>
-									</form>
+									</CardDescription>
 								)}
-							{socialProvidersNode}
-							{displayInfo && (
-								<div
-									id="kc-info"
-									className={kcClsx("kcSignUpClass")}>
-									<div
-										id="kc-info-wrapper"
-										className={kcClsx(
-											"kcInfoAreaWrapperClass",
-										)}>
-										{infoNode}
+						</CardTitle>
+					</CardHeader>
+					<CardContent>{children}</CardContent>
+					<CardFooter>
+						{auth !== undefined && auth.showTryAnotherWayLink && (
+							<form
+								id="kc-select-try-another-way-form"
+								action={url.loginAction}
+								method="post">
+								<div className={kcClsx("kcFormGroupClass")}>
+									<div className={kcClsx("kcFormGroupClass")}>
+										<input
+											type="hidden"
+											name="tryAnotherWay"
+											value="on"
+										/>
+										<a
+											href="#"
+											id="try-another-way"
+											onClick={() => {
+												document.forms[
+													"kc-select-try-another-way-form" as never
+												].submit();
+												return false;
+											}}>
+											{msg("doTryAnotherWay")}
+										</a>
 									</div>
 								</div>
-							)}
-						</div>
-					</CardContent>
-					<CardFooter></CardFooter>
+							</form>
+						)}
+						{socialProvidersNode}
+						{displayInfo && (
+							<div
+								id="kc-info"
+								className={kcClsx("kcSignUpClass")}>
+								<div
+									id="kc-info-wrapper"
+									className={kcClsx(
+										"kcInfoAreaWrapperClass",
+									)}>
+									{infoNode}
+								</div>
+							</div>
+						)}
+					</CardFooter>
 				</Card>
 			</div>
 		</div>
