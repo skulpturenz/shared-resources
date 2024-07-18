@@ -34,9 +34,11 @@ import {
 	CircleX,
 	Info,
 	CircleCheck,
+	RotateCcw,
 } from "lucide-react";
 import logoLight from "@/components/assets/logo-light.svg";
 import logoDark from "@/components/assets/logo-dark.svg";
+import { Label } from "@/components/ui/label";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
@@ -195,23 +197,18 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 	const PageHeader = () => {
 		if (!auth?.showUsername && !displayRequiredFields) {
-			return <h1 id="kc-page-title">{headerNode}</h1>;
+			return headerNode;
 		}
 
 		return (
-			<div id="kc-username" className={kcClsx("kcFormGroupClass")}>
-				<label id="kc-attempted-username">
-					{auth?.attemptedUsername}
-				</label>
+			<div className="flex flex-col gap-2">
+				<Label>{auth?.attemptedUsername}</Label>
 				<a
-					id="reset-login"
 					href={url.loginRestartFlowUrl}
 					aria-label={msgStr("restartLoginTooltip")}>
-					<div className="kc-login-tooltip">
-						<i className={kcClsx("kcResetFlowIcon")}></i>
-						<span className="kc-tooltip-text">
-							{msg("restartLoginTooltip")}
-						</span>
+					<div className="flex items-center gap-1">
+						<RotateCcw className="h-4 w-4" />
+						<span>{msg("restartLoginTooltip")}</span>
 					</div>
 				</a>
 			</div>
