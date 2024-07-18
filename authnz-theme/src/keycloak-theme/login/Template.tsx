@@ -319,26 +319,29 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								</div>
 							)}
 
-							{displayMessage && message && (
-								<CardDescription className="flex gap-1 items-center">
-									<span>
-										{message.type === "success" && (
-											<CircleCheck className="h-4 w-4" />
-										)}
-										{message.type === "warning" && (
-											<CircleAlert className="h-4 w-4" />
-										)}
-										{message.type === "error" && (
-											<CircleX className="h-4 w-4" />
-										)}
-										{message.type === "info" && (
-											<Info className="h-4 w-4" />
-										)}
-									</span>
+							{displayMessage &&
+								message &&
+								(message.type !== "warning" ||
+									!isAppInitiatedAction) && (
+									<CardDescription className="flex gap-1 items-center">
+										<span>
+											{message.type === "success" && (
+												<CircleCheck className="h-4 w-4" />
+											)}
+											{message.type === "warning" && (
+												<CircleAlert className="h-4 w-4" />
+											)}
+											{message.type === "error" && (
+												<CircleX className="h-4 w-4" />
+											)}
+											{message.type === "info" && (
+												<Info className="h-4 w-4" />
+											)}
+										</span>
 
-									{toPlainText(message.summary)}
-								</CardDescription>
-							)}
+										{toPlainText(message.summary)}
+									</CardDescription>
+								)}
 						</CardTitle>
 					</CardHeader>
 					<CardContent>{children}</CardContent>
