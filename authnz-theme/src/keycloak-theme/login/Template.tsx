@@ -72,6 +72,7 @@ const SOCIAL_PROVIDERS_LABELS = {
 	"social-paypal": "PayPal",
 	"social-openshift": "OpenShift",
 };
+
 const SOCIAL_PROVIDERS_ICONS = {
 	"social-google": LogoGoogle,
 	"social-microsoft": LogoMicrosoft,
@@ -86,6 +87,7 @@ const SOCIAL_PROVIDERS_ICONS = {
 	"social-paypal": LogoPaypal,
 	"social-openshift": LogoOpenshift,
 };
+
 const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	const {
 		displayInfo = false,
