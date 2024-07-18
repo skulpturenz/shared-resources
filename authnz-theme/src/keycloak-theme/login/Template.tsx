@@ -58,7 +58,7 @@ export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	</ThemeProvider>
 );
 
-const SOCIAL_PROVIDERS_LABELS = {
+const SSO_PROVIDERS_LABELS = {
 	"social-google": "Google",
 	"social-microsoft": "Microsoft",
 	"social-facebook": "Facebook",
@@ -73,7 +73,7 @@ const SOCIAL_PROVIDERS_LABELS = {
 	"social-openshift": "OpenShift",
 };
 
-const SOCIAL_PROVIDERS_ICONS = {
+const SSO_PROVIDERS_ICONS = {
 	"social-google": LogoGoogle,
 	"social-microsoft": LogoMicrosoft,
 	"social-facebook": LogoFacebook,
@@ -296,7 +296,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			)
 			.filter(Boolean);
 	};
-	const socialProviders = flattenChildren(socialProvidersNode, 3)
+	const ssoProviders = flattenChildren(socialProvidersNode, 3)
 		.filter(child => React.isValidElement(child) && child.type === "a")
 		.map(child => {
 			return {
@@ -324,7 +324,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				</span>
 			</div>
 
-			<div className={clsx("w-4/5 max-w-4xl")}>
+			<div className={clsx("w-full max-w-3xl")}>
 				<Card>
 					<CardHeader className="flex flex-col gap-2">
 						{localizationOptions.length > 0 && (
@@ -419,17 +419,17 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 							<form
 								id="kc-select-try-another-way-form"
 								action={url.loginAction}
-								method="post">
-								<div className={kcClsx("kcFormGroupClass")}>
-									<div className={kcClsx("kcFormGroupClass")}>
+								method="post"
+								className="w-full">
+								<div className="w-full">
+									<div className="w-full">
 										<input
 											type="hidden"
 											name="tryAnotherWay"
 											value="on"
 										/>
-										<a
-											href="#"
-											id="try-another-way"
+										<Button
+											className="w-full"
 											onClick={() => {
 												document.forms[
 													"kc-select-try-another-way-form" as never
@@ -437,38 +437,52 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 												return false;
 											}}>
 											{msg("doTryAnotherWay")}
-										</a>
+										</Button>
 									</div>
 								</div>
 							</form>
 						)}
-						<div className="grid grid-flow-row w-full md:w-fit md:grid-cols-3 gap-4">
-							{socialProviders.map(socialProvider => {
-								const provider =
-									socialProvider.id as keyof typeof SOCIAL_PROVIDERS_LABELS;
-								const Logo = SOCIAL_PROVIDERS_ICONS[provider];
+						{ssoProviders.length > 0 && (
+							<div className="w-full">
+								<div
+									className={
+										ssoProviders.length < 3
+											? "flex gap-4"
+											: "grid grid-flow-row md:grid-cols-3 w-full gap-4"
+									}>
+									{ssoProviders.map(ssoProvider => {
+										const provider =
+											ssoProvider.id as keyof typeof SSO_PROVIDERS_LABELS;
+										const Logo =
+											SSO_PROVIDERS_ICONS[provider];
 
-								return (
-									<Button
-										key={socialProvider.id}
-										asChild
-										variant={
-											theme === "light"
-												? "default"
-												: "outline"
-										}
-										className="px-5 py-6 w-full">
-										<a
-											className="flex gap-2 items-center"
-											href={socialProvider.href}>
-											<Logo className="w-5 h-auto text-foreground" />
+										return (
+											<Button
+												key={ssoProvider.id}
+												asChild
+												variant={
+													theme === "light"
+														? "default"
+														: "outline"
+												}
+												className="px-5 py-6 w-full">
+												<a
+													className="flex gap-2 items-center"
+													href={ssoProvider.href}>
+													<Logo className="w-5 h-auto text-foreground" />
 
-											{SOCIAL_PROVIDERS_LABELS[provider]}
-										</a>
-									</Button>
-								);
-							})}
-						</div>
+													{
+														SSO_PROVIDERS_LABELS[
+															provider
+														]
+													}
+												</a>
+											</Button>
+										);
+									})}
+								</div>
+							</div>
+						)}
 						{displayInfo && (
 							<div
 								id="kc-info"
