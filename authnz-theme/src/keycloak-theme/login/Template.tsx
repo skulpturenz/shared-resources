@@ -35,20 +35,20 @@ import {
 	RotateCcw,
 } from "lucide-react";
 import {
-	logoLight,
-	logoDark,
-	logoGoogle,
-	logoMicrosoft,
-	logoFacebook,
-	logoInstagram,
-	logoTwitter,
-	logoLinkedin,
-	logoStackoverflow,
-	logoGithub,
-	logoGitlab,
-	logoBitbucket,
-	logoPaypal,
-	logoOpenshift,
+	LogoLight,
+	LogoDark,
+	LogoGoogle,
+	LogoMicrosoft,
+	LogoFacebook,
+	LogoInstagram,
+	LogoTwitter,
+	LogoLinkedin,
+	LogoStackoverflow,
+	LogoGithub,
+	LogoGitlab,
+	LogoBitbucket,
+	LogoPaypal,
+	LogoOpenshift,
 } from "@/components/assets";
 import { Label } from "@/components/ui/label";
 
@@ -73,18 +73,18 @@ const SOCIAL_PROVIDERS_LABELS = {
 	"social-openshift": "OpenShift",
 };
 const SOCIAL_PROVIDERS_ICONS = {
-	"social-google": logoGoogle,
-	"social-microsoft": logoMicrosoft,
-	"social-facebook": logoFacebook,
-	"social-instagram": logoInstagram,
-	"social-twitter": logoTwitter,
-	"social-linkedin": logoLinkedin,
-	"social-stackoverflow": logoStackoverflow,
-	"social-github": logoGithub,
-	"social-gitlab": logoGitlab,
-	"social-bitbucket": logoBitbucket,
-	"social-paypal": logoPaypal,
-	"social-openshift": logoOpenshift,
+	"social-google": LogoGoogle,
+	"social-microsoft": LogoMicrosoft,
+	"social-facebook": LogoFacebook,
+	"social-instagram": LogoInstagram,
+	"social-twitter": LogoTwitter,
+	"social-linkedin": LogoLinkedin,
+	"social-stackoverflow": LogoStackoverflow,
+	"social-github": LogoGithub,
+	"social-gitlab": LogoGitlab,
+	"social-bitbucket": LogoBitbucket,
+	"social-paypal": LogoPaypal,
+	"social-openshift": LogoOpenshift,
 };
 const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	const {
@@ -104,7 +104,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	} = props;
 
 	const { theme, setTheme } = useTheme();
-	const logo = theme === "light" ? logoLight : logoDark;
+	const Logo = theme === "light" ? LogoLight : LogoDark;
 
 	const { kcClsx } = getKcClsx({ doUseDefaultCss, classes });
 
@@ -310,15 +310,12 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			};
 		});
 
+	console.log(Logo);
 	return (
 		<div
 			className={clsx("my-20 flex flex-col items-center justify-center")}>
 			<div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 m-4">
-				<img
-					className="w-72 h-auto"
-					src={logo}
-					alt={"Skulpture"} // TODO: resources
-				/>
+				<Logo className="w-72 h-auto" />
 				<span
 					className={clsx(
 						"hidden md:block font-light text-7xl pb-4",
@@ -454,27 +451,22 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 						)}
 						<div className="grid grid-flow-row grid-rows-2 md:grid-cols-3 gap-4">
 							{socialProviders.map(socialProvider => {
+								const provider =
+									socialProvider.id as keyof typeof SOCIAL_PROVIDERS_LABELS;
+								const Logo = SOCIAL_PROVIDERS_ICONS[provider];
+
 								return (
 									<Button
 										key={socialProvider.id}
 										asChild
+										variant="outline"
 										className="px-5 py-6">
 										<a
 											className="flex gap-2 items-center"
 											href={socialProvider.href}>
-											<img
-												className="w-5 h-auto"
-												src={
-													SOCIAL_PROVIDERS_ICONS[
-														socialProvider.id as keyof typeof SOCIAL_PROVIDERS_LABELS
-													]
-												}
-											/>
-											{
-												SOCIAL_PROVIDERS_LABELS[
-													socialProvider.id as keyof typeof SOCIAL_PROVIDERS_LABELS
-												]
-											}
+											<Logo className="w-5 h-auto text-foreground" />
+
+											{SOCIAL_PROVIDERS_LABELS[provider]}
 										</a>
 									</Button>
 								);

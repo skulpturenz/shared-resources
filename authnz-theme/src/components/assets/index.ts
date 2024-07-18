@@ -1,3 +1,4 @@
-export { default as logoDark } from "./logo-dark.svg";
-export { default as logoLight } from "./logo-light.svg";
+/// <reference types="vite-plugin-svgr/client" />
+export { default as LogoDark } from "./logo-dark.svg?react";
+export { default as LogoLight } from "./logo-light.svg?react";
 export * from "./sso";
