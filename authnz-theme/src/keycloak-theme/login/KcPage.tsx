@@ -38,4 +38,8 @@ export default function KcPage(props: { kcContext: KcContext }) {
 	);
 }
 
-const classes = {} satisfies { [key in ClassKey]?: string };
+const classes = {
+	kcBodyClass: "bg-background",
+} satisfies {
+	[key in ClassKey]?: string;
+};

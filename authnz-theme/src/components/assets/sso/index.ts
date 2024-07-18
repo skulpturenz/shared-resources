@@ -1,0 +1,12 @@
+export { default as logoBitbucket } from "./bitbucket.svg";
+export { default as logoFacebook } from "./facebook.svg";
+export { default as logoGithub } from "./github.svg";
+export { default as logoGitlab } from "./gitlab.svg";
+export { default as logoGoogle } from "./google.svg";
+export { default as logoInstagram } from "./instagram.svg";
+export { default as logoLinkedin } from "./linkedin.svg";
+export { default as logoMicrosoft } from "./microsoft.svg";
+export { default as logoOpenshift } from "./openshift.svg";
+export { default as logoPaypal } from "./paypal.svg";
+export { default as logoStackoverflow } from "./stackoverflow.svg";
+export { default as logoTwitter } from "./twitter.svg";

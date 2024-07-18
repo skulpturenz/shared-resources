@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { assert } from "keycloakify/tools/assert";
 import { clsx } from "keycloakify/tools/clsx";
 import type { TemplateProps } from "keycloakify/login/TemplateProps";
@@ -9,7 +9,6 @@ import { useSetClassName } from "keycloakify/tools/useSetClassName";
 import type { I18n } from "./i18n";
 import type { KcContext } from "./KcContext";
 import { ThemeProvider, useTheme } from "@/components/ui/theme-provider";
-import { H1, H2, H3, H4, Large, Small } from "@/components/typography";
 import {
 	Card,
 	CardContent,
@@ -29,15 +28,28 @@ import {
 import {
 	Sun,
 	Moon,
-	Check,
 	CircleAlert,
 	CircleX,
 	Info,
 	CircleCheck,
 	RotateCcw,
 } from "lucide-react";
-import logoLight from "@/components/assets/logo-light.svg";
-import logoDark from "@/components/assets/logo-dark.svg";
+import {
+	logoLight,
+	logoDark,
+	logoGoogle,
+	logoMicrosoft,
+	logoFacebook,
+	logoInstagram,
+	logoTwitter,
+	logoLinkedin,
+	logoStackoverflow,
+	logoGithub,
+	logoGitlab,
+	logoBitbucket,
+	logoPaypal,
+	logoOpenshift,
+} from "@/components/assets";
 import { Label } from "@/components/ui/label";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
@@ -46,6 +58,34 @@ export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	</ThemeProvider>
 );
 
+const SOCIAL_PROVIDERS_LABELS = {
+	"social-google": "Google",
+	"social-microsoft": "Microsoft",
+	"social-facebook": "Facebook",
+	"social-instagram": "Instagram",
+	"social-twitter": "Twitter",
+	"social-linkedin": "LinkedIn",
+	"social-stackoverflow": "StackOverflow",
+	"social-github": "GitHub",
+	"social-gitlab": "GitLab",
+	"social-bitbucket": "Bitbucket",
+	"social-paypal": "PayPal",
+	"social-openshift": "OpenShift",
+};
+const SOCIAL_PROVIDERS_ICONS = {
+	"social-google": logoGoogle,
+	"social-microsoft": logoMicrosoft,
+	"social-facebook": logoFacebook,
+	"social-instagram": logoInstagram,
+	"social-twitter": logoTwitter,
+	"social-linkedin": logoLinkedin,
+	"social-stackoverflow": logoStackoverflow,
+	"social-github": logoGithub,
+	"social-gitlab": logoGitlab,
+	"social-bitbucket": logoBitbucket,
+	"social-paypal": logoPaypal,
+	"social-openshift": logoOpenshift,
+};
 const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	const {
 		displayInfo = false,
@@ -227,11 +267,52 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		return text.replace(/\.(?=\w+\s)/gi, ". ");
 	};
 
+	const flattenChildren = (
+		node: React.ReactNode,
+		maxDepth = Infinity,
+		currentDepth = 0,
+	): React.ReactNode[] => {
+		if (currentDepth >= maxDepth) {
+			return (node as React.ReactElement)?.props?.children ?? [];
+		}
+
+		if (
+			!node ||
+			typeof node !== "object" ||
+			!(node as React.ReactElement).props.children ||
+			typeof (node as React.ReactElement)?.props?.children !== "object"
+		) {
+			return [node];
+		}
+
+		const element = node as React.ReactElement;
+
+		if (!Array.isArray(element.props.children)) {
+			return flattenChildren(
+				element.props.children,
+				maxDepth,
+				currentDepth + 1,
+			);
+		}
+
+		return (element.props.children as React.ReactNode[])
+			.flatMap(child =>
+				flattenChildren(child, maxDepth, currentDepth + 1),
+			)
+			.filter(Boolean);
+	};
+	const socialProviders = flattenChildren(socialProvidersNode, 3)
+		.filter(child => React.isValidElement(child) && child.type === "a")
+		.map(child => {
+			return {
+				id: (child as React.ReactElement).props.id,
+				href: (child as React.ReactElement).props.href,
+			};
+		});
+
 	return (
 		<div
-			className={clsx(
-				"h-screen w-screen bg-background flex flex-col items-center justify-center",
-			)}>
+			className={clsx("my-20 flex flex-col items-center justify-center")}>
 			<div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 m-4">
 				<img
 					className="w-72 h-auto"
@@ -343,7 +424,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 						</CardTitle>
 					</CardHeader>
 					<CardContent>{children}</CardContent>
-					<CardFooter>
+					<CardFooter className="flex-col gap-8">
 						{auth !== undefined && auth.showTryAnotherWayLink && (
 							<form
 								id="kc-select-try-another-way-form"
@@ -371,7 +452,34 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								</div>
 							</form>
 						)}
-						{socialProvidersNode}
+						<div className="grid grid-flow-row grid-rows-2 md:grid-cols-3 gap-4">
+							{socialProviders.map(socialProvider => {
+								return (
+									<Button
+										key={socialProvider.id}
+										asChild
+										className="px-5 py-6">
+										<a
+											className="flex gap-2 items-center"
+											href={socialProvider.href}>
+											<img
+												className="w-5 h-auto"
+												src={
+													SOCIAL_PROVIDERS_ICONS[
+														socialProvider.id as keyof typeof SOCIAL_PROVIDERS_LABELS
+													]
+												}
+											/>
+											{
+												SOCIAL_PROVIDERS_LABELS[
+													socialProvider.id as keyof typeof SOCIAL_PROVIDERS_LABELS
+												]
+											}
+										</a>
+									</Button>
+								);
+							})}
+						</div>
 						{displayInfo && (
 							<div
 								id="kc-info"
