@@ -227,7 +227,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 		tempNode.remove();
 
-		return text.split(/\.(?=\w+\s)/gi).join(". ");
+		return text.replace(/\.(?=\w+\s)/gi, ". ");
 	};
 
 	return (
