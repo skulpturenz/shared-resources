@@ -249,7 +249,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				</span>
 				<span
 					className={clsx(
-						"uppercase md:lowercase font-semibold md:font-bold text-2xl md:text-5xl md:pb-3",
+						"uppercase md:lowercase font-semibold md:font-bold text-2xl md:text-5xl md:pb-2",
 					)}>
 					{msg("loginTitleHtml", realm.displayNameHtml)}
 				</span>
