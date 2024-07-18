@@ -304,6 +304,11 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				href: (child as React.ReactElement).props.href,
 			};
 		});
+	const onClickTryAnotherWay = () => {
+		document.forms["kc-select-try-another-way-form" as never].submit();
+
+		return false;
+	};
 
 	return (
 		<div
@@ -430,12 +435,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 										/>
 										<Button
 											className="w-full"
-											onClick={() => {
-												document.forms[
-													"kc-select-try-another-way-form" as never
-												].submit();
-												return false;
-											}}>
+											onClick={onClickTryAnotherWay}>
 											{msg("doTryAnotherWay")}
 										</Button>
 									</div>
