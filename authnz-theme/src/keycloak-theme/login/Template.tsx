@@ -324,7 +324,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				</span>
 			</div>
 
-			<div className={clsx("w-4/5")}>
+			<div className={clsx("w-4/5 max-w-4xl")}>
 				<Card>
 					<CardHeader className="flex flex-col gap-2">
 						{localizationOptions.length > 0 && (
@@ -442,7 +442,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								</div>
 							</form>
 						)}
-						<div className="grid grid-flow-row grid-rows-2 md:grid-cols-3 gap-4">
+						<div className="grid grid-flow-row w-full md:w-fit md:grid-cols-3 gap-4">
 							{socialProviders.map(socialProvider => {
 								const provider =
 									socialProvider.id as keyof typeof SOCIAL_PROVIDERS_LABELS;
@@ -457,7 +457,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 												? "default"
 												: "outline"
 										}
-										className="px-5 py-6">
+										className="px-5 py-6 w-full">
 										<a
 											className="flex gap-2 items-center"
 											href={socialProvider.href}>
