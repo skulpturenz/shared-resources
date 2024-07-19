@@ -30,7 +30,7 @@ export default function KcPage(props: { kcContext: KcContext }) {
 							/>
 						);
 					}
-					default:
+					default: {
 						return (
 							<DefaultPage
 								kcContext={kcContext}
@@ -44,6 +44,7 @@ export default function KcPage(props: { kcContext: KcContext }) {
 								}
 							/>
 						);
+					}
 				}
 			})()}
 		</Suspense>
