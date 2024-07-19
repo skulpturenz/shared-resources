@@ -312,25 +312,18 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	};
 
 	return (
-		<div
-			className={clsx("my-20 flex flex-col items-center justify-center")}>
+		<div className={"my-20 flex flex-col items-center justify-center"}>
 			<div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 m-4">
 				<Logo className="w-72 h-auto" />
-				<span
-					className={clsx(
-						"hidden md:block font-light text-7xl pb-4",
-					)}>
+				<span className="hidden md:block font-light text-7xl pb-4">
 					/
 				</span>
-				<span
-					className={clsx(
-						"uppercase md:lowercase font-semibold md:font-bold text-2xl md:text-5xl md:pb-2",
-					)}>
+				<span className="uppercase md:lowercase font-semibold md:font-bold text-2xl md:text-5xl md:pb-2">
 					{msg("loginTitleHtml", realm.displayNameHtml)}
 				</span>
 			</div>
 
-			<div className={clsx("w-full max-w-3xl")}>
+			<div className="w-full max-w-3xl">
 				<Card>
 					<CardHeader className="flex flex-col gap-2">
 						{localizationOptions.length > 0 && (
@@ -341,22 +334,22 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 											<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
 											<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
 											<span className="sr-only">
-												Toggle theme
+												{msg("toggleTheme")}
 											</span>
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end">
 										<DropdownMenuItem
 											onClick={onClickLightTheme}>
-											Light
+											{msg("lightTheme")}
 										</DropdownMenuItem>
 										<DropdownMenuItem
 											onClick={onClickDarkTheme}>
-											Dark
+											{msg("darkTheme")}
 										</DropdownMenuItem>
 										<DropdownMenuItem
 											onClick={onClickSystemTheme}>
-											System
+											{msg("systemTheme")}
 										</DropdownMenuItem>
 									</DropdownMenuContent>
 								</DropdownMenu>
@@ -365,9 +358,9 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									className="w-full md:max-w-xs"
 									options={localizationOptions}
 									initialValue={currentLocalizationOption}
-									selectPlaceholder="Select language" // TODO: resources
-									searchPlaceholder="Search language..." // TODO: resources
-									noResultsText="No language found" // TODO: resources
+									selectPlaceholder={msgStr("selectLanguage")}
+									searchPlaceholder={msgStr("searchLanguage")}
+									noResultsText={msgStr("noLanguages")}
 								/>
 							</div>
 						)}
@@ -375,13 +368,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 							{!displayRequiredFields && <PageHeader />}
 
 							{displayRequiredFields && (
-								<div
-									className={kcClsx("kcContentWrapperClass")}>
-									<div
-										className={clsx(
-											kcClsx("kcLabelWrapperClass"),
-											"subtitle",
-										)}>
+								<div>
+									<div className={"subtitle"}>
 										<span className="subtitle">
 											<span className="required">*</span>
 											{msg("requiredFields")}

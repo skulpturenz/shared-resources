@@ -25,7 +25,7 @@ export default function KcPage(props: { kcContext: KcContext }) {
 								i18n={i18n}
 								classes={classes}
 								Template={Template}
-								doUseDefaultCss={false} // TODO: disable?
+								doUseDefaultCss={false}
 								UserProfileFormFields={UserProfileFormFields}
 								doMakeUserConfirmPassword={
 									doMakeUserConfirmPassword
