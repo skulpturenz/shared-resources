@@ -48,10 +48,8 @@ export const Combobox = ({
 
 	const selectedOption = options.find(option => option.value === value);
 
-	const Container = className ? "div" : React.Fragment;
-
 	return (
-		<Container className={className}>
+		<div className={className}>
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button
@@ -91,9 +89,10 @@ export const Combobox = ({
 									};
 
 									return (
-										<a href={option.href}>
+										<a
+											key={option.value}
+											href={option.href}>
 											<CommandItem
-												key={option.value}
 												value={option.value.toString()}
 												onSelect={onSelect}>
 												<Check
@@ -114,6 +113,6 @@ export const Combobox = ({
 					</Command>
 				</PopoverContent>
 			</Popover>
-		</Container>
+		</div>
 	);
 };

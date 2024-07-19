@@ -1,6 +1,8 @@
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { P } from "@/components/typography";
+import { Button } from "@/components/ui/button";
 
 export const Error = (
 	props: PageProps<Extract<KcContext, { pageId: "error.ftl" }>, I18n>,
@@ -19,19 +21,17 @@ export const Error = (
 			classes={classes}
 			displayMessage={false}
 			headerNode={msg("errorTitle")}>
-			<div id="kc-error-message">
-				<p
-					className="instruction"
-					dangerouslySetInnerHTML={{ __html: message.summary }}
-				/>
+			<div className="flex flex-col gap-4">
+				<P>{message.summary}</P>
+
 				{!skipLink &&
 					client !== undefined &&
 					client.baseUrl !== undefined && (
-						<p>
-							<a id="backToApplication" href={client.baseUrl}>
+						<Button asChild>
+							<a href={client.baseUrl}>
 								{msg("backToApplication")}
 							</a>
-						</p>
+						</Button>
 					)}
 			</div>
 		</Template>
