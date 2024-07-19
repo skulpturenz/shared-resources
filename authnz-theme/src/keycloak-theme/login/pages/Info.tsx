@@ -76,7 +76,7 @@ export const Info = (
 
 				{requiredActionsLabels && (
 					<P>
-						{message.summary}:&nbsp;
+						{message.summary}
 						<span className="font-bold">
 							{requiredActionsLabels.join(", ")}
 						</span>
