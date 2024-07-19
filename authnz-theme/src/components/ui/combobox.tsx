@@ -91,11 +91,11 @@ export const Combobox = ({
 									};
 
 									return (
-										<CommandItem
-											key={option.value}
-											value={option.value.toString()}
-											onSelect={onSelect}>
-											<a href={option.href}>
+										<a href={option.href}>
+											<CommandItem
+												key={option.value}
+												value={option.value.toString()}
+												onSelect={onSelect}>
 												<Check
 													className={cn(
 														"mr-2 h-4 w-4",
@@ -105,8 +105,8 @@ export const Combobox = ({
 													)}
 												/>
 												{option.label}
-											</a>
-										</CommandItem>
+											</CommandItem>
+										</a>
 									);
 								})}
 							</CommandGroup>
