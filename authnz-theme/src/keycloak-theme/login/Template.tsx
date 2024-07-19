@@ -218,12 +218,13 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 	const localizationOptions =
 		locale?.supported.map(locale => ({
-			value: locale.languageTag,
+			value: labelBySupportedLanguageTag[locale.languageTag],
 			label: labelBySupportedLanguageTag[locale.languageTag],
 			href: getChangeLocaleUrl(locale.languageTag),
 		})) ?? [];
 	const currentLocalizationOption = localizationOptions.find(
-		option => option.value === currentLanguageTag,
+		option =>
+			option.value === labelBySupportedLanguageTag[currentLanguageTag],
 	);
 
 	const onClickLightTheme = () => setTheme("light");
@@ -360,7 +361,6 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									</DropdownMenuContent>
 								</DropdownMenu>
 
-								{/* TODO: unable to select option for some reason, unsure if from storybook */}
 								<Combobox
 									className="w-full md:max-w-xs"
 									options={localizationOptions}

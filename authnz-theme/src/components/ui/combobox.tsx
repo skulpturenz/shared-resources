@@ -90,17 +90,12 @@ export const Combobox = ({
 										setOpen(false);
 									};
 
-									const Container = Boolean(option.href)
-										? "a"
-										: React.Fragment;
-
 									return (
 										<CommandItem
 											key={option.value}
 											value={option.value.toString()}
-											asChild={Boolean(option.href)}
 											onSelect={onSelect}>
-											<Container href={option.href}>
+											<a href={option.href}>
 												<Check
 													className={cn(
 														"mr-2 h-4 w-4",
@@ -110,7 +105,7 @@ export const Combobox = ({
 													)}
 												/>
 												{option.label}
-											</Container>
+											</a>
 										</CommandItem>
 									);
 								})}
