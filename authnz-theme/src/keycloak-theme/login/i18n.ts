@@ -9,6 +9,8 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		selectLanguage: "Select language...",
 		searchLanguage: "Search language...",
 		noLanguages: "No language found",
+		backToApplication: "Back to application",
+		proceedWithAction: "Click here to proceed",
 	},
 });
 

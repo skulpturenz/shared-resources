@@ -5,6 +5,7 @@ import { useI18n } from "./i18n";
 import DefaultPage from "keycloakify/login/DefaultPage";
 import { Template } from "./Template";
 import { Error } from "./pages/Error";
+import { Info } from "./pages/Info";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -22,6 +23,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "error.ftl": {
 						return (
 							<Error
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "info.ftl": {
+						return (
+							<Info
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}
