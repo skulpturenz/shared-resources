@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export const Small = React.forwardRef<
 	React.ElementRef<"small">,
-	TypographyProps
+	TypographyProps<"small">
 >(({ className, ...props }, ref) => (
 	<small
 		ref={ref}

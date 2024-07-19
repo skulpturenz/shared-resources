@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export const Blockquote = React.forwardRef<
 	React.ElementRef<"blockquote">,
-	TypographyProps
+	TypographyProps<"blockquote">
 >(({ className, ...props }, ref) => (
 	<blockquote
 		ref={ref}

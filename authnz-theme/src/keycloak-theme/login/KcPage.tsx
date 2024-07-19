@@ -3,7 +3,7 @@ import type { ClassKey } from "keycloakify/login";
 import type { KcContext } from "./KcContext";
 import { useI18n } from "./i18n";
 import DefaultPage from "keycloakify/login/DefaultPage";
-import Template from "./Template";
+import { Template } from "./Template";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -25,7 +25,7 @@ export default function KcPage(props: { kcContext: KcContext }) {
 								i18n={i18n}
 								classes={classes}
 								Template={Template}
-								doUseDefaultCss={true}
+								doUseDefaultCss={false}
 								UserProfileFormFields={UserProfileFormFields}
 								doMakeUserConfirmPassword={
 									doMakeUserConfirmPassword
@@ -38,4 +38,8 @@ export default function KcPage(props: { kcContext: KcContext }) {
 	);
 }
 
-const classes = {} satisfies { [key in ClassKey]?: string };
+const classes = {
+	kcBodyClass: "bg-background",
+} satisfies {
+	[key in ClassKey]?: string;
+};
