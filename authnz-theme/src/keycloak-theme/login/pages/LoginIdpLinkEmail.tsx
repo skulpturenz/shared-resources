@@ -1,6 +1,8 @@
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { P } from "@/components/typography";
+import { Button } from "@/components/ui/button";
 
 export const LoginIdpLinkEmail = (
 	props: PageProps<
@@ -21,24 +23,30 @@ export const LoginIdpLinkEmail = (
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			headerNode={msg("emailLinkIdpTitle", idpAlias)}>
-			<p id="instruction1" className="instruction">
+			<P>
 				{msg(
 					"emailLinkIdp1",
 					idpAlias,
 					brokerContext.username,
 					realm.displayName,
 				)}
-			</p>
-			<p id="instruction2" className="instruction">
-				{msg("emailLinkIdp2")}{" "}
-				<a href={url.loginAction}>{msg("doClickHere")}</a>{" "}
-				{msg("emailLinkIdp3")}
-			</p>
-			<p id="instruction3" className="instruction">
-				{msg("emailLinkIdp4")}{" "}
-				<a href={url.loginAction}>{msg("doClickHere")}</a>{" "}
-				{msg("emailLinkIdp5")}
-			</p>
+			</P>
+			<P>
+				{msg("emailLinkIdp2")}&nbsp;
+				<Button variant="link" size={null} asChild>
+					<a href={url.loginAction}>
+						{msg("doClickHere")}&nbsp;{msg("emailLinkIdp3")}
+					</a>
+				</Button>
+			</P>
+			<P>
+				{msg("emailLinkIdp4")}&nbsp;
+				<Button variant="link" size={null} asChild>
+					<a href={url.loginAction}>
+						{msg("doClickHere")}&nbsp;{msg("emailLinkIdp5")}
+					</a>
+				</Button>
+			</P>
 		</Template>
 	);
 };

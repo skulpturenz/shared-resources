@@ -8,6 +8,7 @@ import { Error } from "./pages/Error";
 import { Info } from "./pages/Info";
 import { Login } from "./pages/Login";
 import { LoginIdpLinkConfirm } from "./pages/LoginIdpLinkConfirm";
+import { LoginIdpLinkEmail } from "./pages/LoginIdpLinkEmail";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -58,6 +59,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "login-idp-link-confirm.ftl": {
 						return (
 							<LoginIdpLinkConfirm
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "login-idp-link-email.ftl": {
+						return (
+							<LoginIdpLinkEmail
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}
