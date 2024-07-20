@@ -75,7 +75,7 @@ export const LoginOtp = (
 							<InputOTPSlot
 								className={clsx(
 									messagesPerField.existsError("totp")
-										? "ring-red-500"
+										? "border-red-500 ring-red-500"
 										: "",
 									"w-full h-full",
 								)}
@@ -84,7 +84,7 @@ export const LoginOtp = (
 							<InputOTPSlot
 								className={clsx(
 									messagesPerField.existsError("totp")
-										? "ring-red-500"
+										? "border-red-500 ring-red-500"
 										: "",
 									"w-full h-full",
 								)}
@@ -93,7 +93,7 @@ export const LoginOtp = (
 							<InputOTPSlot
 								className={clsx(
 									messagesPerField.existsError("totp")
-										? "ring-red-500"
+										? "border-red-500 ring-red-500"
 										: "",
 									"w-full h-full",
 								)}
@@ -102,7 +102,7 @@ export const LoginOtp = (
 							<InputOTPSlot
 								className={clsx(
 									messagesPerField.existsError("totp")
-										? "ring-red-500"
+										? "border-red-500 ring-red-500"
 										: "",
 									"w-full h-full",
 								)}
@@ -111,7 +111,7 @@ export const LoginOtp = (
 							<InputOTPSlot
 								className={clsx(
 									messagesPerField.existsError("totp")
-										? "ring-red-500"
+										? "border-red-500 ring-red-500"
 										: "",
 									"w-full h-full",
 								)}
@@ -120,7 +120,7 @@ export const LoginOtp = (
 							<InputOTPSlot
 								className={clsx(
 									messagesPerField.existsError("totp")
-										? "ring-red-500"
+										? "border-red-500 ring-red-500"
 										: "",
 									"w-full h-full",
 								)}
