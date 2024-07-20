@@ -11,6 +11,7 @@ import { LoginIdpLinkConfirm } from "./pages/LoginIdpLinkConfirm";
 import { LoginIdpLinkEmail } from "./pages/LoginIdpLinkEmail";
 import { LoginOauthGrant } from "./pages/LoginOauthGrant";
 import { LoginOtp } from "./pages/LoginOtp";
+import { LoginOauth2DeviceVerifyUserCode } from "./pages/LoginOauth2DeviceVerifyUserCode";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -72,6 +73,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "login-idp-link-email.ftl": {
 						return (
 							<LoginIdpLinkEmail
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "login-oauth2-device-verify-user-code.ftl": {
+						return (
+							<LoginOauth2DeviceVerifyUserCode
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}

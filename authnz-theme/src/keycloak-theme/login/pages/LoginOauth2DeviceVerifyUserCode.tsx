@@ -1,4 +1,3 @@
-import { getKcClsx } from "keycloakify/login/lib/kcClsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
@@ -21,11 +20,6 @@ export const LoginOauth2DeviceVerifyUserCode = (
 
 	const { msg, msgStr } = i18n;
 
-	const { kcClsx } = getKcClsx({
-		doUseDefaultCss,
-		classes,
-	});
-
 	return (
 		<Template
 			kcContext={kcContext}
@@ -35,9 +29,7 @@ export const LoginOauth2DeviceVerifyUserCode = (
 			headerNode={msg("oauth2DeviceVerificationTitle")}>
 			<Form action={url.oauth2DeviceVerificationAction} method="POST">
 				<FormGroup>
-					<Label
-						htmlFor="device-user-code"
-						className={kcClsx("kcLabelClass")}>
+					<Label htmlFor="device-user-code">
 						{msg("verifyOAuth2DeviceUserCode")}
 					</Label>
 
