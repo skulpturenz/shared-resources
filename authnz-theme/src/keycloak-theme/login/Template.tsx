@@ -224,7 +224,10 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	};
 
 	return (
-		<div className={"my-20 flex flex-col items-center justify-center"}>
+		<div
+			className={
+				"my-20 mx-8 md:mx-0 flex flex-col items-center justify-center"
+			}>
 			<div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 m-4">
 				<Logo className="w-72 h-auto" />
 				<span className="hidden md:block font-light text-7xl pb-4">
