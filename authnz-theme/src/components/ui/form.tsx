@@ -19,7 +19,7 @@ export const Form = ({
 }: FormProps) => {
 	const classNames = clsx(
 		"flex gap-6",
-		flexDirection === "row" ? "flex-row" : "flex-col",
+		flexDirection === "row" ? "flex-row items-center" : "flex-col",
 	);
 
 	const child = asChild
@@ -47,7 +47,7 @@ export const FormGroup = ({
 }: FormGroupProps) => {
 	const classNames = clsx(
 		"flex gap-2",
-		flexDirection === "row" ? "flex-row" : "flex-col",
+		flexDirection === "row" ? "flex-row items-center" : "flex-col",
 	);
 	const child = asChild
 		? (React.Children.only(rest.children) as React.ReactElement<

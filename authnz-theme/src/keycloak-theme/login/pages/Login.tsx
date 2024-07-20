@@ -222,7 +222,7 @@ export const Login = (
 						)}
 					</FormGroup>
 					{realm.rememberMe && !usernameHidden && (
-						<FormGroup>
+						<FormGroup flexDirection="row">
 							<Checkbox
 								tabIndex={5}
 								id="rememberMe"
