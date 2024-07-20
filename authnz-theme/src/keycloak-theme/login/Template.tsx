@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { assert } from "keycloakify/tools/assert";
 import type { TemplateProps } from "keycloakify/login/TemplateProps";
 import { getKcClsx } from "keycloakify/login/lib/kcClsx";
@@ -33,60 +33,14 @@ import {
 	RotateCcw,
 	MoonStar,
 } from "lucide-react";
-import {
-	LogoLight,
-	LogoDark,
-	LogoGoogle,
-	LogoMicrosoft,
-	LogoFacebook,
-	LogoInstagram,
-	LogoTwitter,
-	LogoLinkedin,
-	LogoStackoverflow,
-	LogoGithub,
-	LogoGitlab,
-	LogoBitbucket,
-	LogoPaypal,
-	LogoOpenshift,
-} from "@/components/assets";
+import { LogoLight, LogoDark } from "@/components/assets";
 import { Label } from "@/components/ui/label";
-import { flattenChildren } from "@/lib/utils";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
 		<TemplateWithoutTheme {...props} />
 	</ThemeProvider>
 );
-
-const SSO_PROVIDERS_LABELS = {
-	"social-google": "Google",
-	"social-microsoft": "Microsoft",
-	"social-facebook": "Facebook",
-	"social-instagram": "Instagram",
-	"social-twitter": "Twitter",
-	"social-linkedin": "LinkedIn",
-	"social-stackoverflow": "StackOverflow",
-	"social-github": "GitHub",
-	"social-gitlab": "GitLab",
-	"social-bitbucket": "Bitbucket",
-	"social-paypal": "PayPal",
-	"social-openshift": "OpenShift",
-};
-
-const SSO_PROVIDERS_ICONS = {
-	"social-google": LogoGoogle,
-	"social-microsoft": LogoMicrosoft,
-	"social-facebook": LogoFacebook,
-	"social-instagram": LogoInstagram,
-	"social-twitter": LogoTwitter,
-	"social-linkedin": LogoLinkedin,
-	"social-stackoverflow": LogoStackoverflow,
-	"social-github": LogoGithub,
-	"social-gitlab": LogoGitlab,
-	"social-bitbucket": LogoBitbucket,
-	"social-paypal": LogoPaypal,
-	"social-openshift": LogoOpenshift,
-};
 
 const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	const {
@@ -129,7 +83,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		scripts,
 	} = kcContext;
 
-	useEffect(() => {
+	React.useEffect(() => {
 		document.title =
 			documentTitle ?? msgStr("loginTitle", kcContext.realm.displayName);
 	}, []);
@@ -144,7 +98,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		className: bodyClassName ?? kcClsx("kcBodyClass"),
 	});
 
-	useEffect(() => {
+	React.useEffect(() => {
 		const { currentLanguageTag } = locale ?? {};
 
 		if (currentLanguageTag === undefined) {
@@ -202,7 +156,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		],
 	});
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (areAllStyleSheetsLoaded) {
 			insertScriptTags();
 		}
@@ -263,14 +217,6 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		return text.replace(/\.(?=\w+\s)/gi, ". ");
 	};
 
-	const ssoProviders = flattenChildren(socialProvidersNode, 3)
-		.filter(child => React.isValidElement(child) && child.type === "a")
-		.map(child => {
-			return {
-				id: (child as React.ReactElement).props.id,
-				href: (child as React.ReactElement).props.href,
-			};
-		});
 	const onClickTryAnotherWay = () => {
 		document.forms["kc-select-try-another-way-form" as never].submit();
 
@@ -396,47 +342,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								</div>
 							</form>
 						)}
-						{ssoProviders.length > 0 && (
-							<div className="w-full">
-								<div
-									className={
-										ssoProviders.length < 3
-											? "flex gap-4"
-											: "grid grid-flow-row md:grid-cols-3 w-full gap-4"
-									}>
-									{ssoProviders.map(ssoProvider => {
-										const provider =
-											ssoProvider.id as keyof typeof SSO_PROVIDERS_LABELS;
-										const Logo =
-											SSO_PROVIDERS_ICONS[provider];
-
-										return (
-											<Button
-												key={ssoProvider.id}
-												asChild
-												variant={
-													theme === "light"
-														? "default"
-														: "outline"
-												}
-												className="px-5 py-6 w-full">
-												<a
-													className="flex gap-2 items-center"
-													href={ssoProvider.href}>
-													<Logo className="w-5 h-auto text-foreground" />
-
-													{
-														SSO_PROVIDERS_LABELS[
-															provider
-														]
-													}
-												</a>
-											</Button>
-										);
-									})}
-								</div>
-							</div>
-						)}
+						{socialProvidersNode}
 						{displayInfo && infoNode}
 					</CardFooter>
 				</Card>
