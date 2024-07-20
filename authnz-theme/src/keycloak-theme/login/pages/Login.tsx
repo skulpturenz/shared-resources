@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CircleAlert, Eye, EyeOff } from "lucide-react";
+import { Form, FormGroup } from "@/components/ui/form";
 
 const SSO_PROVIDERS_ICONS = {
 	google: LogoGoogle,
@@ -150,13 +151,12 @@ export const Login = (
 				</>
 			}>
 			{realm.password && (
-				<form
-					className="flex flex-col gap-6"
+				<Form
 					method="POST"
 					action={url.loginAction}
 					onSubmit={onSubmit}>
 					{!usernameHidden && (
-						<div className="flex flex-col gap-2">
+						<FormGroup>
 							<Label htmlFor="username">
 								{!realm.loginWithEmailAllowed &&
 									msg("username")}
@@ -189,10 +189,10 @@ export const Login = (
 									{messagesPerField.getFirstError("username")}
 								</Small>
 							)}
-						</div>
+						</FormGroup>
 					)}
 
-					<div className="flex flex-col gap-2">
+					<FormGroup>
 						<Label htmlFor="password">{msg("password")}</Label>
 						<PasswordWrapper
 							kcClsx={kcClsx}
@@ -220,9 +220,9 @@ export const Login = (
 								{messagesPerField.getFirstError("password")}
 							</Small>
 						)}
-					</div>
+					</FormGroup>
 					{realm.rememberMe && !usernameHidden && (
-						<div className="flex items-center gap-2">
+						<FormGroup>
 							<Checkbox
 								tabIndex={5}
 								id="rememberMe"
@@ -232,10 +232,10 @@ export const Login = (
 							<Label htmlFor="rememberMe">
 								{msg("rememberMe")}
 							</Label>
-						</div>
+						</FormGroup>
 					)}
 
-					<div className="flex flex-col gap-2">
+					<FormGroup className="flex flex-col gap-2">
 						{realm.resetPasswordAllowed && (
 							<Button variant="secondary" className="w-full">
 								<a
@@ -266,8 +266,8 @@ export const Login = (
 								/>
 							</Button>
 						</div>
-					</div>
-				</form>
+					</FormGroup>
+				</Form>
 			)}
 		</Template>
 	);

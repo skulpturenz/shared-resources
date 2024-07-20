@@ -4,6 +4,7 @@ import type { I18n } from "../i18n";
 import { clsx } from "clsx";
 import { P, Small, Ul } from "@/components/typography";
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 
 export const LoginOauthGrant = (
 	props: PageProps<
@@ -98,10 +99,11 @@ export const LoginOauthGrant = (
 				</>
 			)}
 
-			<form
+			<Form
+				flexDirection="row"
 				action={url.oauthAction}
 				method="POST"
-				className="mt-8 flex gap-2">
+				className="mt-8">
 				<input type="hidden" name="code" value={oauth.code} />
 				<Button className="w-full cursor-pointer" asChild>
 					<input
@@ -116,7 +118,7 @@ export const LoginOauthGrant = (
 					asChild>
 					<input name="cancel" type="submit" value={msgStr("doNo")} />
 				</Button>
-			</form>
+			</Form>
 		</Template>
 	);
 };
