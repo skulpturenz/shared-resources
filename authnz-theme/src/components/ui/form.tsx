@@ -49,6 +49,7 @@ export const FormGroup = ({
 		"flex gap-2",
 		flexDirection === "row" ? "flex-row items-center" : "flex-col",
 	);
+
 	const child = asChild
 		? (React.Children.only(rest.children) as React.ReactElement<
 				Record<string, any>
