@@ -6,7 +6,8 @@ export interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
 	asChild?: boolean;
 }
 
-export interface InputGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface FormGroupProps extends React.HTMLAttributes<HTMLDivElement> {
+	flexDirection?: "row" | "column";
 	asChild?: boolean;
 }
 
@@ -38,9 +39,16 @@ export const Form = ({
 	return <form {...rest} className={clsx(classNames, className)} />;
 };
 
-export const FormGroup = ({ className, asChild, ...rest }: InputGroupProps) => {
-	const classNames = "flex flex-col gap-2";
-
+export const FormGroup = ({
+	className,
+	asChild,
+	flexDirection,
+	...rest
+}: FormGroupProps) => {
+	const classNames = clsx(
+		"flex gap-2",
+		flexDirection === "row" ? "flex-row" : "flex-col",
+	);
 	const child = asChild
 		? (React.Children.only(rest.children) as React.ReactElement<
 				Record<string, any>

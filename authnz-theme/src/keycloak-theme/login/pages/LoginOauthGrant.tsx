@@ -4,7 +4,7 @@ import type { I18n } from "../i18n";
 import { clsx } from "clsx";
 import { P, Small, Ul } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import { Form, FormGroup } from "@/components/ui/form";
 
 export const LoginOauthGrant = (
 	props: PageProps<
@@ -105,19 +105,25 @@ export const LoginOauthGrant = (
 				method="POST"
 				className="mt-8">
 				<input type="hidden" name="code" value={oauth.code} />
-				<Button className="w-full cursor-pointer" asChild>
-					<input
-						name="accept"
-						type="submit"
-						value={msgStr("doYes")}
-					/>
-				</Button>
-				<Button
-					variant="secondary"
-					className="w-full cursor-pointer"
-					asChild>
-					<input name="cancel" type="submit" value={msgStr("doNo")} />
-				</Button>
+				<FormGroup flexDirection="row" className="w-full">
+					<Button className="w-full cursor-pointer" asChild>
+						<input
+							name="accept"
+							type="submit"
+							value={msgStr("doYes")}
+						/>
+					</Button>
+					<Button
+						variant="secondary"
+						className="w-full cursor-pointer"
+						asChild>
+						<input
+							name="cancel"
+							type="submit"
+							value={msgStr("doNo")}
+						/>
+					</Button>
+				</FormGroup>
 			</Form>
 		</Template>
 	);
