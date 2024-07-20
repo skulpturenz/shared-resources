@@ -1,7 +1,7 @@
-import { getKcClsx } from "keycloakify/login/lib/kcClsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { Button } from "@/components/ui/button";
 
 export const LoginIdpLinkConfirm = (
 	props: PageProps<
@@ -10,11 +10,6 @@ export const LoginIdpLinkConfirm = (
 	>,
 ) => {
 	const { kcContext, i18n, doUseDefaultCss, Template, classes } = props;
-
-	const { kcClsx } = getKcClsx({
-		doUseDefaultCss,
-		classes,
-	});
 
 	const { url, idpAlias } = kcContext;
 
@@ -27,35 +22,29 @@ export const LoginIdpLinkConfirm = (
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			headerNode={msg("confirmLinkIdpTitle")}>
-			<form id="kc-register-form" action={url.loginAction} method="post">
-				<div className={kcClsx("kcFormGroupClass")}>
-					<button
-						type="submit"
-						className={kcClsx(
-							"kcButtonClass",
-							"kcButtonDefaultClass",
-							"kcButtonBlockClass",
-							"kcButtonLargeClass",
-						)}
-						name="submitAction"
-						id="updateProfile"
-						value="updateProfile">
-						{msg("confirmLinkIdpReviewProfile")}
-					</button>
-					<button
-						type="submit"
-						className={kcClsx(
-							"kcButtonClass",
-							"kcButtonDefaultClass",
-							"kcButtonBlockClass",
-							"kcButtonLargeClass",
-						)}
-						name="submitAction"
-						id="linkAccount"
-						value="linkAccount">
-						{msg("confirmLinkIdpContinue", idpAlias)}
-					</button>
-				</div>
+			<form
+				id="kc-register-form"
+				action={url.loginAction}
+				method="POST"
+				className="flex gap-2">
+				<Button
+					variant="outline"
+					className="w-full"
+					type="submit"
+					name="submitAction"
+					id="updateProfile"
+					value="updateProfile">
+					{msg("confirmLinkIdpReviewProfile")}
+				</Button>
+				<Button
+					variant="outline"
+					className="w-full"
+					type="submit"
+					name="submitAction"
+					id="linkAccount"
+					value="linkAccount">
+					{msg("confirmLinkIdpContinue", idpAlias)}
+				</Button>
 			</form>
 		</Template>
 	);

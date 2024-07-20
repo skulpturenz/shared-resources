@@ -56,15 +56,15 @@ export const Combobox = ({
 			return;
 		}
 
-		const resizeListener = () => {
+		const onResize = () => {
 			setButtonWidth(buttonRef.current?.offsetWidth as number);
 		};
-		window.addEventListener("resize", resizeListener);
+		window.addEventListener("resize", onResize);
 
 		setButtonWidth(buttonRef.current?.offsetWidth);
 
 		return () => {
-			window.removeEventListener("resize", resizeListener);
+			window.removeEventListener("resize", onResize);
 		};
 	}, []);
 
