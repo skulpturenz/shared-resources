@@ -45,14 +45,35 @@ export const Combobox = ({
 }: ComboboxProps) => {
 	const [open, setOpen] = React.useState(Boolean(isOpen));
 	const [value, setValue] = React.useState(initialValue?.value ?? "");
+	const buttonRef = React.useRef<HTMLButtonElement>(null);
+
+	const [buttonWidth, setButtonWidth] = React.useState(0);
 
 	const selectedOption = options.find(option => option.value === value);
+
+	React.useLayoutEffect(() => {
+		if (!buttonRef.current) {
+			return;
+		}
+
+		const resizeListener = () => {
+			setButtonWidth(buttonRef.current?.offsetWidth as number);
+		};
+		window.addEventListener("resize", resizeListener);
+
+		setButtonWidth(buttonRef.current?.offsetWidth);
+
+		return () => {
+			window.removeEventListener("resize", resizeListener);
+		};
+	}, []);
 
 	return (
 		<div className={className}>
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button
+						ref={buttonRef}
 						variant="outline"
 						role="combobox"
 						aria-expanded={open}
@@ -62,7 +83,7 @@ export const Combobox = ({
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-full p-0">
+				<PopoverContent style={{ width: buttonWidth }} className="p-0">
 					<Command>
 						<CommandInput placeholder={searchPlaceholder} />
 						<CommandEmpty>{noResultsText}</CommandEmpty>
