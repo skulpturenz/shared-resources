@@ -179,6 +179,14 @@ export const Login = (
 										"username",
 										"password",
 									)}
+									className={
+										messagesPerField.existsError(
+											"username",
+											"password",
+										)
+											? "border-red-500 focus-visible:ring-red-500"
+											: ""
+									}
 								/>
 								{messagesPerField.existsError("username") && (
 									<CircleAlert className="h-5 w-auto text-red-500 absolute top-1/4 right-2" />
@@ -209,6 +217,14 @@ export const Login = (
 										"username",
 										"password",
 									)}
+									className={
+										messagesPerField.existsError(
+											"username",
+											"password",
+										)
+											? "border-red-500 focus-visible:ring-red-500"
+											: ""
+									}
 								/>
 								{messagesPerField.existsError("password") && (
 									<CircleAlert className="h-5 w-auto text-red-500 absolute top-1/4 right-2" />
@@ -299,7 +315,7 @@ const PasswordWrapper = (props: {
 	const onClickTogglePassword: React.MouseEventHandler<
 		HTMLButtonElement
 	> = event => {
-		event.preventDefault();
+		event.stopPropagation();
 
 		toggleIsPasswordRevealed();
 	};
@@ -309,6 +325,7 @@ const PasswordWrapper = (props: {
 			<div className="w-full">{children}</div>
 			<Button
 				variant="outline"
+				size="icon"
 				className="w-max"
 				onClick={onClickTogglePassword}
 				aria-label={msgStr(
@@ -316,10 +333,10 @@ const PasswordWrapper = (props: {
 				)}
 				aria-controls={passwordInputId}>
 				{isPasswordRevealed && (
-					<Eye aria-hidden className="h-5 w-auto" />
+					<Eye aria-hidden className="h-5 m-2 w-auto" />
 				)}
 				{!isPasswordRevealed && (
-					<EyeOff aria-hidden className="h-5 w-auto" />
+					<EyeOff aria-hidden className="h-5 m-2 w-auto" />
 				)}
 			</Button>
 		</div>
