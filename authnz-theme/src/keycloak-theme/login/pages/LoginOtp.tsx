@@ -32,24 +32,32 @@ export const LoginOtp = (
 			headerNode={msg("doLogIn")}>
 			<Form action={url.loginAction} method="POST">
 				{otpLogin.userOtpCredentials.length > 1 && (
-					<RadioGroup defaultValue={otpLogin.selectedCredentialId}>
-						{otpLogin.userOtpCredentials.map(userOtpCredential => {
-							return (
-								<div
-									key={userOtpCredential.id}
-									className="flex items-center space-x-2">
-									<RadioGroupItem
-										value={userOtpCredential.id}
-										id={userOtpCredential.id}
-										name="selectedCredentialId"
-									/>
-									<Label htmlFor={userOtpCredential.id}>
-										{userOtpCredential.userLabel}
-									</Label>
-								</div>
-							);
-						})}
-					</RadioGroup>
+					<FormGroup>
+						<Label htmlFor="device">Device</Label>
+						<RadioGroup
+							id="device"
+							defaultValue={otpLogin.selectedCredentialId}>
+							{otpLogin.userOtpCredentials.map(
+								userOtpCredential => {
+									return (
+										<div
+											key={userOtpCredential.id}
+											className="flex items-center space-x-2">
+											<RadioGroupItem
+												value={userOtpCredential.id}
+												id={userOtpCredential.id}
+												name="selectedCredentialId"
+											/>
+											<Label
+												htmlFor={userOtpCredential.id}>
+												{userOtpCredential.userLabel}
+											</Label>
+										</div>
+									);
+								},
+							)}
+						</RadioGroup>
+					</FormGroup>
 				)}
 
 				<FormGroup>
