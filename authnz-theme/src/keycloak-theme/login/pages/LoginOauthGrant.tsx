@@ -1,7 +1,9 @@
-import { getKcClsx } from "keycloakify/login/lib/kcClsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { clsx } from "clsx";
+import { P, Small, Ul } from "@/components/typography";
+import { Button } from "@/components/ui/button";
 
 export const LoginOauthGrant = (
 	props: PageProps<
@@ -14,11 +16,6 @@ export const LoginOauthGrant = (
 
 	const { msg, msgStr, advancedMsg, advancedMsgStr } = i18n;
 
-	const { kcClsx } = getKcClsx({
-		doUseDefaultCss,
-		classes,
-	});
-
 	return (
 		<Template
 			kcContext={kcContext}
@@ -27,116 +24,99 @@ export const LoginOauthGrant = (
 			classes={classes}
 			bodyClassName="oauth"
 			headerNode={
-				<>
+				<div
+					className={clsx(
+						"flex flex-col gap-2",
+						client.attributes.logoUri
+							? "items-center"
+							: "items-start",
+					)}>
 					{client.attributes.logoUri && (
-						<img src={client.attributes.logoUri} />
+						<img
+							className="h-40 w-auto"
+							src={client.attributes.logoUri}
+						/>
 					)}
-					<p>
-						{client.name
-							? msg(
-									"oauthGrantTitle",
-									advancedMsgStr(client.name),
-								)
-							: msg("oauthGrantTitle", client.clientId)}
-					</p>
-				</>
+					{client.name
+						? msg("oauthGrantTitle", advancedMsgStr(client.name))
+						: msg("oauthGrantTitle", client.clientId)}
+				</div>
 			}>
-			<div id="kc-oauth" className="content-area">
-				<h3>{msg("oauthGrantRequest")}</h3>
-				<ul>
-					{oauth.clientScopesRequested.map(clientScope => (
-						<li key={clientScope.consentScreenText}>
-							<span>
-								{advancedMsg(clientScope.consentScreenText)}
-								{clientScope.dynamicScopeParameter && (
-									<>
-										:{" "}
-										<b>
-											{clientScope.dynamicScopeParameter}
-										</b>
-									</>
-								)}
-							</span>
-						</li>
-					))}
-				</ul>
-
-				{client.attributes.policyUri ||
-					(client.attributes.tosUri && (
-						<h3>
-							{client.name
-								? msg(
-										"oauthGrantInformation",
-										advancedMsgStr(client.name),
-									)
-								: msg("oauthGrantInformation", client.clientId)}
-							{client.attributes.tosUri && (
+			<P>
+				<b>{msg("oauthGrantRequest")}</b>
+			</P>
+			<Ul>
+				{oauth.clientScopesRequested.map(clientScope => (
+					<li key={clientScope.consentScreenText}>
+						<P>
+							{advancedMsg(clientScope.consentScreenText)}
+							{clientScope.dynamicScopeParameter && (
 								<>
-									{msg("oauthGrantReview")}
-									<a
-										href={client.attributes.tosUri}
-										target="_blank">
-										{msg("oauthGrantTos")}
-									</a>
+									:&nbsp;
+									<b>{clientScope.dynamicScopeParameter}</b>
 								</>
 							)}
-							{client.attributes.policyUri && (
-								<>
-									{msg("oauthGrantReview")}
-									<a
-										href={client.attributes.policyUri}
-										target="_blank">
-										{msg("oauthGrantPolicy")}
-									</a>
-								</>
+						</P>
+					</li>
+				))}
+			</Ul>
+
+			{(client.attributes.tosUri || client.attributes.policyUri) && (
+				<>
+					<Small>
+						{client.name &&
+							msg(
+								"oauthGrantInformation",
+								advancedMsgStr(client.name),
 							)}
-						</h3>
-					))}
-
-				<form
-					className="form-actions"
-					action={url.oauthAction}
-					method="POST">
-					<input type="hidden" name="code" value={oauth.code} />
-					<div className={kcClsx("kcFormGroupClass")}>
-						<div id="kc-form-options">
-							<div
-								className={kcClsx(
-									"kcFormOptionsWrapperClass",
-								)}></div>
-						</div>
-
-						<div id="kc-form-buttons">
-							<div
-								className={kcClsx("kcFormButtonsWrapperClass")}>
-								<input
-									className={kcClsx(
-										"kcButtonClass",
-										"kcButtonPrimaryClass",
-										"kcButtonLargeClass",
-									)}
-									name="accept"
-									id="kc-login"
-									type="submit"
-									value={msgStr("doYes")}
-								/>
-								<input
-									className={kcClsx(
-										"kcButtonClass",
-										"kcButtonDefaultClass",
-										"kcButtonLargeClass",
-									)}
-									name="cancel"
-									id="kc-cancel"
-									type="submit"
-									value={msgStr("doNo")}
-								/>
-							</div>
-						</div>
+						{!client.name &&
+							msg("oauthGrantInformation", client.clientId)}
+					</Small>
+					<div className="flex flex-col items-start mt-2">
+						{client.attributes.tosUri && (
+							<Button variant="link" size={null} asChild>
+								<a
+									href={client.attributes.tosUri}
+									target="_blank"
+									rel="noopener noreferrer">
+									{msg("oauthGrantReview")}&nbsp;
+									{msg("oauthGrantTos")}
+								</a>
+							</Button>
+						)}
+						{client.attributes.policyUri && (
+							<Button variant="link" size={null} asChild>
+								<a
+									href={client.attributes.policyUri}
+									target="_blank">
+									{msg("oauthGrantReview")}&nbsp;
+									{msg("oauthGrantPolicy")}
+								</a>
+							</Button>
+						)}
 					</div>
-				</form>
-				<div className="clearfix"></div>
-			</div>
+				</>
+			)}
+
+			<form
+				action={url.oauthAction}
+				method="POST"
+				className="mt-8 flex gap-2">
+				<input type="hidden" name="code" value={oauth.code} />
+				<Button className="w-full cursor-pointer" asChild>
+					<input
+						name="accept"
+						type="submit"
+						value={msgStr("doYes")}
+					/>
+				</Button>
+				<Button
+					variant="secondary"
+					className="w-full cursor-pointer"
+					asChild>
+					<input name="cancel" type="submit" value={msgStr("doNo")} />
+				</Button>
+			</form>
 		</Template>
 	);
 };
