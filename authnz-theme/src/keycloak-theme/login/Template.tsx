@@ -284,7 +284,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 							{displayRequiredFields && (
 								<div>
-									<div className={"subtitle"}>
+									<div className="subtitle">
 										<span className="subtitle">
 											<span className="required">*</span>
 											{msg("requiredFields")}

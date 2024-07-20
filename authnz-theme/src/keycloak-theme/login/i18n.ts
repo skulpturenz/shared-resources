@@ -12,6 +12,7 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		backToApplication: "Back to application",
 		proceedWithAction: "Click here to proceed",
 		emailLinkIdp4: "Already verified?",
+		oauthGrantReview: "Review the",
 	},
 });
 
