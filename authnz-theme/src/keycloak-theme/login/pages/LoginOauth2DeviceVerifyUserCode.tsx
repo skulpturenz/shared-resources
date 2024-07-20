@@ -2,6 +2,10 @@ import { getKcClsx } from "keycloakify/login/lib/kcClsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Form, FormGroup } from "@/components/ui/form";
 
 export const LoginOauth2DeviceVerifyUserCode = (
 	props: PageProps<
@@ -29,59 +33,27 @@ export const LoginOauth2DeviceVerifyUserCode = (
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			headerNode={msg("oauth2DeviceVerificationTitle")}>
-			<form
-				id="kc-user-verify-device-user-code-form"
-				className={kcClsx("kcFormClass")}
-				action={url.oauth2DeviceVerificationAction}
-				method="post">
-				<div className={kcClsx("kcFormGroupClass")}>
-					<div className={kcClsx("kcLabelWrapperClass")}>
-						<label
-							htmlFor="device-user-code"
-							className={kcClsx("kcLabelClass")}>
-							{msg("verifyOAuth2DeviceUserCode")}
-						</label>
-					</div>
+			<Form action={url.oauth2DeviceVerificationAction} method="POST">
+				<FormGroup>
+					<Label
+						htmlFor="device-user-code"
+						className={kcClsx("kcLabelClass")}>
+						{msg("verifyOAuth2DeviceUserCode")}
+					</Label>
 
-					<div className={kcClsx("kcInputWrapperClass")}>
-						<input
-							id="device-user-code"
-							name="device_user_code"
-							autoComplete="off"
-							type="text"
-							className={kcClsx("kcInputClass")}
-							autoFocus
-						/>
-					</div>
-				</div>
+					<Input
+						id="device-user-code"
+						name="device_user_code"
+						autoComplete="off"
+						type="text"
+						autoFocus
+					/>
+				</FormGroup>
 
-				<div className={kcClsx("kcFormGroupClass")}>
-					<div
-						id="kc-form-options"
-						className={kcClsx("kcFormOptionsClass")}>
-						<div
-							className={kcClsx(
-								"kcFormOptionsWrapperClass",
-							)}></div>
-					</div>
-
-					<div
-						id="kc-form-buttons"
-						className={kcClsx("kcFormButtonsClass")}>
-						<div className={kcClsx("kcFormButtonsWrapperClass")}>
-							<input
-								className={kcClsx(
-									"kcButtonClass",
-									"kcButtonPrimaryClass",
-									"kcButtonLargeClass",
-								)}
-								type="submit"
-								value={msgStr("doSubmit")}
-							/>
-						</div>
-					</div>
-				</div>
-			</form>
+				<Button className="w-full" asChild>
+					<input type="submit" value={msgStr("doSubmit")} />
+				</Button>
+			</Form>
 		</Template>
 	);
 };
