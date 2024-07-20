@@ -221,11 +221,14 @@ export const Login = (
 					{realm.rememberMe && !usernameHidden && (
 						<div className="flex items-center gap-2">
 							<Checkbox
+								tabIndex={5}
 								id="rememberMe"
 								name="rememberMe"
 								defaultChecked={Boolean(login.rememberMe)}
 							/>
-							<Label htmlFor="rememberMe">Remember me</Label>
+							<Label htmlFor="rememberMe">
+								{msg("rememberMe")}
+							</Label>
 						</div>
 					)}
 
@@ -248,12 +251,11 @@ export const Login = (
 							/>
 
 							<Button
-								className="w-full"
+								className="w-full cursor-pointer"
 								disabled={isLoginButtonDisabled}
 								tabIndex={7}
 								asChild>
 								<input
-									className="cursor-pointer"
 									name="login"
 									id="kc-login"
 									type="submit"
