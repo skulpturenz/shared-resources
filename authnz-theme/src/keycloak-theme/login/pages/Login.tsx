@@ -158,11 +158,14 @@ export const Login = (
 					{!usernameHidden && (
 						<div className="flex flex-col gap-2">
 							<Label htmlFor="username">
-								{!realm.loginWithEmailAllowed
-									? msg("username")
-									: !realm.registrationEmailAsUsername
-										? msg("usernameOrEmail")
-										: msg("email")}
+								{!realm.loginWithEmailAllowed &&
+									msg("username")}
+								{realm.loginWithEmailAllowed &&
+									!realm.registrationEmailAsUsername &&
+									msg("usernameOrEmail")}
+								{realm.loginWithEmailAllowed &&
+									realm.registrationEmailAsUsername &&
+									msg("email")}
 							</Label>
 							<div className="relative">
 								<Input
