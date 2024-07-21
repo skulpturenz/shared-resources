@@ -217,7 +217,10 @@ export const Login = (
 
 					<FormGroup>
 						{realm.resetPasswordAllowed && (
-							<Button variant="secondary" className="w-full">
+							<Button
+								variant="secondary"
+								className="w-full"
+								asChild>
 								<a
 									tabIndex={6}
 									href={url.loginResetCredentialsUrl}>
