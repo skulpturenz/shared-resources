@@ -1,7 +1,11 @@
-import { getKcClsx } from "keycloakify/login/lib/kcClsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { Form, FormGroup } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Small } from "@/components/typography";
+import { Button } from "@/components/ui/button";
 
 export const LoginRecoveryAuthnCodeInput = (
 	props: PageProps<
@@ -10,11 +14,6 @@ export const LoginRecoveryAuthnCodeInput = (
 	>,
 ) => {
 	const { kcContext, i18n, doUseDefaultCss, Template, classes } = props;
-
-	const { kcClsx } = getKcClsx({
-		doUseDefaultCss,
-		classes,
-	});
 
 	const { url, messagesPerField, recoveryAuthnCodesInputBean } = kcContext;
 
@@ -28,74 +27,42 @@ export const LoginRecoveryAuthnCodeInput = (
 			classes={classes}
 			headerNode={msg("auth-recovery-code-header")}
 			displayMessage={!messagesPerField.existsError("recoveryCodeInput")}>
-			<form
-				id="kc-recovery-code-login-form"
-				className={kcClsx("kcFormClass")}
-				action={url.loginAction}
-				method="post">
-				<div className={kcClsx("kcFormGroupClass")}>
-					<div className={kcClsx("kcLabelWrapperClass")}>
-						<label
-							htmlFor="recoveryCodeInput"
-							className={kcClsx("kcLabelClass")}>
-							{msg(
-								"auth-recovery-code-prompt",
-								`${recoveryAuthnCodesInputBean.codeNumber}`,
-							)}
-						</label>
-					</div>
-					<div className={kcClsx("kcInputWrapperClass")}>
-						<input
-							tabIndex={1}
-							id="recoveryCodeInput"
-							name="recoveryCodeInput"
-							aria-invalid={messagesPerField.existsError(
-								"recoveryCodeInput",
-							)}
-							autoComplete="off"
-							type="text"
-							className={kcClsx("kcInputClass")}
-							autoFocus
-						/>
-						{messagesPerField.existsError("recoveryCodeInput") && (
-							<span
-								id="input-error"
-								className={kcClsx("kcInputErrorMessageClass")}
-								aria-live="polite"
-								dangerouslySetInnerHTML={{
-									__html: messagesPerField.get(
-										"recoveryCodeInput",
-									),
-								}}
-							/>
+			<Form action={url.loginAction} method="POST">
+				<FormGroup>
+					<Label htmlFor="recoveryCodeInput">
+						{msg(
+							"auth-recovery-code-prompt",
+							`${recoveryAuthnCodesInputBean.codeNumber}`,
 						)}
-					</div>
-				</div>
+					</Label>
+					<Input
+						tabIndex={1}
+						id="recoveryCodeInput"
+						name="recoveryCodeInput"
+						isError={messagesPerField.existsError(
+							"recoveryCodeInput",
+						)}
+						autoComplete="off"
+						type="text"
+						autoFocus
+					/>
+					{messagesPerField.existsError("recoveryCodeInput") && (
+						<Small aria-live="polite">
+							{messagesPerField.get("recoveryCodeInput")}
+						</Small>
+					)}
+				</FormGroup>
 
-				<div className={kcClsx("kcFormGroupClass")}>
-					<div
-						id="kc-form-options"
-						className={kcClsx("kcFormOptionsWrapperClass")}>
-						<div className={kcClsx("kcFormOptionsWrapperClass")} />
-					</div>
-					<div
-						id="kc-form-buttons"
-						className={kcClsx("kcFormButtonsClass")}>
+				<FormGroup>
+					<Button asChild>
 						<input
-							className={kcClsx(
-								"kcButtonClass",
-								"kcButtonPrimaryClass",
-								"kcButtonBlockClass",
-								"kcButtonLargeClass",
-							)}
 							name="login"
-							id="kc-login"
 							type="submit"
 							value={msgStr("doLogIn")}
 						/>
-					</div>
-				</div>
-			</form>
+					</Button>
+				</FormGroup>
+			</Form>
 		</Template>
 	);
 };

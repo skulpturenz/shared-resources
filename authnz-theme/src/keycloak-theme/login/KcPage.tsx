@@ -15,6 +15,7 @@ import { LoginOauth2DeviceVerifyUserCode } from "./pages/LoginOauth2DeviceVerify
 import { LoginPageExpired } from "./pages/LoginPageExpired";
 import { LoginConfigTotp } from "./pages/LoginConfigTotp";
 import { LoginPassword } from "./pages/LoginPassword";
+import { LoginRecoveryAuthnCodeInput } from "./pages/LoginRecoveryAuthnCodeInput";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -142,6 +143,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "login-password.ftl": {
 						return (
 							<LoginPassword
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "login-recovery-authn-code-input.ftl": {
+						return (
+							<LoginRecoveryAuthnCodeInput
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}
