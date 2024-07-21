@@ -64,13 +64,7 @@ export const Info = (
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			displayMessage={false}
-			headerNode={
-				<span
-					dangerouslySetInnerHTML={{
-						__html: messageHeader ?? message.summary,
-					}}
-				/>
-			}>
+			headerNode={messageHeader ?? message.summary}>
 			<div className="flex flex-col gap-4">
 				{!requiredActionsLabels && <P>{message.summary}</P>}
 

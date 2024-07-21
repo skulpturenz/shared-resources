@@ -2,6 +2,12 @@ import { getKcClsx, type KcClsx } from "keycloakify/login/lib/kcClsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { P, Small, Ul } from "@/components/typography";
+import { Button } from "@/components/ui/button";
+import { Form, FormGroup } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export const LoginConfigTotp = (
 	props: PageProps<
@@ -30,179 +36,136 @@ export const LoginConfigTotp = (
 			headerNode={msg("loginTotpTitle")}
 			displayMessage={!messagesPerField.existsError("totp", "userLabel")}>
 			<>
-				<ol id="kc-totp-settings">
-					<li>
-						<p>{msg("loginTotpStep1")}</p>
+				<P>
+					<b>{msg("loginTotpStep1")}</b>
+				</P>
+				<Ul>
+					{totp.supportedApplications.map(app => (
+						<li key={app}>
+							<P>{advancedMsg(app)}</P>
+						</li>
+					))}
+				</Ul>
 
-						<ul id="kc-totp-supported-apps">
-							{totp.supportedApplications.map(app => (
-								<li key={app}>{advancedMsg(app)}</li>
-							))}
-						</ul>
-					</li>
+				{mode === "manual" && (
+					<>
+						<div className="flex flex-col gap-2">
+							<P>
+								<b>{msg("loginTotpManualStep2")}</b>
+								<br />
+								{totp.totpSecretEncoded}
+							</P>
+							<P>
+								<b>{msg("loginTotpManualStep3")}</b>
+								<br />
+								<Ul>
+									<li>
+										{msg("loginTotpType")}:&nbsp;
+										{msg(`loginTotp.${totp.policy.type}`)}
+									</li>
+									<li>
+										{msg("loginTotpAlgorithm")}:&nbsp;
+										{totp.policy.getAlgorithmKey()}
+									</li>
+									<li>
+										{msg("loginTotpDigits")}:&nbsp;
+										{totp.policy.digits}
+									</li>
+									{totp.policy.type === "totp" && (
+										<li>
+											{msg("loginTotpInterval")}:&nbsp;
+											{totp.policy.period}
+										</li>
+									)}
+									{totp.policy.type !== "totp" && (
+										<li>
+											{msg("loginTotpCounter")}:&nbsp;
+											{totp.policy.initialCounter}
+										</li>
+									)}
+								</Ul>
+							</P>
+							<Button className="w-full" asChild>
+								<a href={totp.qrUrl} id="mode-barcode">
+									{msg("loginTotpScanBarcode")}
+								</a>
+							</Button>
+						</div>
+					</>
+				)}
 
-					{mode === "manual" ? (
-						<>
-							<li>
-								<p>{msg("loginTotpManualStep2")}</p>
-								<p>
-									<span id="kc-totp-secret-key">
-										{totp.totpSecretEncoded}
-									</span>
-								</p>
-								<p>
-									<a href={totp.qrUrl} id="mode-barcode">
-										{msg("loginTotpScanBarcode")}
-									</a>
-								</p>
-							</li>
-							<li>
-								<p>{msg("loginTotpManualStep3")}</p>
-								<p>
-									<ul>
-										<li id="kc-totp-type">
-											{msg("loginTotpType")}:{" "}
-											{msg(
-												`loginTotp.${totp.policy.type}`,
-											)}
-										</li>
-										<li id="kc-totp-algorithm">
-											{msg("loginTotpAlgorithm")}:{" "}
-											{totp.policy.getAlgorithmKey()}
-										</li>
-										<li id="kc-totp-digits">
-											{msg("loginTotpDigits")}:{" "}
-											{totp.policy.digits}
-										</li>
-										{totp.policy.type === "totp" ? (
-											<li id="kc-totp-period">
-												{msg("loginTotpInterval")}:{" "}
-												{totp.policy.period}
-											</li>
-										) : (
-											<li id="kc-totp-counter">
-												{msg("loginTotpCounter")}:{" "}
-												{totp.policy.initialCounter}
-											</li>
-										)}
-									</ul>
-								</p>
-							</li>
-						</>
-					) : (
-						<li>
-							<p>{msg("loginTotpStep2")}</p>
+				{mode !== "manual" && (
+					<>
+						<div className="flex flex-col items-center justify-center gap-2">
 							<img
-								id="kc-totp-secret-qr-code"
+								className="max-w-md"
 								src={`data:image/png;base64, ${totp.totpSecretQrCode}`}
 								alt="Figure: Barcode"
 							/>
-							<br />
-							<p>
-								<a href={totp.manualUrl} id="mode-manual">
-									{msg("loginTotpUnableToScan")}
-								</a>
-							</p>
-						</li>
-					)}
-					<li>
-						<p>{msg("loginTotpStep3")}</p>
-						<p>{msg("loginTotpStep3DeviceName")}</p>
-					</li>
-				</ol>
-
-				<form
-					action={url.loginAction}
-					className={kcClsx("kcFormClass")}
-					id="kc-totp-settings-form"
-					method="post">
-					<div className={kcClsx("kcFormGroupClass")}>
-						<div className={kcClsx("kcInputWrapperClass")}>
-							<label
-								htmlFor="totp"
-								className={kcClsx("kcLabelClass")}>
-								{msg("authenticatorCode")}
-							</label>{" "}
-							<span className="required">*</span>
+							<Small>{msg("loginTotpStep2")}</Small>
 						</div>
-						<div className={kcClsx("kcInputWrapperClass")}>
-							<input
-								type="text"
-								id="totp"
-								name="totp"
-								autoComplete="off"
-								className={kcClsx("kcInputClass")}
-								aria-invalid={messagesPerField.existsError(
-									"totp",
-								)}
-							/>
+						<br />
+						<Button className="w-full" asChild>
+							<a href={totp.manualUrl}>
+								{msg("loginTotpUnableToScan")}
+							</a>
+						</Button>
+					</>
+				)}
 
-							{messagesPerField.existsError("totp") && (
-								<span
-									id="input-error-otp-code"
-									className={kcClsx(
-										"kcInputErrorMessageClass",
-									)}
-									aria-live="polite"
-									dangerouslySetInnerHTML={{
-										__html: messagesPerField.get("totp"),
-									}}
-								/>
-							)}
-						</div>
-						<input
+				<Form className="mt-6" action={url.loginAction} method="POST">
+					<P>{msg("loginTotpStep3DeviceName")}</P>
+					<FormGroup>
+						<Label htmlFor="totp">
+							{msg("authenticatorCode")}*
+						</Label>
+						<Input
+							type="text"
+							id="totp"
+							name="totp"
+							autoComplete="off"
+							aria-invalid={messagesPerField.existsError("totp")}
+							isError={messagesPerField.existsError("totp")}
+						/>
+						{messagesPerField.existsError("totp") && (
+							<Small aria-live="polite">
+								{messagesPerField.get("totp")}
+							</Small>
+						)}
+						<Input
 							type="hidden"
 							id="totpSecret"
 							name="totpSecret"
 							value={totp.totpSecret}
 						/>
-						{mode && <input type="hidden" id="mode" value={mode} />}
-					</div>
+						{mode && <Input type="hidden" id="mode" value={mode} />}
+					</FormGroup>
 
-					<div className={kcClsx("kcFormGroupClass")}>
-						<div className={kcClsx("kcInputWrapperClass")}>
-							<label
-								htmlFor="userLabel"
-								className={kcClsx("kcLabelClass")}>
-								{msg("loginTotpDeviceName")}
-							</label>{" "}
-							{totp.otpCredentials.length >= 1 && (
-								<span className="required">*</span>
+					<FormGroup>
+						<Label htmlFor="userLabel">
+							{msg("loginTotpDeviceName")}
+							{totp.otpCredentials.length >= 1 && "*"}
+						</Label>
+						<Input
+							type="text"
+							id="userLabel"
+							name="userLabel"
+							autoComplete="off"
+							aria-invalid={messagesPerField.existsError(
+								"userLabel",
 							)}
-						</div>
-						<div className={kcClsx("kcInputWrapperClass")}>
-							<input
-								type="text"
-								id="userLabel"
-								name="userLabel"
-								autoComplete="off"
-								className={kcClsx("kcInputClass")}
-								aria-invalid={messagesPerField.existsError(
-									"userLabel",
-								)}
-							/>
-							{messagesPerField.existsError("userLabel") && (
-								<span
-									id="input-error-otp-label"
-									className={kcClsx(
-										"kcInputErrorMessageClass",
-									)}
-									aria-live="polite"
-									dangerouslySetInnerHTML={{
-										__html: messagesPerField.get(
-											"userLabel",
-										),
-									}}
-								/>
-							)}
-						</div>
-					</div>
+							isError={messagesPerField.existsError("userLabel")}
+						/>
+						{messagesPerField.existsError("userLabel") && (
+							<Small aria-live="polite">
+								{messagesPerField.get("userLabel")}
+							</Small>
+						)}
+					</FormGroup>
 
-					<div className={kcClsx("kcFormGroupClass")}>
-						<LogoutOtherSessions kcClsx={kcClsx} i18n={i18n} />
-					</div>
+					<LogoutOtherSessions kcClsx={kcClsx} i18n={i18n} />
 
-					{isAppInitiatedAction ? (
+					{isAppInitiatedAction && (
 						<>
 							<input
 								type="submit"
@@ -228,45 +191,34 @@ export const LoginConfigTotp = (
 								{msg("doCancel")}
 							</button>
 						</>
-					) : (
-						<input
-							type="submit"
-							className={kcClsx(
-								"kcButtonClass",
-								"kcButtonPrimaryClass",
-								"kcButtonLargeClass",
-							)}
-							id="saveTOTPBtn"
-							value={msgStr("doSubmit")}
-						/>
 					)}
-				</form>
+					{!isAppInitiatedAction && (
+						<Button>
+							<input type="submit" value={msgStr("doSubmit")} />
+						</Button>
+					)}
+				</Form>
 			</>
 		</Template>
 	);
 };
 
-function LogoutOtherSessions(props: { kcClsx: KcClsx; i18n: I18n }) {
-	const { kcClsx, i18n } = props;
+const LogoutOtherSessions = (props: { kcClsx: KcClsx; i18n: I18n }) => {
+	const { i18n } = props;
 
 	const { msg } = i18n;
 
 	return (
-		<div id="kc-form-options" className={kcClsx("kcFormOptionsClass")}>
-			<div className={kcClsx("kcFormOptionsWrapperClass")}>
-				<div className="checkbox">
-					<label>
-						<input
-							type="checkbox"
-							id="logout-sessions"
-							name="logout-sessions"
-							value="on"
-							defaultChecked={true}
-						/>
-						{msg("logoutOtherSessions")}
-					</label>
-				</div>
-			</div>
-		</div>
+		<FormGroup flexDirection="row">
+			<Checkbox
+				name="logout-sessions"
+				id="logout-sessions"
+				value="on"
+				defaultChecked
+			/>
+			<Label htmlFor="logout-sessions">
+				{msg("logoutOtherSessions")}
+			</Label>
+		</FormGroup>
 	);
-}
+};

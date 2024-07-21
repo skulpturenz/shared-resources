@@ -9,7 +9,6 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Small } from "@/components/typography";
-import { clsx } from "clsx";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
@@ -74,12 +73,10 @@ export const LoginOtp = (
 						<InputOTPGroup className="grid grid-cols-6 h-12">
 							{new Array(6).fill(null).map((_, idx) => (
 								<InputOTPSlot
-									className={clsx(
-										messagesPerField.existsError("totp")
-											? "border-red-500 ring-red-500"
-											: "",
-										"w-full h-full",
+									isError={messagesPerField.existsError(
+										"totp",
 									)}
+									className="w-full h-full"
 									index={idx}
 								/>
 							))}

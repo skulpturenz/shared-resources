@@ -13,6 +13,7 @@ import { LoginOauthGrant } from "./pages/LoginOauthGrant";
 import { LoginOtp } from "./pages/LoginOtp";
 import { LoginOauth2DeviceVerifyUserCode } from "./pages/LoginOauth2DeviceVerifyUserCode";
 import { LoginPageExpired } from "./pages/LoginPageExpired";
+import { LoginConfigTotp } from "./pages/LoginConfigTotp";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -118,6 +119,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "login-page-expired.ftl": {
 						return (
 							<LoginPageExpired
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "login-config-totp.ftl": {
+						return (
+							<LoginConfigTotp
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}
