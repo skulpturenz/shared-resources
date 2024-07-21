@@ -25,6 +25,9 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		backToLogin: "Back to login",
 		"recovery-code-config-warning-message":
 			"Make sure to print, download, or copy them to a password manager and keep them safe. Canceling this setup will remove these recovery codes from your account.",
+		recoveryCodesDownloaded: "Recovery codes downloaded",
+		recoveryCodesCopied: "Recovery codes copied",
+		recoveryCodesPrinted: "Recovery codes printed",
 	},
 });
 
