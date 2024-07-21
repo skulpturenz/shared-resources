@@ -233,65 +233,64 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 					/
 				</span>
 				<span className="uppercase md:lowercase font-semibold md:font-bold text-2xl md:text-6xl">
-					{msg("loginTitleHtml", realm.displayNameHtml)}
+					{realm.displayName}
 				</span>
 			</div>
 
 			<div className="w-full max-w-3xl">
 				<Card>
 					<CardHeader className="flex flex-col gap-2">
-						{localizationOptions.length > 0 && (
-							<div className="flex md:justify-end gap-2">
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button variant="outline" size="icon">
-											<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-											<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
-											<span className="sr-only">
-												{msg("toggleTheme")}
-											</span>
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent align="end">
-										<DropdownMenuItem
-											onClick={onClickLightTheme}>
-											<Check
-												className={cn(
-													"mr-2 h-4 w-4",
-													theme === "light"
-														? "opacity-100"
-														: "opacity-0",
-												)}
-											/>
-											{msg("lightTheme")}
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={onClickDarkTheme}>
-											<Check
-												className={cn(
-													"mr-2 h-4 w-4",
-													theme === "dark"
-														? "opacity-100"
-														: "opacity-0",
-												)}
-											/>
-											{msg("darkTheme")}
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											onClick={onClickSystemTheme}>
-											<Check
-												className={cn(
-													"mr-2 h-4 w-4",
-													theme === "system"
-														? "opacity-100"
-														: "opacity-0",
-												)}
-											/>
-											{msg("systemTheme")}
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
-
+						<div className="flex md:justify-end gap-2">
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button variant="outline" size="icon">
+										<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+										<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+										<span className="sr-only">
+											{msg("toggleTheme")}
+										</span>
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									<DropdownMenuItem
+										onClick={onClickLightTheme}>
+										<Check
+											className={cn(
+												"mr-2 h-4 w-4",
+												theme === "light"
+													? "opacity-100"
+													: "opacity-0",
+											)}
+										/>
+										{msg("lightTheme")}
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={onClickDarkTheme}>
+										<Check
+											className={cn(
+												"mr-2 h-4 w-4",
+												theme === "dark"
+													? "opacity-100"
+													: "opacity-0",
+											)}
+										/>
+										{msg("darkTheme")}
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={onClickSystemTheme}>
+										<Check
+											className={cn(
+												"mr-2 h-4 w-4",
+												theme === "system"
+													? "opacity-100"
+													: "opacity-0",
+											)}
+										/>
+										{msg("systemTheme")}
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+							{localizationOptions.length > 0 && (
 								<Combobox
 									className="w-full md:max-w-xs"
 									options={localizationOptions}
@@ -300,8 +299,9 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									searchPlaceholder={msgStr("searchLanguage")}
 									noResultsText={msgStr("noLanguages")}
 								/>
-							</div>
-						)}
+							)}
+						</div>
+
 						<CardTitle className="flex flex-col gap-2">
 							{!displayRequiredFields && <PageHeader />}
 
