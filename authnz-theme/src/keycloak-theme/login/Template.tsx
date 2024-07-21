@@ -224,16 +224,13 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	};
 
 	return (
-		<div
-			className={
-				"my-20 mx-8 md:mx-0 flex flex-col items-center justify-center"
-			}>
-			<div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 m-4">
-				<Logo className="w-72 h-auto" />
-				<span className="hidden md:block font-light text-7xl pb-4">
+		<div className="my-20 mx-8 md:mx-0 flex flex-col items-center justify-center">
+			<div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 m-4 md:mb-12">
+				<Logo className="h-14 md:mt-3 w-auto" />
+				<span className="hidden md:block font-light text-2xl md:text-6xl ">
 					/
 				</span>
-				<span className="uppercase md:lowercase font-semibold md:font-bold text-2xl md:text-5xl md:pb-2">
+				<span className="uppercase md:lowercase font-semibold md:font-bold text-2xl md:text-6xl">
 					{msg("loginTitleHtml", realm.displayNameHtml)}
 				</span>
 			</div>
