@@ -1,6 +1,8 @@
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { P } from "@/components/typography";
+import { Button } from "@/components/ui/button";
 
 export const LoginVerifyEmail = (
 	props: PageProps<
@@ -21,19 +23,18 @@ export const LoginVerifyEmail = (
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			displayInfo
-			headerNode={msg("emailVerifyTitle")}
-			infoNode={
-				<p className="instruction">
-					{msg("emailVerifyInstruction2")}
-					<br />
-					<a href={url.loginAction}>{msg("doClickHere")}</a>
-					&nbsp;
-					{msg("emailVerifyInstruction3")}
-				</p>
-			}>
-			<p className="instruction">
-				{msg("emailVerifyInstruction1", user?.email ?? "")}
-			</p>
+			headerNode={msg("emailVerifyTitle")}>
+			<P>{msg("emailVerifyInstruction1", user?.email ?? "")}</P>
+
+			<P>
+				{msg("emailVerifyInstruction2")}&nbsp;
+				<Button variant="link" size={null} asChild>
+					<a href={url.loginAction}>
+						{msg("doClickHere")}&nbsp;
+						{msg("emailVerifyInstruction3")}
+					</a>
+				</Button>
+			</P>
 		</Template>
 	);
 };
