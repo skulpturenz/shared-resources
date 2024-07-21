@@ -96,9 +96,9 @@ export const LoginConfigTotp = (
 
 				{mode !== "manual" && (
 					<>
-						<div className="flex flex-col items-center justify-center gap-2">
+						<div className="flex flex-col items-center justify-center gap-4">
 							<img
-								className="max-w-md"
+								className="max-w-md rounded-sm ring-2 ring-primary ring-offset-2 ring-offset-background"
 								src={`data:image/png;base64, ${totp.totpSecretQrCode}`}
 								alt="Figure: Barcode"
 							/>
