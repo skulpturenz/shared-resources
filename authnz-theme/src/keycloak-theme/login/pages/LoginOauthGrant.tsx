@@ -1,10 +1,10 @@
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
-import { clsx } from "clsx";
 import { P, Small, Ul } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Form, FormGroup } from "@/components/ui/form";
+import { cn } from "@/lib/utils";
 
 export const LoginOauthGrant = (
 	props: PageProps<
@@ -26,7 +26,7 @@ export const LoginOauthGrant = (
 			bodyClassName="oauth"
 			headerNode={
 				<div
-					className={clsx(
+					className={cn(
 						"flex flex-col gap-2",
 						client.attributes.logoUri
 							? "items-center"

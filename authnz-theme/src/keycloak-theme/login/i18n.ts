@@ -29,6 +29,7 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		recoveryCodesCopied: "Recovery codes copied",
 		recoveryCodesPrinted: "Recovery codes printed",
 		doForgotPassword: "Forgot password?",
+		emailForgotTitle: "Forgot password?",
 	},
 });
 
