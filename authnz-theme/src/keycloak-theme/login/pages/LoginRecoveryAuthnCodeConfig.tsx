@@ -11,9 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import type { CheckedState } from "@radix-ui/react-checkbox";
-import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import ReactDOMServer from "react-dom/server";
 import { Portal } from "@/components/ui/portal";
+import { Toaster } from "@/components/ui/sonner";
 
 export const LoginRecoveryAuthnCodeConfig = (
 	props: PageProps<
@@ -71,7 +72,7 @@ export const LoginRecoveryAuthnCodeConfig = (
 
 		navigator.clipboard.writeText(parseRecoveryCodeList());
 
-		toast("Recovery codes copied", {
+		toast(msgStr("recoveryCodesCopied"), {
 			description: formatCurrentDateTime(),
 		});
 	};
@@ -87,35 +88,35 @@ export const LoginRecoveryAuthnCodeConfig = (
 				.join("\r\n");
 
 		const buildDownloadContent = () =>
-			`${msgStr("recovery-codes-download-file-header")}\n\n` +
-			parseRecoveryCodeList() +
-			"\n" +
-			`${msgStr("recovery-codes-download-file-description")}\n\n` +
-			`${msgStr("recovery-codes-download-file-date")} ` +
-			formatCurrentDateTime();
+			[
+				`${msgStr("recovery-codes-download-file-header")}\n`,
+				parseRecoveryCodeList(),
+				`${msgStr("recovery-codes-download-file-description")}\n`,
+				`${msgStr("recovery-codes-download-file-date")} ${formatCurrentDateTime()}`,
+			].join("\r\n");
 
 		const setUpDownloadLinkAndDownload = (
 			filename: string,
 			text: string,
 		) => {
-			const el = document.createElement("a");
-			el.setAttribute(
+			const element = document.createElement("a");
+
+			element.setAttribute(
 				"href",
 				"data:text/plain;charset=utf-8," + encodeURIComponent(text),
 			);
-			el.setAttribute("download", filename);
-			el.style.display = "none";
-			document.body.appendChild(el);
-			el.click();
-			document.body.removeChild(el);
+			element.setAttribute("download", filename);
+			element.style.display = "none";
+			element.click();
+			element.remove();
 		};
 
 		setUpDownloadLinkAndDownload(
-			"kc-download-recovery-codes.txt",
+			"download-recovery-codes.txt",
 			buildDownloadContent(),
 		);
 
-		toast("Recovery codes downloaded", {
+		toast(msgStr("recoveryCodesDownloaded"), {
 			description: formatCurrentDateTime(),
 		});
 	};
@@ -130,20 +131,28 @@ export const LoginRecoveryAuthnCodeConfig = (
 				div { list-style-type: none; font-family: monospace }
 				p:first-of-type { margin-top: 48px }`;
 
-			return (
-				"<html><style>" +
-				styles +
-				"</style><body>" +
-				"<title>kc-download-recovery-codes</title>" +
-				`<p>${msgStr("recovery-codes-download-file-header")}</p>` +
-				"<div>" +
-				recoveryCodeListHTML +
-				"</div>" +
-				`<p>${msgStr("recovery-codes-download-file-description")}</p>` +
-				`<p>${msgStr("recovery-codes-download-file-date")} ` +
-				formatCurrentDateTime() +
-				"</p>" +
-				"</body></html>"
+			return ReactDOMServer.renderToString(
+				<html>
+					<head>
+						<style>{styles}</style>
+						<title>download-recovery-codes</title>
+					</head>
+					<body>
+						<p>{msgStr("recovery-codes-download-file-header")}</p>
+						<div
+							dangerouslySetInnerHTML={{
+								__html: recoveryCodeListHTML ?? "",
+							}}
+						/>
+						<p>
+							{msgStr("recovery-codes-download-file-description")}
+						</p>
+						<p>
+							{msgStr("recovery-codes-download-file-date")}&nbsp;
+							{formatCurrentDateTime()}
+						</p>
+					</body>
+				</html>,
 			);
 		}
 
@@ -156,7 +165,7 @@ export const LoginRecoveryAuthnCodeConfig = (
 
 		printRecoveryCodes();
 
-		toast("Recovery codes printed", {
+		toast(msgStr("recoveryCodesPrinted"), {
 			description: formatCurrentDateTime(),
 		});
 	};
@@ -186,10 +195,7 @@ export const LoginRecoveryAuthnCodeConfig = (
 				{recoveryAuthnCodesConfigBean.generatedRecoveryAuthnCodesList.map(
 					code => (
 						<li className="kc-recovery-codes-list" key={code}>
-							<P>
-								{code.slice(0, 4)}-{code.slice(4, 8)}-
-								{code.slice(8)}
-							</P>
+							<P>{code.match(/.{1,4}/gi)?.join("-")}</P>
 						</li>
 					),
 				)}
