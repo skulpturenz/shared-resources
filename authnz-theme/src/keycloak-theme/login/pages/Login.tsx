@@ -174,10 +174,6 @@ export const Login = (
 								type="text"
 								autoFocus
 								autoComplete="username"
-								aria-invalid={messagesPerField.existsError(
-									"username",
-									"password",
-								)}
 								isError={messagesPerField.existsError(
 									"username",
 									"password",
@@ -203,11 +199,8 @@ export const Login = (
 								name="password"
 								type="password"
 								autoComplete="current-password"
-								aria-invalid={messagesPerField.existsError(
-									"username",
-									"password",
-								)}
 								isError={messagesPerField.existsError(
+									"username",
 									"password",
 								)}
 							/>
@@ -232,7 +225,7 @@ export const Login = (
 						</FormGroup>
 					)}
 
-					<FormGroup className="flex flex-col gap-2">
+					<FormGroup>
 						{realm.resetPasswordAllowed && (
 							<Button variant="secondary" className="w-full">
 								<a
@@ -296,7 +289,7 @@ const PasswordWrapper = (props: {
 	const onClickTogglePassword: React.MouseEventHandler<
 		HTMLButtonElement
 	> = event => {
-		event.stopPropagation();
+		event.preventDefault();
 
 		toggleIsPasswordRevealed();
 	};

@@ -124,7 +124,6 @@ export const LoginConfigTotp = (
 							id="totp"
 							name="totp"
 							autoComplete="off"
-							aria-invalid={messagesPerField.existsError("totp")}
 							isError={messagesPerField.existsError("totp")}
 						/>
 						{messagesPerField.existsError("totp") && (
@@ -151,9 +150,6 @@ export const LoginConfigTotp = (
 							id="userLabel"
 							name="userLabel"
 							autoComplete="off"
-							aria-invalid={messagesPerField.existsError(
-								"userLabel",
-							)}
 							isError={messagesPerField.existsError("userLabel")}
 						/>
 						{messagesPerField.existsError("userLabel") && (
