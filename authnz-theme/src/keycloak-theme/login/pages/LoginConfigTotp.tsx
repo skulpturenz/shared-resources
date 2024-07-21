@@ -114,7 +114,7 @@ export const LoginConfigTotp = (
 				)}
 
 				<Form className="mt-6" action={url.loginAction} method="POST">
-					<P>{msg("loginTotpStep3DeviceName")}</P>
+					<P>{msg("loginTotpStep3DeviceName")}:</P>
 					<FormGroup>
 						<Label htmlFor="totp">
 							{msg("authenticatorCode")}*
