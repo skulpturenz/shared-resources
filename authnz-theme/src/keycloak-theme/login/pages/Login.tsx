@@ -104,7 +104,7 @@ export const Login = (
 								<div
 									className={
 										social.providers.length < 3
-											? "flex gap-4"
+											? "flex flex-col gap-4 w-full"
 											: "grid grid-flow-row md:grid-cols-3 w-full gap-4"
 									}>
 									{social.providers.map(provider => {
