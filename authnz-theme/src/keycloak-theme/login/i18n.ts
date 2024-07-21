@@ -18,6 +18,10 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		doLogIn: "Sign in",
 		pageExpiredMsg1: "Restart login",
 		pageExpiredMsg2: "Continue login",
+		errorTitle: "Error",
+		loginTotpStep2: "Scan the barcode",
+		loginTotpStep3DeviceName:
+			"Name your device to help you manage your OTP devices:",
 	},
 });
 

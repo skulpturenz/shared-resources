@@ -25,7 +25,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CircleAlert, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { Form, FormGroup } from "@/components/ui/form";
 
 const SSO_PROVIDERS_ICONS = {
@@ -167,33 +167,24 @@ export const Login = (
 									realm.registrationEmailAsUsername &&
 									msg("email")}
 							</Label>
-							<div className="relative">
-								<Input
-									tabIndex={2}
-									id="username"
-									name="username"
-									type="text"
-									autoFocus
-									autoComplete="username"
-									aria-invalid={messagesPerField.existsError(
-										"username",
-										"password",
-									)}
-									className={
-										messagesPerField.existsError(
-											"username",
-											"password",
-										)
-											? "border-red-500 focus-visible:ring-red-500"
-											: ""
-									}
-								/>
-								{messagesPerField.existsError("username") && (
-									<CircleAlert className="h-5 w-auto text-red-500 absolute top-1/4 right-2" />
+							<Input
+								tabIndex={2}
+								id="username"
+								name="username"
+								type="text"
+								autoFocus
+								autoComplete="username"
+								aria-invalid={messagesPerField.existsError(
+									"username",
+									"password",
 								)}
-							</div>
+								isError={messagesPerField.existsError(
+									"username",
+									"password",
+								)}
+							/>
 							{messagesPerField.existsError("username") && (
-								<Small>
+								<Small aria-live="polite">
 									{messagesPerField.getFirstError("username")}
 								</Small>
 							)}
@@ -206,33 +197,23 @@ export const Login = (
 							kcClsx={kcClsx}
 							i18n={i18n}
 							passwordInputId="password">
-							<div className="relative">
-								<Input
-									tabIndex={3}
-									id="password"
-									name="password"
-									type="password"
-									autoComplete="current-password"
-									aria-invalid={messagesPerField.existsError(
-										"username",
-										"password",
-									)}
-									className={
-										messagesPerField.existsError(
-											"username",
-											"password",
-										)
-											? "border-red-500 focus-visible:ring-red-500"
-											: ""
-									}
-								/>
-								{messagesPerField.existsError("password") && (
-									<CircleAlert className="h-5 w-auto text-red-500 absolute top-1/4 right-2" />
+							<Input
+								tabIndex={3}
+								id="password"
+								name="password"
+								type="password"
+								autoComplete="current-password"
+								aria-invalid={messagesPerField.existsError(
+									"username",
+									"password",
 								)}
-							</div>
+								isError={messagesPerField.existsError(
+									"password",
+								)}
+							/>
 						</PasswordWrapper>
 						{messagesPerField.existsError("password") && (
-							<Small>
+							<Small aria-live="polite">
 								{messagesPerField.getFirstError("password")}
 							</Small>
 						)}
