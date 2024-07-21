@@ -33,9 +33,10 @@ export const LoginOtp = (
 			<Form action={url.loginAction} method="POST">
 				{otpLogin.userOtpCredentials.length > 1 && (
 					<FormGroup>
-						<Label htmlFor="device">Device</Label>
+						<Label htmlFor="device">{msg("loginOtpDevice")}</Label>
 						<RadioGroup
 							id="device"
+							name="selectedCredentialId"
 							defaultValue={otpLogin.selectedCredentialId}>
 							{otpLogin.userOtpCredentials.map(
 								userOtpCredential => {
@@ -46,7 +47,6 @@ export const LoginOtp = (
 											<RadioGroupItem
 												value={userOtpCredential.id}
 												id={userOtpCredential.id}
-												name="selectedCredentialId"
 											/>
 											<Label
 												htmlFor={userOtpCredential.id}>
@@ -72,60 +72,17 @@ export const LoginOtp = (
 						maxLength={6}
 						containerClassName="grid grid-cols-1">
 						<InputOTPGroup className="grid grid-cols-6 h-12">
-							<InputOTPSlot
-								className={clsx(
-									messagesPerField.existsError("totp")
-										? "border-red-500 ring-red-500"
-										: "",
-									"w-full h-full",
-								)}
-								index={0}
-							/>
-							<InputOTPSlot
-								className={clsx(
-									messagesPerField.existsError("totp")
-										? "border-red-500 ring-red-500"
-										: "",
-									"w-full h-full",
-								)}
-								index={1}
-							/>
-							<InputOTPSlot
-								className={clsx(
-									messagesPerField.existsError("totp")
-										? "border-red-500 ring-red-500"
-										: "",
-									"w-full h-full",
-								)}
-								index={2}
-							/>
-							<InputOTPSlot
-								className={clsx(
-									messagesPerField.existsError("totp")
-										? "border-red-500 ring-red-500"
-										: "",
-									"w-full h-full",
-								)}
-								index={3}
-							/>
-							<InputOTPSlot
-								className={clsx(
-									messagesPerField.existsError("totp")
-										? "border-red-500 ring-red-500"
-										: "",
-									"w-full h-full",
-								)}
-								index={4}
-							/>
-							<InputOTPSlot
-								className={clsx(
-									messagesPerField.existsError("totp")
-										? "border-red-500 ring-red-500"
-										: "",
-									"w-full h-full",
-								)}
-								index={5}
-							/>
+							{new Array(6).fill(null).map((_, idx) => (
+								<InputOTPSlot
+									className={clsx(
+										messagesPerField.existsError("totp")
+											? "border-red-500 ring-red-500"
+											: "",
+										"w-full h-full",
+									)}
+									index={idx}
+								/>
+							))}
 						</InputOTPGroup>
 					</InputOTP>
 					{messagesPerField.existsError("totp") && (
