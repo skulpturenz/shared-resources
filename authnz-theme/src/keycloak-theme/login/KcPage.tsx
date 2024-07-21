@@ -10,6 +10,7 @@ import { Login } from "./pages/Login";
 import { LoginIdpLinkConfirm } from "./pages/LoginIdpLinkConfirm";
 import { LoginIdpLinkEmail } from "./pages/LoginIdpLinkEmail";
 import { LoginOauthGrant } from "./pages/LoginOauthGrant";
+import { LoginOtp } from "./pages/LoginOtp";
 import { LoginOauth2DeviceVerifyUserCode } from "./pages/LoginOauth2DeviceVerifyUserCode";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
@@ -94,6 +95,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "login-oauth-grant.ftl": {
 						return (
 							<LoginOauthGrant
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "login-otp.ftl": {
+						return (
+							<LoginOtp
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}

@@ -14,6 +14,8 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		emailLinkIdp4: "Already verified?",
 		oauthGrantReview: "Review the",
 		verifyOAuth2DeviceUserCode: "Enter the code provided by your device",
+		loginOtpDevice: "Device",
+		doLogIn: "Sign in",
 	},
 });
 
