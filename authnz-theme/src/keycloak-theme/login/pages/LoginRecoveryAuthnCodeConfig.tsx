@@ -1,10 +1,17 @@
-import { useEffect } from "react";
-import { clsx } from "keycloakify/tools/clsx";
+import React, { useEffect } from "react";
 import { getKcClsx, type KcClsx } from "keycloakify/login/lib/kcClsx";
 import { useInsertScriptTags } from "keycloakify/tools/useInsertScriptTags";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { CircleAlert, Copy, Download, Printer } from "lucide-react";
+import { Ol } from "@/components/typography";
+import { Form, FormGroup } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import type { CheckedState } from "@radix-ui/react-checkbox";
 
 export const LoginRecoveryAuthnCodeConfig = (
 	props: PageProps<
@@ -144,9 +151,22 @@ export const LoginRecoveryAuthnCodeConfig = (
 		],
 	});
 
+	const [areRecoveryCodesSaved, setAreRecoveryCodesSaved] =
+		React.useState(false);
+	const onChangeAreRecoveryCodesSaved = (checked: CheckedState) =>
+		setAreRecoveryCodesSaved(checked.valueOf() as boolean);
+
 	useEffect(() => {
 		insertScriptTags();
 	}, []);
+
+	const onConfirmSavedRecoveryCodes = () => {
+		//@ts-expect-error: This is code from the original theme, we trust it.
+		document.getElementById(
+			"saveRecoveryAuthnCodesBtn",
+			//@ts-expect-error: This is code from the original theme, we trust it.
+		).disabled = !areRecoveryCodesSaved;
+	};
 
 	return (
 		<Template
@@ -155,30 +175,19 @@ export const LoginRecoveryAuthnCodeConfig = (
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			headerNode={msg("recovery-code-config-header")}>
-			<div
-				className={clsx(
-					"pf-c-alert",
-					"pf-m-warning",
-					"pf-m-inline",
-					kcClsx("kcRecoveryCodesWarning"),
-				)}
-				aria-label="Warning alert">
-				<div className="pf-c-alert__icon">
-					<i
-						className="pficon-warning-triangle-o"
-						aria-hidden="true"
-					/>
+			<div className="text-muted-foreground">
+				<div className="flex gap-2 items-center">
+					<span className="hidden md:block">
+						<CircleAlert className="h-4 w-4" />
+					</span>
+					<span>
+						{msg("recovery-code-config-warning-title")}.&nbsp;
+					</span>
 				</div>
-				<h4 className="pf-c-alert__title">
-					<span className="pf-screen-reader">Warning alert:</span>
-					{msg("recovery-code-config-warning-title")}
-				</h4>
-				<div className="pf-c-alert__description">
-					<p>{msg("recovery-code-config-warning-message")}</p>
-				</div>
+				<span>{msg("recovery-code-config-warning-message")}</span>
 			</div>
 
-			<ol
+			<Ol
 				id="kc-recovery-codes-list"
 				className={kcClsx("kcRecoveryCodesList")}>
 				{recoveryAuthnCodesConfigBean.generatedRecoveryAuthnCodesList.map(
@@ -189,145 +198,112 @@ export const LoginRecoveryAuthnCodeConfig = (
 						</li>
 					),
 				)}
-			</ol>
+			</Ol>
 
-			{/* actions */}
-			<div className={kcClsx("kcRecoveryCodesActions")}>
-				<button
-					id="printRecoveryCodes"
-					className={clsx("pf-c-button", "pf-m-link")}
-					type="button">
-					<i className="pficon-print" aria-hidden="true" />{" "}
+			<FormGroup flexDirection="row">
+				<Button variant="outline" className="w-full flex gap-2">
+					<Printer className="h-4 w-4" />
 					{msg("recovery-codes-print")}
-				</button>
-				<button
-					id="downloadRecoveryCodes"
-					className={clsx("pf-c-button", "pf-m-link")}
-					type="button">
-					<i className="pficon-save" aria-hidden="true" />{" "}
+				</Button>
+				<Button variant="outline" className="w-full flex gap-2">
+					<Download className="h-4 w-4" />
 					{msg("recovery-codes-download")}
-				</button>
-				<button
-					id="copyRecoveryCodes"
-					className={clsx("pf-c-button", "pf-m-link")}
-					type="button">
-					<i className="pficon-blueprint" aria-hidden="true" />{" "}
+				</Button>
+				<Button variant="outline" className="w-full flex gap-2">
+					<Copy className="h-4 w-4" />
 					{msg("recovery-codes-copy")}
-				</button>
-			</div>
+				</Button>
+			</FormGroup>
 
-			{/* confirmation checkbox */}
-			<div className={kcClsx("kcFormOptionsClass")}>
-				<input
-					className={kcClsx("kcCheckInputClass")}
-					type="checkbox"
+			<FormGroup flexDirection="row" className="mt-10 my-4">
+				<Checkbox
 					id="kcRecoveryCodesConfirmationCheck"
 					name="kcRecoveryCodesConfirmationCheck"
-					onChange={function () {
-						//@ts-expect-error: This is code from the original theme, we trust it.
-						document.getElementById(
-							"saveRecoveryAuthnCodesBtn",
-							//@ts-expect-error: This is code from the original theme, we trust it.
-						).disabled = !this.checked;
-					}}
+					onCheckedChange={onChangeAreRecoveryCodesSaved}
+					onChange={onConfirmSavedRecoveryCodes}
 				/>
-				<label htmlFor="kcRecoveryCodesConfirmationCheck">
+				<Label htmlFor="kcRecoveryCodesConfirmationCheck">
 					{msg("recovery-codes-confirmation-message")}
-				</label>
-			</div>
+				</Label>
+			</FormGroup>
 
-			<form
-				action={kcContext.url.loginAction}
-				className={kcClsx("kcFormGroupClass")}
-				id="kc-recovery-codes-settings-form"
-				method="post">
-				<input
-					type="hidden"
-					name="generatedRecoveryAuthnCodes"
-					value={
-						recoveryAuthnCodesConfigBean.generatedRecoveryAuthnCodesAsString
-					}
-				/>
-				<input
-					type="hidden"
-					name="generatedAt"
-					value={recoveryAuthnCodesConfigBean.generatedAt}
-				/>
-				<input
-					type="hidden"
-					id="userLabel"
-					name="userLabel"
-					value={msgStr("recovery-codes-label-default")}
-				/>
+			<Form action={kcContext.url.loginAction} method="POST">
+				<div className="hidden">
+					<Input
+						type="hidden"
+						name="generatedRecoveryAuthnCodes"
+						value={
+							recoveryAuthnCodesConfigBean.generatedRecoveryAuthnCodesAsString
+						}
+					/>
+					<Input
+						type="hidden"
+						name="generatedAt"
+						value={recoveryAuthnCodesConfigBean.generatedAt}
+					/>
+					<Input
+						type="hidden"
+						id="userLabel"
+						name="userLabel"
+						value={msgStr("recovery-codes-label-default")}
+					/>
+				</div>
 
 				<LogoutOtherSessions kcClsx={kcClsx} i18n={i18n} />
 
-				{isAppInitiatedAction ? (
-					<>
+				{isAppInitiatedAction && (
+					<FormGroup>
+						<Button asChild>
+							<input
+								type="submit"
+								id="saveRecoveryAuthnCodesBtn"
+								value={msgStr("recovery-codes-action-complete")}
+								disabled
+							/>
+						</Button>
+
+						<Button
+							type="submit"
+							id="cancelRecoveryAuthnCodesBtn"
+							name="cancel-aia"
+							value="true"
+							variant="secondary">
+							{msg("recovery-codes-action-cancel")}
+						</Button>
+					</FormGroup>
+				)}
+
+				{!isAppInitiatedAction && (
+					<Button asChild>
 						<input
 							type="submit"
-							className={kcClsx(
-								"kcButtonClass",
-								"kcButtonPrimaryClass",
-								"kcButtonLargeClass",
-							)}
 							id="saveRecoveryAuthnCodesBtn"
 							value={msgStr("recovery-codes-action-complete")}
 							disabled
 						/>
-						<button
-							type="submit"
-							className={kcClsx(
-								"kcButtonClass",
-								"kcButtonDefaultClass",
-								"kcButtonLargeClass",
-							)}
-							id="cancelRecoveryAuthnCodesBtn"
-							name="cancel-aia"
-							value="true">
-							{msg("recovery-codes-action-cancel")}
-						</button>
-					</>
-				) : (
-					<input
-						type="submit"
-						className={kcClsx(
-							"kcButtonClass",
-							"kcButtonPrimaryClass",
-							"kcButtonBlockClass",
-							"kcButtonLargeClass",
-						)}
-						id="saveRecoveryAuthnCodesBtn"
-						value={msgStr("recovery-codes-action-complete")}
-						disabled
-					/>
+					</Button>
 				)}
-			</form>
+			</Form>
 		</Template>
 	);
 };
 
-function LogoutOtherSessions(props: { kcClsx: KcClsx; i18n: I18n }) {
-	const { kcClsx, i18n } = props;
+const LogoutOtherSessions = (props: { kcClsx: KcClsx; i18n: I18n }) => {
+	const { i18n } = props;
 
 	const { msg } = i18n;
 
 	return (
-		<div id="kc-form-options" className={kcClsx("kcFormOptionsClass")}>
-			<div className={kcClsx("kcFormOptionsWrapperClass")}>
-				<div className="checkbox">
-					<label>
-						<input
-							type="checkbox"
-							id="logout-sessions"
-							name="logout-sessions"
-							value="on"
-							defaultChecked={true}
-						/>
-						{msg("logoutOtherSessions")}
-					</label>
-				</div>
-			</div>
-		</div>
+		<FormGroup flexDirection="row">
+			<Checkbox
+				name="logout-sessions"
+				id="logout-sessions"
+				value="on"
+				defaultChecked
+			/>
+			<Label htmlFor="logout-sessions">
+				{msg("logoutOtherSessions")}
+			</Label>
+		</FormGroup>
 	);
-}
+};

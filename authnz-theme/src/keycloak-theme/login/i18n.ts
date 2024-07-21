@@ -23,6 +23,8 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		loginTotpStep3DeviceName:
 			"Name your device to help you manage your OTP devices",
 		backToLogin: "Back to login",
+		"recovery-code-config-warning-message":
+			"Make sure to print, download, or copy them to a password manager and keep them safe. Canceling this setup will remove these recovery codes from your account.",
 	},
 });
 

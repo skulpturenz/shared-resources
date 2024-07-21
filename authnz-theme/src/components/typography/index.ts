@@ -4,6 +4,6 @@ export * from "./h2";
 export * from "./h3";
 export * from "./h4";
 export * from "./p";
-export * from "./ul";
+export * from "./list";
 export * from "./small";
 export * from "./large";
