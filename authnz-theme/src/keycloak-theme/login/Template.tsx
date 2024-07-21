@@ -37,6 +37,7 @@ import {
 import { LogoLight, LogoDark } from "@/components/assets";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
@@ -240,7 +241,13 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			<div className="w-full max-w-3xl">
 				<Card>
 					<CardHeader className="flex flex-col gap-2">
-						<div className="flex md:justify-end gap-2">
+						<div
+							className={clsx(
+								"flex gap-2",
+								localizationOptions.length > 0
+									? "md:justify-end"
+									: "justify-end",
+							)}>
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button variant="outline" size="icon">
