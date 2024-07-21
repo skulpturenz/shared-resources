@@ -14,6 +14,7 @@ import { LoginOtp } from "./pages/LoginOtp";
 import { LoginOauth2DeviceVerifyUserCode } from "./pages/LoginOauth2DeviceVerifyUserCode";
 import { LoginPageExpired } from "./pages/LoginPageExpired";
 import { LoginConfigTotp } from "./pages/LoginConfigTotp";
+import { LoginPassword } from "./pages/LoginPassword";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -130,6 +131,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "login-config-totp.ftl": {
 						return (
 							<LoginConfigTotp
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "login-password.ftl": {
+						return (
+							<LoginPassword
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}

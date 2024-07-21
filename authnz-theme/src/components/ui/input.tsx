@@ -23,6 +23,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 					)}
 					ref={ref}
 					{...props}
+					aria-invalid={isError}
 				/>
 				{isError && (
 					<CircleAlert className="h-5 w-auto text-red-500 absolute top-1/4 right-2" />
