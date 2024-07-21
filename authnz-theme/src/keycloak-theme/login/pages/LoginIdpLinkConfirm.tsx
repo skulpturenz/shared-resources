@@ -2,6 +2,7 @@ import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 import { Button } from "@/components/ui/button";
+import { Form, FormGroup } from "@/components/ui/form";
 
 export const LoginIdpLinkConfirm = (
 	props: PageProps<
@@ -22,30 +23,28 @@ export const LoginIdpLinkConfirm = (
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			headerNode={msg("confirmLinkIdpTitle")}>
-			<form
-				id="kc-register-form"
-				action={url.loginAction}
-				method="POST"
-				className="flex gap-2">
-				<Button
-					variant="outline"
-					className="w-full"
-					type="submit"
-					name="submitAction"
-					id="updateProfile"
-					value="updateProfile">
-					{msg("confirmLinkIdpReviewProfile")}
-				</Button>
-				<Button
-					variant="outline"
-					className="w-full"
-					type="submit"
-					name="submitAction"
-					id="linkAccount"
-					value="linkAccount">
-					{msg("confirmLinkIdpContinue", idpAlias)}
-				</Button>
-			</form>
+			<Form id="kc-register-form" action={url.loginAction} method="POST">
+				<FormGroup flexDirection="row">
+					<Button
+						variant="outline"
+						className="w-full"
+						type="submit"
+						name="submitAction"
+						id="updateProfile"
+						value="updateProfile">
+						{msg("confirmLinkIdpReviewProfile")}
+					</Button>
+					<Button
+						variant="outline"
+						className="w-full"
+						type="submit"
+						name="submitAction"
+						id="linkAccount"
+						value="linkAccount">
+						{msg("confirmLinkIdpContinue", idpAlias)}
+					</Button>
+				</FormGroup>
+			</Form>
 		</Template>
 	);
 };

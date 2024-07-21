@@ -1,6 +1,8 @@
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { Button } from "@/components/ui/button";
+import { FormGroup } from "@/components/ui/form";
 
 export const LoginPageExpired = (
 	props: PageProps<
@@ -21,18 +23,16 @@ export const LoginPageExpired = (
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			headerNode={msg("pageExpiredTitle")}>
-			<p id="instruction1" className="instruction">
-				{msg("pageExpiredMsg1")}
-				<a id="loginRestartLink" href={url.loginRestartFlowUrl}>
-					{msg("doClickHere")}
-				</a>{" "}
-				.<br />
-				{msg("pageExpiredMsg2")}{" "}
-				<a id="loginContinueLink" href={url.loginAction}>
-					{msg("doClickHere")}
-				</a>{" "}
-				.
-			</p>
+			<FormGroup flexDirection="row">
+				<Button variant="outline" className="w-full">
+					<a href={url.loginRestartFlowUrl}>
+						{msg("pageExpiredMsg1")}
+					</a>
+				</Button>
+				<Button variant="outline" className="w-full">
+					<a href={url.loginAction}>{msg("pageExpiredMsg2")}</a>
+				</Button>
+			</FormGroup>
 		</Template>
 	);
 };
