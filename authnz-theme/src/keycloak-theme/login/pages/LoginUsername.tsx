@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { clsx } from "keycloakify/tools/clsx";
-import { getKcClsx } from "keycloakify/login/lib/kcClsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
@@ -48,11 +46,6 @@ export const LoginUsername = (
 	>,
 ) => {
 	const { kcContext, i18n, doUseDefaultCss, Template, classes } = props;
-
-	const { kcClsx } = getKcClsx({
-		doUseDefaultCss,
-		classes,
-	});
 
 	const {
 		social,
@@ -125,16 +118,6 @@ export const LoginUsername = (
 												<a
 													className="flex gap-2 items-center"
 													href={provider.loginUrl}>
-													{provider.iconClasses && (
-														<i
-															className={clsx(
-																kcClsx(
-																	"kcCommonLogoIdP",
-																),
-																provider.iconClasses,
-															)}
-															aria-hidden="true"></i>
-													)}
 													<Logo className="w-5 h-auto text-foreground" />
 
 													{provider.displayName}

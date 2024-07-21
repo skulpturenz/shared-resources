@@ -1,4 +1,4 @@
-import { clsx } from "clsx";
+import { cn } from "@/lib/utils";
 import React from "react";
 
 export interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
@@ -17,7 +17,7 @@ export const Form = ({
 	asChild,
 	...rest
 }: FormProps) => {
-	const classNames = clsx(
+	const classNames = cn(
 		"flex gap-6",
 		flexDirection === "row" ? "flex-row items-center" : "flex-col",
 	);
@@ -30,13 +30,13 @@ export const Form = ({
 
 	if (child && React.isValidElement(child)) {
 		const cloned = React.cloneElement(child, {
-			className: clsx(classNames, child.props.className),
+			className: cn(classNames, child.props.className),
 		});
 
 		return cloned;
 	}
 
-	return <form {...rest} className={clsx(classNames, className)} />;
+	return <form {...rest} className={cn(classNames, className)} />;
 };
 
 export const FormGroup = ({
@@ -45,7 +45,7 @@ export const FormGroup = ({
 	flexDirection,
 	...rest
 }: FormGroupProps) => {
-	const classNames = clsx(
+	const classNames = cn(
 		"flex gap-2",
 		flexDirection === "row" ? "flex-row items-center" : "flex-col",
 	);
@@ -58,11 +58,11 @@ export const FormGroup = ({
 
 	if (child && React.isValidElement(child)) {
 		const cloned = React.cloneElement(child, {
-			className: clsx(classNames, child.props.className),
+			className: cn(classNames, child.props.className),
 		});
 
 		return cloned;
 	}
 
-	return <div {...rest} className={clsx(classNames, className)} />;
+	return <div {...rest} className={cn(classNames, className)} />;
 };
