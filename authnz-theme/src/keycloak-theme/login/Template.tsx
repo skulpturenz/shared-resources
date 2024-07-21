@@ -32,9 +32,11 @@ import {
 	CircleCheck,
 	RotateCcw,
 	MoonStar,
+	Check,
 } from "lucide-react";
 import { LogoLight, LogoDark } from "@/components/assets";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
@@ -253,14 +255,38 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									<DropdownMenuContent align="end">
 										<DropdownMenuItem
 											onClick={onClickLightTheme}>
+											<Check
+												className={cn(
+													"mr-2 h-4 w-4",
+													theme === "light"
+														? "opacity-100"
+														: "opacity-0",
+												)}
+											/>
 											{msg("lightTheme")}
 										</DropdownMenuItem>
 										<DropdownMenuItem
 											onClick={onClickDarkTheme}>
+											<Check
+												className={cn(
+													"mr-2 h-4 w-4",
+													theme === "dark"
+														? "opacity-100"
+														: "opacity-0",
+												)}
+											/>
 											{msg("darkTheme")}
 										</DropdownMenuItem>
 										<DropdownMenuItem
 											onClick={onClickSystemTheme}>
+											<Check
+												className={cn(
+													"mr-2 h-4 w-4",
+													theme === "system"
+														? "opacity-100"
+														: "opacity-0",
+												)}
+											/>
 											{msg("systemTheme")}
 										</DropdownMenuItem>
 									</DropdownMenuContent>
