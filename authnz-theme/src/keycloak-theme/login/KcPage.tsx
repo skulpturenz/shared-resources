@@ -16,6 +16,7 @@ import { LoginPageExpired } from "./pages/LoginPageExpired";
 import { LoginConfigTotp } from "./pages/LoginConfigTotp";
 import { LoginPassword } from "./pages/LoginPassword";
 import { LoginRecoveryAuthnCodeInput } from "./pages/LoginRecoveryAuthnCodeInput";
+import { LoginResetPassword } from "./pages/LoginResetPassword";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -154,6 +155,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "login-recovery-authn-code-input.ftl": {
 						return (
 							<LoginRecoveryAuthnCodeInput
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "login-reset-password.ftl": {
+						return (
+							<LoginResetPassword
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}
