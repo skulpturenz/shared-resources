@@ -196,7 +196,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				<a
 					href={url.loginRestartFlowUrl}
 					aria-label={msgStr("restartLoginTooltip")}>
-					<div className="flex items-center gap-1">
+					<div className="flex items-center gap-2">
 						<RotateCcw className="h-4 w-4" />
 						<span>{msg("restartLoginTooltip")}</span>
 					</div>
@@ -297,7 +297,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								message &&
 								(message.type !== "warning" ||
 									!isAppInitiatedAction) && (
-									<CardDescription className="flex gap-1 items-center">
+									<CardDescription className="flex gap-2 items-center">
 										<span className="hidden md:block">
 											{message.type === "success" && (
 												<CircleCheck className="h-4 w-4" />

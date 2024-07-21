@@ -19,6 +19,7 @@ import { LoginRecoveryAuthnCodeInput } from "./pages/LoginRecoveryAuthnCodeInput
 import { LoginResetPassword } from "./pages/LoginResetPassword";
 import { LoginUsername } from "./pages/LoginUsername";
 import { LoginVerifyEmail } from "./pages/LoginVerifyEmail";
+import { LoginRecoveryAuthnCodeConfig } from "./pages/LoginRecoveryAuthnCodeConfig";
 
 const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
 
@@ -190,6 +191,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "login-verify-email.ftl": {
 						return (
 							<LoginVerifyEmail
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "login-recovery-authn-code-config.ftl": {
+						return (
+							<LoginRecoveryAuthnCodeConfig
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}

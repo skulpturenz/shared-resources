@@ -130,7 +130,7 @@ const PasswordWrapper = (props: {
 	};
 
 	return (
-		<div className="flex gap-1">
+		<div className="flex gap-2">
 			<div className="w-full">{children}</div>
 			<Button
 				variant="outline"
