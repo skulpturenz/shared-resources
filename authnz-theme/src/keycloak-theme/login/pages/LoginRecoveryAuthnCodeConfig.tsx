@@ -195,10 +195,7 @@ export const LoginRecoveryAuthnCodeConfig = (
 				{recoveryAuthnCodesConfigBean.generatedRecoveryAuthnCodesList.map(
 					code => (
 						<li className="kc-recovery-codes-list" key={code}>
-							<P>
-								{code.slice(0, 4)}-{code.slice(4, 8)}-
-								{code.slice(8)}
-							</P>
+							<P>{code.match(/.{1,4}/gi)?.join("-")}</P>
 						</li>
 					),
 				)}
