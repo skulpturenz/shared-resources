@@ -16,6 +16,8 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		verifyOAuth2DeviceUserCode: "Enter the code provided by your device",
 		loginOtpDevice: "Device",
 		doLogIn: "Sign in",
+		pageExpiredMsg1: "Restart login",
+		pageExpiredMsg2: "Continue login",
 	},
 });
 
