@@ -211,6 +211,7 @@ export const Login = (
 							</Small>
 						)}
 					</FormGroup>
+
 					{realm.rememberMe && !usernameHidden && (
 						<FormGroup flexDirection="row">
 							<Checkbox

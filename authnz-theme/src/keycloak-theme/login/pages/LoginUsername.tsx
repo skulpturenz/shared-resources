@@ -4,6 +4,42 @@ import { getKcClsx } from "keycloakify/login/lib/kcClsx";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { Button } from "@/components/ui/button";
+import { H4, Small } from "@/components/typography";
+import { useTheme } from "@/components/ui/theme-provider";
+import {
+	LogoGoogle,
+	LogoMicrosoft,
+	LogoFacebook,
+	LogoInstagram,
+	LogoTwitter,
+	LogoLinkedin,
+	LogoStackoverflow,
+	LogoGithub,
+	LogoGitlab,
+	LogoBitbucket,
+	LogoPaypal,
+	LogoOpenshift,
+} from "@/components/assets";
+import { Form, FormGroup } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+
+const SSO_PROVIDERS_ICONS = {
+	google: LogoGoogle,
+	microsoft: LogoMicrosoft,
+	facebook: LogoFacebook,
+	instagram: LogoInstagram,
+	twitter: LogoTwitter,
+	linkedin: LogoLinkedin,
+	stackoverflow: LogoStackoverflow,
+	github: LogoGithub,
+	gitlab: LogoGitlab,
+	bitbucket: LogoBitbucket,
+	paypal: LogoPaypal,
+	openshift: LogoOpenshift,
+};
 
 export const LoginUsername = (
 	props: PageProps<
@@ -31,6 +67,12 @@ export const LoginUsername = (
 	const { msg, msgStr } = i18n;
 
 	const [isLoginButtonDisabled, setIsLoginButtonDisabled] = useState(false);
+	const { theme } = useTheme();
+
+	const onSubmit = () => {
+		setIsLoginButtonDisabled(true);
+		return true;
+	};
 
 	return (
 		<Template
@@ -45,170 +87,130 @@ export const LoginUsername = (
 				!registrationDisabled
 			}
 			infoNode={
-				<div id="kc-registration">
-					<span>
-						{msg("noAccount")}
-						<a tabIndex={6} href={url.registrationUrl}>
-							{msg("doRegister")}
-						</a>
-					</span>
-				</div>
+				<Button className="w-full" variant="ghost" asChild>
+					<a tabIndex={8} href={url.registrationUrl}>
+						{msg("noAccount")}&nbsp;{msg("doRegister")}
+					</a>
+				</Button>
 			}
 			headerNode={msg("doLogIn")}
 			socialProvidersNode={
 				<>
 					{realm.password && social.providers?.length && (
-						<div
-							id="kc-social-providers"
-							className={kcClsx(
-								"kcFormSocialAccountSectionClass",
-							)}>
-							<hr />
-							<h2>{msg("identity-provider-login-label")}</h2>
-							<ul
-								className={kcClsx(
-									"kcFormSocialAccountListClass",
-									social.providers.length > 3 &&
-										"kcFormSocialAccountListGridClass",
-								)}>
-								{social.providers.map((...[p, , providers]) => (
-									<li key={p.alias}>
-										<a
-											id={`social-${p.alias}`}
-											className={kcClsx(
-												"kcFormSocialAccountListButtonClass",
-												providers.length > 3 &&
-													"kcFormSocialAccountGridItem",
-											)}
-											type="button"
-											href={p.loginUrl}>
-											{p.iconClasses && (
-												<i
-													className={clsx(
-														kcClsx(
-															"kcCommonLogoIdP",
-														),
-														p.iconClasses,
+						<>
+							<div className="flex flex-col items-center gap-4 w-full">
+								<H4>{msg("identity-provider-login-label")}</H4>
+								<div
+									className={
+										social.providers.length < 3
+											? "flex gap-4"
+											: "grid grid-flow-row md:grid-cols-3 w-full gap-4"
+									}>
+									{social.providers.map(provider => {
+										const Logo =
+											SSO_PROVIDERS_ICONS[
+												provider.providerId as keyof typeof SSO_PROVIDERS_ICONS
+											] ?? "span";
+
+										return (
+											<Button
+												key={provider.providerId}
+												asChild
+												variant={
+													theme === "light"
+														? "default"
+														: "outline"
+												}
+												className="px-5 py-6 w-full">
+												<a
+													className="flex gap-2 items-center"
+													href={provider.loginUrl}>
+													{provider.iconClasses && (
+														<i
+															className={clsx(
+																kcClsx(
+																	"kcCommonLogoIdP",
+																),
+																provider.iconClasses,
+															)}
+															aria-hidden="true"></i>
 													)}
-													aria-hidden="true"></i>
-											)}
-											<span
-												className={clsx(
-													kcClsx(
-														"kcFormSocialAccountNameClass",
-													),
-													p.iconClasses &&
-														"kc-social-icon-text",
-												)}>
-												{p.displayName}
-											</span>
-										</a>
-									</li>
-								))}
-							</ul>
-						</div>
+													<Logo className="w-5 h-auto text-foreground" />
+
+													{provider.displayName}
+												</a>
+											</Button>
+										);
+									})}
+								</div>
+							</div>
+						</>
 					)}
 				</>
 			}>
-			<div id="kc-form">
-				<div id="kc-form-wrapper">
-					{realm.password && (
-						<form
-							id="kc-form-login"
-							onSubmit={() => {
-								setIsLoginButtonDisabled(true);
-								return true;
-							}}
-							action={url.loginAction}
-							method="post">
-							{!usernameHidden && (
-								<div className={kcClsx("kcFormGroupClass")}>
-									<label
-										htmlFor="username"
-										className={kcClsx("kcLabelClass")}>
-										{!realm.loginWithEmailAllowed
-											? msg("username")
-											: !realm.registrationEmailAsUsername
-												? msg("usernameOrEmail")
-												: msg("email")}
-									</label>
-									<input
-										tabIndex={2}
-										id="username"
-										className={kcClsx("kcInputClass")}
-										name="username"
-										defaultValue={login.username ?? ""}
-										type="text"
-										autoFocus
-										autoComplete="off"
-										aria-invalid={messagesPerField.existsError(
-											"username",
-										)}
-									/>
-									{messagesPerField.existsError(
-										"username",
-									) && (
-										<span
-											id="input-error"
-											className={kcClsx(
-												"kcInputErrorMessageClass",
-											)}
-											aria-live="polite">
-											{messagesPerField.getFirstError(
-												"username",
-											)}
-										</span>
-									)}
-								</div>
+			{realm.password && (
+				<Form
+					onSubmit={onSubmit}
+					action={url.loginAction}
+					method="POST">
+					{!usernameHidden && (
+						<FormGroup>
+							<Label htmlFor="username">
+								{!realm.loginWithEmailAllowed &&
+									msg("username")}
+								{realm.loginWithEmailAllowed &&
+									!realm.registrationEmailAsUsername &&
+									msg("usernameOrEmail")}
+								{realm.loginWithEmailAllowed &&
+									realm.registrationEmailAsUsername &&
+									msg("email")}
+							</Label>
+							<Input
+								tabIndex={2}
+								id="username"
+								name="username"
+								type="text"
+								autoFocus
+								autoComplete="username"
+								isError={messagesPerField.existsError(
+									"username",
+								)}
+							/>
+							{messagesPerField.existsError("username") && (
+								<Small aria-live="polite">
+									{messagesPerField.getFirstError("username")}
+								</Small>
 							)}
-
-							<div
-								className={kcClsx(
-									"kcFormGroupClass",
-									"kcFormSettingClass",
-								)}>
-								<div id="kc-form-options">
-									{realm.rememberMe && !usernameHidden && (
-										<div className="checkbox">
-											<label>
-												<input
-													tabIndex={3}
-													id="rememberMe"
-													name="rememberMe"
-													type="checkbox"
-													defaultChecked={
-														!!login.rememberMe
-													}
-												/>{" "}
-												{msg("rememberMe")}
-											</label>
-										</div>
-									)}
-								</div>
-							</div>
-
-							<div
-								id="kc-form-buttons"
-								className={kcClsx("kcFormGroupClass")}>
-								<input
-									tabIndex={4}
-									disabled={isLoginButtonDisabled}
-									className={kcClsx(
-										"kcButtonClass",
-										"kcButtonPrimaryClass",
-										"kcButtonBlockClass",
-										"kcButtonLargeClass",
-									)}
-									name="login"
-									id="kc-login"
-									type="submit"
-									value={msgStr("doLogIn")}
-								/>
-							</div>
-						</form>
+						</FormGroup>
 					)}
-				</div>
-			</div>
+
+					{realm.rememberMe && !usernameHidden && (
+						<FormGroup flexDirection="row">
+							<Checkbox
+								tabIndex={3}
+								id="rememberMe"
+								name="rememberMe"
+								defaultChecked={Boolean(login.rememberMe)}
+							/>
+							<Label htmlFor="rememberMe">
+								{msg("rememberMe")}
+							</Label>
+						</FormGroup>
+					)}
+
+					<FormGroup>
+						<Button asChild>
+							<input
+								tabIndex={4}
+								disabled={isLoginButtonDisabled}
+								name="login"
+								type="submit"
+								value={msgStr("doLogIn")}
+							/>
+						</Button>
+					</FormGroup>
+				</Form>
+			)}
 		</Template>
 	);
 };
