@@ -27,7 +27,7 @@ export const Error = (
 				{!skipLink &&
 					client !== undefined &&
 					client.baseUrl !== undefined && (
-						<Button asChild>
+						<Button variant="destructive" asChild>
 							<a href={client.baseUrl}>
 								{msg("backToApplication")}
 							</a>
