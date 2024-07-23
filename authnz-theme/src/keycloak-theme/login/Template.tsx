@@ -243,7 +243,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 						<div
 							className={cn(
 								"flex gap-2",
-								localizationOptions.length > 0
+								realm.internationalizationEnabled &&
+									localizationOptions.length > 0
 									? "md:justify-end"
 									: "justify-end",
 							)}>
@@ -296,16 +297,21 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
-							{localizationOptions.length > 0 && (
-								<Combobox
-									className="w-full md:max-w-xs"
-									options={localizationOptions}
-									initialValue={currentLocalizationOption}
-									selectPlaceholder={msgStr("selectLanguage")}
-									searchPlaceholder={msgStr("searchLanguage")}
-									noResultsText={msgStr("noLanguages")}
-								/>
-							)}
+							{realm.internationalizationEnabled &&
+								localizationOptions.length > 0 && (
+									<Combobox
+										className="w-full md:max-w-xs"
+										options={localizationOptions}
+										initialValue={currentLocalizationOption}
+										selectPlaceholder={msgStr(
+											"selectLanguage",
+										)}
+										searchPlaceholder={msgStr(
+											"searchLanguage",
+										)}
+										noResultsText={msgStr("noLanguages")}
+									/>
+								)}
 						</div>
 
 						<CardTitle className="flex flex-col gap-2">
