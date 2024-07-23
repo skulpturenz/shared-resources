@@ -51,6 +51,7 @@ export default function WebauthnError(
 					// @ts-expect-error: Trusted Keycloak's code
 					document
 						.getElementById("kc-error-credential-form")
+						// @ts-expect-error: Trusted Keycloak's code
 						.submit();
 				}}
 				type="button"
