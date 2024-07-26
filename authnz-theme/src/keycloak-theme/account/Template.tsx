@@ -186,12 +186,9 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	return (
 		<>
 			<header>
-				<nav className="bg-background w-screen bottom-0 border-t-2 md:static fixed md:border-b md:border-t-0">
+				<nav className="bg-background w-screen bottom-0 border-t md:static fixed md:border-b md:border-t-0">
 					<div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-						<div className="hidden md:flex md:h-24 md:items-center md:justify-between">
-							{/* TODO: remove */}
-							<div></div>
-
+						<div className="hidden md:flex flex-row-reverse md:h-24 md:items-center">
 							<div className="flex gap-2">
 								{localizationOptions.length > 0 && (
 									<div className="w-48">
