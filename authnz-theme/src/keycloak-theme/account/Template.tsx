@@ -8,7 +8,20 @@ import type { TemplateProps } from "keycloakify/account/TemplateProps";
 import type { I18n } from "./i18n";
 import type { KcContext } from "./KcContext";
 import { LogoLight, LogoDark } from "@/components/assets";
-import { Sun, MoonStar, LogOut, UndoDot } from "lucide-react";
+import {
+	Sun,
+	MoonStar,
+	LogOut,
+	UndoDot,
+	UserPen,
+	SquareAsterisk,
+	Fingerprint,
+	BookUser,
+	Shell,
+	AppWindowMac,
+	Logs,
+	Signature,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	ThemeProvider,
@@ -140,39 +153,46 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			id: "account",
 			href: url.accountUrl,
 			label: msgStr("account"),
+			Icon: UserPen,
 		},
 		{
 			id: "password",
 			href: url.passwordUrl,
 			label: msgStr("password"),
 			isHidden: !features.passwordUpdateSupported,
+			Icon: SquareAsterisk,
 		},
 		{
 			id: "totp",
 			href: url.totpUrl,
 			label: msgStr("authenticator"),
+			Icon: Fingerprint,
 		},
 		{
 			id: "social",
 			href: url.socialUrl,
 			label: msgStr("federatedIdentity"),
 			isHidden: !features.identityFederation,
+			Icon: BookUser,
 		},
 		{
 			id: "sessions",
 			href: url.sessionsUrl,
 			label: msgStr("sessions"),
+			Icon: Shell,
 		},
 		{
 			id: "applications",
 			href: url.applicationsUrl,
 			label: msgStr("applications"),
+			Icon: AppWindowMac,
 		},
 		{
 			id: "log",
 			href: url.logUrl,
 			label: msgStr("log"),
 			isHidden: !features.log,
+			Icon: Logs,
 		},
 		{
 			id: "authorization",
@@ -180,6 +200,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			label: msgStr("myResources"),
 			isHidden:
 				!realm.userManagedAccessAllowed || !features.authorization,
+			Icon: Signature,
 		},
 	];
 
@@ -388,6 +409,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 												</a>
 											</Button>
 										</DropdownMenuItem>
+
+										{/* TODO: sidebar items */}
 									</DropdownMenuContent>
 								</DropdownMenu>
 							</div>
@@ -406,72 +429,22 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 						.filter(item => !item.isHidden)
 						.map(item => (
 							<Button
-								variant="ghost"
+								variant={
+									active === item.id ? "default" : "ghost"
+								}
 								className="flex justify-start w-full"
 								asChild>
-								<a href={item.href}>{item.label}</a>
+								<a href={item.href} className="flex gap-2">
+									<item.Icon className="h-5 w-auto" />
+									{item.label}
+								</a>
 							</Button>
 						))}
 				</div>
 			</div>
-			<div className="hidden container">
-				<div className="bs-sidebar col-sm-3">
-					<ul>
-						<li className={clsx(active === "account" && "active")}>
-							<a href={url.accountUrl}>{msg("account")}</a>
-						</li>
-						{features.passwordUpdateSupported && (
-							<li
-								className={clsx(
-									active === "password" && "active",
-								)}>
-								<a href={url.passwordUrl}>{msg("password")}</a>
-							</li>
-						)}
-						<li className={clsx(active === "totp" && "active")}>
-							<a href={url.totpUrl}>{msg("authenticator")}</a>
-						</li>
-						{features.identityFederation && (
-							<li
-								className={clsx(
-									active === "social" && "active",
-								)}>
-								<a href={url.socialUrl}>
-									{msg("federatedIdentity")}
-								</a>
-							</li>
-						)}
-						<li className={clsx(active === "sessions" && "active")}>
-							<a href={url.sessionsUrl}>{msg("sessions")}</a>
-						</li>
-						<li
-							className={clsx(
-								active === "applications" && "active",
-							)}>
-							<a href={url.applicationsUrl}>
-								{msg("applications")}
-							</a>
-						</li>
-						{features.log && (
-							<li className={clsx(active === "log" && "active")}>
-								<a href={url.logUrl}>{msg("log")}</a>
-							</li>
-						)}
-						{realm.userManagedAccessAllowed &&
-							features.authorization && (
-								<li
-									className={clsx(
-										active === "authorization" && "active",
-									)}>
-									<a href={url.resourceUrl}>
-										{msg("myResources")}
-									</a>
-								</li>
-							)}
-					</ul>
-				</div>
 
-				<div className="col-sm-9 content-area">
+			<div className="py-6 mb-24 md:mb-0 md:pl-72">
+				<div className="px-4 sm:px-6 lg:px-8">
 					{message !== undefined && (
 						<div className={clsx("alert", `alert-${message.type}`)}>
 							{message.type === "success" && (
@@ -488,7 +461,6 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 							/>
 						</div>
 					)}
-
 					{children}
 				</div>
 			</div>
