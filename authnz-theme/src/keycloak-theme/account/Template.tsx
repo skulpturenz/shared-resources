@@ -21,6 +21,8 @@ import {
 	AppWindowMac,
 	Logs,
 	Signature,
+	CircleX,
+	CircleCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +43,7 @@ import {
 	TooltipProvider,
 } from "@/components/ui/tooltip";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import { toPlainText } from "@/lib/utils";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
@@ -151,12 +154,14 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	const sidebarItems = [
 		{
 			id: "account",
+			value: msgStr("account"),
 			href: url.accountUrl,
 			label: msgStr("account"),
 			Icon: UserPen,
 		},
 		{
 			id: "password",
+			value: msgStr("password"),
 			href: url.passwordUrl,
 			label: msgStr("password"),
 			isHidden: !features.passwordUpdateSupported,
@@ -164,12 +169,14 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		},
 		{
 			id: "totp",
+			value: msgStr("authenticator"),
 			href: url.totpUrl,
 			label: msgStr("authenticator"),
 			Icon: Fingerprint,
 		},
 		{
-			id: "social",
+			id: "federatedIdentity",
+			value: msgStr("federatedIdentity"),
 			href: url.socialUrl,
 			label: msgStr("federatedIdentity"),
 			isHidden: !features.identityFederation,
@@ -177,18 +184,21 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		},
 		{
 			id: "sessions",
+			value: msgStr("sessions"),
 			href: url.sessionsUrl,
 			label: msgStr("sessions"),
 			Icon: Shell,
 		},
 		{
 			id: "applications",
+			value: msgStr("applications"),
 			href: url.applicationsUrl,
 			label: msgStr("applications"),
 			Icon: AppWindowMac,
 		},
 		{
 			id: "log",
+			value: msgStr("log"),
 			href: url.logUrl,
 			label: msgStr("log"),
 			isHidden: !features.log,
@@ -196,6 +206,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		},
 		{
 			id: "authorization",
+			value: msgStr("myResources"),
 			href: url.resourceUrl,
 			label: msgStr("myResources"),
 			isHidden:
@@ -203,6 +214,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			Icon: Signature,
 		},
 	];
+
+	const activeSidebarItem = sidebarItems.find(item => item.id === active);
 
 	return (
 		<>
@@ -362,6 +375,20 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 										<DropdownMenuItem asChild>
 											<Button
 												variant="ghost"
+												className="w-full justify-start"
+												asChild>
+												<a
+													href={url.getLogoutUrl()}
+													className="flex gap-2 w-full self-start">
+													<LogOut className="h-[1.2rem] w-[1.2rem]" />
+													{msg("doSignOut")}
+												</a>
+											</Button>
+										</DropdownMenuItem>
+
+										<DropdownMenuItem asChild>
+											<Button
+												variant="ghost"
 												className="w-full"
 												onClick={onClickToggleTheme}>
 												<div className="w-full flex gap-2 self-start cursor-pointer">
@@ -397,20 +424,21 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 										)}
 
 										<DropdownMenuItem asChild>
-											<Button
-												variant="ghost"
-												className="w-full justify-start"
-												asChild>
-												<a
-													href={url.getLogoutUrl()}
-													className="flex gap-2 w-full self-start">
-													<LogOut className="h-[1.2rem] w-[1.2rem]" />
-													{msg("doSignOut")}
-												</a>
-											</Button>
+											<Combobox
+												className="w-full md:max-w-xs"
+												options={sidebarItems}
+												initialValue={activeSidebarItem}
+												selectPlaceholder={
+													"Select a page"
+												}
+												searchPlaceholder={
+													"Search pages..."
+												}
+												noResultsText={
+													"No page found..."
+												}
+											/>
 										</DropdownMenuItem>
-
-										{/* TODO: sidebar items */}
 									</DropdownMenuContent>
 								</DropdownMenu>
 							</div>
@@ -429,8 +457,11 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 						.filter(item => !item.isHidden)
 						.map(item => (
 							<Button
+								key={item.id}
 								variant={
-									active === item.id ? "default" : "ghost"
+									item.id === activeSidebarItem?.id
+										? "default"
+										: "ghost"
 								}
 								className="flex justify-start w-full"
 								asChild>
@@ -445,22 +476,21 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 			<div className="py-6 mb-24 md:mb-0 md:pl-72">
 				<div className="px-4 sm:px-6 lg:px-8">
-					{message !== undefined && (
-						<div className={clsx("alert", `alert-${message.type}`)}>
-							{message.type === "success" && (
-								<span className="pficon pficon-ok"></span>
-							)}
-							{message.type === "error" && (
-								<span className="pficon pficon-error-circle-o"></span>
-							)}
-							<span
-								className="kc-feedback-text"
-								dangerouslySetInnerHTML={{
-									__html: message.summary,
-								}}
-							/>
+					{message && (
+						<div className="flex gap-2 items-center mb-6">
+							<span className="hidden md:block">
+								{message.type === "success" && (
+									<CircleCheck className="h-4 w-4" />
+								)}
+								{message.type === "error" && (
+									<CircleX className="h-4 w-4" />
+								)}
+							</span>
+
+							{toPlainText(message.summary)}
 						</div>
 					)}
+
 					{children}
 				</div>
 			</div>

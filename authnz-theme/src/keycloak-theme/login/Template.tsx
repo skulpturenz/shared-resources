@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { LogoLight, LogoDark } from "@/components/assets";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn, toPlainText } from "@/lib/utils";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
@@ -205,18 +205,6 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 				</a>
 			</div>
 		);
-	};
-
-	const toPlainText = (rawHtml: string) => {
-		const tempNode = document.createElement("div");
-
-		tempNode.innerHTML = rawHtml;
-
-		const text = tempNode.textContent || tempNode.innerText || "";
-
-		tempNode.remove();
-
-		return text.replace(/\.(?=\w+\s)/gi, ". ");
 	};
 
 	const onClickTryAnotherWay = () => {
