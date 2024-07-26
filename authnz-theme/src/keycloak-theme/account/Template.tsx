@@ -135,56 +135,85 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		setButtonWidth(instance.offsetWidth);
 	};
 
+	const sidebarItems = [
+		{
+			id: "account",
+			href: url.accountUrl,
+			label: msgStr("account"),
+		},
+		{
+			id: "password",
+			href: url.passwordUrl,
+			label: msgStr("password"),
+			isHidden: !features.passwordUpdateSupported,
+		},
+		{
+			id: "totp",
+			href: url.totpUrl,
+			label: msgStr("authenticator"),
+		},
+		{
+			id: "social",
+			href: url.socialUrl,
+			label: msgStr("federatedIdentity"),
+			isHidden: !features.identityFederation,
+		},
+		{
+			id: "sessions",
+			href: url.sessionsUrl,
+			label: msgStr("sessions"),
+		},
+		{
+			id: "applications",
+			href: url.applicationsUrl,
+			label: msgStr("applications"),
+		},
+		{
+			id: "log",
+			href: url.logUrl,
+			label: msgStr("log"),
+			isHidden: !features.log,
+		},
+		{
+			id: "authorization",
+			href: url.resourceUrl,
+			label: msgStr("myResources"),
+			isHidden:
+				!realm.userManagedAccessAllowed || !features.authorization,
+		},
+	];
+
 	return (
 		<>
-			<nav className="bg-background w-screen bottom-0 border-t-2 md:static fixed md:border-b-2 md:border-t-0">
-				<div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-					<div className="hidden md:flex h-24 items-center justify-between">
-						<div>
-							<Logo className="h-10 w-auto" />
-						</div>
+			<header>
+				<nav className="bg-background w-screen bottom-0 border-t-2 md:static fixed md:border-b md:border-t-0">
+					<div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+						<div className="hidden md:flex md:h-24 md:items-center md:justify-between">
+							{/* TODO: remove */}
+							<div></div>
 
-						<div className="flex gap-2">
-							{localizationOptions.length > 0 && (
-								<div className="w-48">
-									<Combobox
-										className="w-full md:max-w-md"
-										options={localizationOptions}
-										initialValue={currentLocalizationOption}
-										selectPlaceholder={msgStr(
-											"selectLanguage",
-										)}
-										searchPlaceholder={msgStr(
-											"searchLanguage",
-										)}
-										noResultsText={msgStr("noLanguages")}
-									/>
-								</div>
-							)}
+							<div className="flex gap-2">
+								{localizationOptions.length > 0 && (
+									<div className="w-48">
+										<Combobox
+											className="w-full md:max-w-md"
+											options={localizationOptions}
+											initialValue={
+												currentLocalizationOption
+											}
+											selectPlaceholder={msgStr(
+												"selectLanguage",
+											)}
+											searchPlaceholder={msgStr(
+												"searchLanguage",
+											)}
+											noResultsText={msgStr(
+												"noLanguages",
+											)}
+										/>
+									</div>
+								)}
 
-							<div>
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<Button
-												variant="outline"
-												size="icon"
-												onClick={onClickToggleTheme}>
-												<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-												<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
-												<span className="sr-only">
-													{msg("toggleTheme")}
-												</span>
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>
-											<span>{msg("toggleTheme")}</span>
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-							</div>
-
-							{referrer?.url && (
 								<div>
 									<TooltipProvider>
 										<Tooltip>
@@ -192,222 +221,203 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 												<Button
 													variant="outline"
 													size="icon"
-													asChild>
-													<a
-														href={referrer?.url}
-														id="referrer">
-														<UndoDot className="h-[1.2rem] w-[1.2rem]" />
-														<span className="sr-only">
-															{msg(
-																"backTo",
-																referrer?.name,
-															)}
-														</span>
-													</a>
+													onClick={
+														onClickToggleTheme
+													}>
+													<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+													<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+													<span className="sr-only">
+														{msg("toggleTheme")}
+													</span>
 												</Button>
 											</TooltipTrigger>
 											<TooltipContent>
 												<span>
-													{msg(
-														"backTo",
-														referrer?.name,
-													)}
+													{msg("toggleTheme")}
 												</span>
 											</TooltipContent>
 										</Tooltip>
 									</TooltipProvider>
 								</div>
-							)}
 
-							<div>
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger asChild>
-											<Button
-												variant="destructive"
-												size="icon"
-												asChild>
-												<a href={url.getLogoutUrl()}>
-													<LogOut className="h-[1.2rem] w-[1.2rem]" />
-													<span className="sr-only">
-														{msg("doSignOut")}
+								{referrer?.url && (
+									<div>
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<Button
+														variant="outline"
+														size="icon"
+														asChild>
+														<a
+															href={referrer?.url}
+															id="referrer">
+															<UndoDot className="h-[1.2rem] w-[1.2rem]" />
+															<span className="sr-only">
+																{msg(
+																	"backTo",
+																	referrer?.name,
+																)}
+															</span>
+														</a>
+													</Button>
+												</TooltipTrigger>
+												<TooltipContent>
+													<span>
+														{msg(
+															"backTo",
+															referrer?.name,
+														)}
 													</span>
-												</a>
-											</Button>
-										</TooltipTrigger>
-										<TooltipContent>
-											<span>{msg("doSignOut")}</span>
-										</TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
+												</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									</div>
+								)}
+
+								<div>
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<Button
+													variant="destructive"
+													size="icon"
+													asChild>
+													<a
+														href={url.getLogoutUrl()}>
+														<LogOut className="h-[1.2rem] w-[1.2rem]" />
+														<span className="sr-only">
+															{msg("doSignOut")}
+														</span>
+													</a>
+												</Button>
+											</TooltipTrigger>
+											<TooltipContent>
+												<span>{msg("doSignOut")}</span>
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								</div>
 							</div>
 						</div>
-					</div>
 
-					<div className="md:hidden h-24 flex items-center justify-center">
-						<div>
-							<DropdownMenu>
-								<DropdownMenuTrigger className="h-full" asChild>
-									<Button
-										ref={onMountMobileLogo}
-										variant="ghost">
-										<Logo className="h-10 w-auto" />
-									</Button>
-								</DropdownMenuTrigger>
+						<div className="md:hidden h-24 flex items-center justify-center">
+							<div>
+								<DropdownMenu>
+									<DropdownMenuTrigger
+										className="h-full"
+										asChild>
+										<Button
+											ref={onMountMobileLogo}
+											variant="ghost">
+											<Logo className="h-10 w-auto" />
+										</Button>
+									</DropdownMenuTrigger>
 
-								<DropdownMenuContent
-									style={{ width: buttonWidth }}
-									className="px-2">
-									{realm.internationalizationEnabled &&
-										localizationOptions.length > 0 && (
+									<DropdownMenuContent
+										style={{ width: buttonWidth }}
+										className="px-2">
+										{realm.internationalizationEnabled &&
+											localizationOptions.length > 0 && (
+												<DropdownMenuItem asChild>
+													<Combobox
+														className="w-full md:max-w-xs"
+														options={
+															localizationOptions
+														}
+														initialValue={
+															currentLocalizationOption
+														}
+														selectPlaceholder={msgStr(
+															"selectLanguage",
+														)}
+														searchPlaceholder={msgStr(
+															"searchLanguage",
+														)}
+														noResultsText={msgStr(
+															"noLanguages",
+														)}
+													/>
+												</DropdownMenuItem>
+											)}
+
+										<DropdownMenuItem asChild>
+											<Button
+												variant="ghost"
+												className="w-full"
+												onClick={onClickToggleTheme}>
+												<div className="w-full flex gap-2 self-start cursor-pointer">
+													<div className="relative">
+														<Sun className="absolute h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+														<MoonStar className="rotate-90 h-[1.2rem] w-[1.2rem] scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+													</div>
+													<span>
+														{msg("toggleTheme")}
+													</span>
+												</div>
+											</Button>
+										</DropdownMenuItem>
+
+										{referrer?.url && (
 											<DropdownMenuItem asChild>
-												<Combobox
-													className="w-full md:max-w-xs"
-													options={
-														localizationOptions
-													}
-													initialValue={
-														currentLocalizationOption
-													}
-													selectPlaceholder={msgStr(
-														"selectLanguage",
-													)}
-													searchPlaceholder={msgStr(
-														"searchLanguage",
-													)}
-													noResultsText={msgStr(
-														"noLanguages",
-													)}
-												/>
+												<Button
+													variant="ghost"
+													className="w-full justify-start"
+													asChild>
+													<a
+														href={referrer?.url}
+														id="referrer"
+														className="flex gap-2 w-full self-start">
+														<UndoDot className="h-[1.2rem] w-[1.2rem]" />
+														{msg(
+															"backTo",
+															referrer?.name,
+														)}
+													</a>
+												</Button>
 											</DropdownMenuItem>
 										)}
 
-									<DropdownMenuItem asChild>
-										<Button
-											variant="ghost"
-											className="w-full"
-											onClick={onClickToggleTheme}>
-											<div className="w-full flex gap-2 self-start cursor-pointer">
-												<div className="relative">
-													<Sun className="absolute h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-													<MoonStar className="rotate-90 h-[1.2rem] w-[1.2rem] scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
-												</div>
-												<span>
-													{msg("toggleTheme")}
-												</span>
-											</div>
-										</Button>
-									</DropdownMenuItem>
-
-									{referrer?.url && (
 										<DropdownMenuItem asChild>
 											<Button
 												variant="ghost"
 												className="w-full justify-start"
 												asChild>
 												<a
-													href={referrer?.url}
-													id="referrer"
+													href={url.getLogoutUrl()}
 													className="flex gap-2 w-full self-start">
-													<UndoDot className="h-[1.2rem] w-[1.2rem]" />
-													{msg(
-														"backTo",
-														referrer?.name,
-													)}
+													<LogOut className="h-[1.2rem] w-[1.2rem]" />
+													{msg("doSignOut")}
 												</a>
 											</Button>
 										</DropdownMenuItem>
-									)}
-
-									<DropdownMenuItem asChild>
-										<Button
-											variant="ghost"
-											className="w-full justify-start"
-											asChild>
-											<a
-												href={url.getLogoutUrl()}
-												className="flex gap-2 w-full self-start">
-												<LogOut className="h-[1.2rem] w-[1.2rem]" />
-												{msg("doSignOut")}
-											</a>
-										</Button>
-									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						</div>
-					</div>
-				</div>
-			</nav>
-			<header className="navbar navbar-default navbar-pf navbar-main header">
-				<nav className="navbar" role="navigation">
-					<div className="navbar-header">
-						<div className="container">
-							<h1 className="navbar-title">Keycloak</h1>
-						</div>
-					</div>
-					<div className="navbar-collapse navbar-collapse-1">
-						<div className="container">
-							<ul className="nav navbar-nav navbar-utility">
-								{/* {realm.internationalizationEnabled &&
-									(assert(locale !== undefined), true) &&
-									locale.supported.length > 1 && (
-										<li>
-											<div
-												className="kc-dropdown"
-												id="kc-locale-dropdown">
-												<a
-													href="#"
-													id="kc-current-locale-link">
-													{
-														labelBySupportedLanguageTag[
-															currentLanguageTag
-														]
-													}
-												</a>
-												<ul>
-													{locale.supported.map(
-														({ languageTag }) => (
-															<li
-																key={
-																	languageTag
-																}
-																className="kc-dropdown-item">
-																<a
-																	href={getChangeLocaleUrl(
-																		languageTag,
-																	)}>
-																	{
-																		labelBySupportedLanguageTag[
-																			languageTag
-																		]
-																	}
-																</a>
-															</li>
-														),
-													)}
-												</ul>
-											</div>
-										</li>
-									)} */}
-								{referrer?.url && (
-									<li>
-										<a href={referrer.url} id="referrer">
-											{msg("backTo", referrer.name)}
-										</a>
-									</li>
-								)}
-								{/* <li>
-									<a href={url.getLogoutUrl()}>
-										{msg("doSignOut")}
-									</a>
-								</li> */}
-							</ul>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</div>
 						</div>
 					</div>
 				</nav>
 			</header>
 
-			<div className="container">
+			<div className="hidden md:fixed md:inset-y-0 md:z-50 md:flex md:w-72 md:flex-col">
+				<div className="flex grow flex-col gap-y-5 overflow-y-auto border-r bg-background px-12 pb-4">
+					<div className="flex h-24 items-center">
+						<Logo className="h-8 w-auto" />
+					</div>
+
+					{sidebarItems
+						.filter(item => !item.isHidden)
+						.map(item => (
+							<Button
+								variant="ghost"
+								className="flex justify-start w-full"
+								asChild>
+								<a href={item.href}>{item.label}</a>
+							</Button>
+						))}
+				</div>
+			</div>
+			<div className="hidden container">
 				<div className="bs-sidebar col-sm-3">
 					<ul>
 						<li className={clsx(active === "account" && "active")}>
