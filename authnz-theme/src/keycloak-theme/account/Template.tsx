@@ -8,7 +8,7 @@ import type { TemplateProps } from "keycloakify/account/TemplateProps";
 import type { I18n } from "./i18n";
 import type { KcContext } from "./KcContext";
 import { LogoLight, LogoDark } from "@/components/assets";
-import { Sun, MoonStar, LogOut } from "lucide-react";
+import { Sun, MoonStar, LogOut, UndoDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	ThemeProvider,
@@ -22,6 +22,12 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+} from "@/components/ui/tooltip";
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
@@ -131,7 +137,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 	return (
 		<>
-			<nav className="bg-background shadow-sm shadow-secondary">
+			<nav className="bg-background w-screen bottom-0 border-t-2 md:static fixed md:border-b-2 md:border-t-0">
 				<div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
 					<div className="hidden md:flex h-24 items-center justify-between">
 						<div>
@@ -157,30 +163,83 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 							)}
 
 							<div>
-								<Button
-									variant="outline"
-									size="icon"
-									onClick={onClickToggleTheme}>
-									<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-									<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
-									<span className="sr-only">
-										{msg("toggleTheme")}
-									</span>
-								</Button>
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<Button
+												variant="outline"
+												size="icon"
+												onClick={onClickToggleTheme}>
+												<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+												<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+												<span className="sr-only">
+													{msg("toggleTheme")}
+												</span>
+											</Button>
+										</TooltipTrigger>
+										<TooltipContent>
+											<span>{msg("toggleTheme")}</span>
+										</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
 							</div>
 
+							{referrer?.url && (
+								<div>
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<Button
+													variant="outline"
+													size="icon"
+													asChild>
+													<a
+														href={referrer?.url}
+														id="referrer">
+														<UndoDot className="h-[1.2rem] w-[1.2rem]" />
+														<span className="sr-only">
+															{msg(
+																"backTo",
+																referrer?.name,
+															)}
+														</span>
+													</a>
+												</Button>
+											</TooltipTrigger>
+											<TooltipContent>
+												<span>
+													{msg(
+														"backTo",
+														referrer?.name,
+													)}
+												</span>
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								</div>
+							)}
+
 							<div>
-								<Button
-									variant="destructive"
-									size="icon"
-									asChild>
-									<a href={url.getLogoutUrl()}>
-										<LogOut className="h-[1.2rem] w-[1.2rem]" />
-										<span className="sr-only">
-											{msg("doSignOut")}
-										</span>
-									</a>
-								</Button>
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<Button
+												variant="destructive"
+												size="icon"
+												asChild>
+												<a href={url.getLogoutUrl()}>
+													<LogOut className="h-[1.2rem] w-[1.2rem]" />
+													<span className="sr-only">
+														{msg("doSignOut")}
+													</span>
+												</a>
+											</Button>
+										</TooltipTrigger>
+										<TooltipContent>
+											<span>{msg("doSignOut")}</span>
+										</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
 							</div>
 						</div>
 					</div>
@@ -195,6 +254,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 										<Logo className="h-10 w-auto" />
 									</Button>
 								</DropdownMenuTrigger>
+
 								<DropdownMenuContent
 									style={{ width: buttonWidth }}
 									className="px-2">
@@ -221,6 +281,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 												/>
 											</DropdownMenuItem>
 										)}
+
 									<DropdownMenuItem asChild>
 										<Button
 											variant="ghost"
@@ -237,10 +298,32 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 											</div>
 										</Button>
 									</DropdownMenuItem>
+
+									{referrer?.url && (
+										<DropdownMenuItem asChild>
+											<Button
+												variant="ghost"
+												className="w-full justify-start"
+												asChild>
+												<a
+													href={referrer?.url}
+													id="referrer"
+													className="flex gap-2 w-full self-start">
+													<UndoDot className="h-[1.2rem] w-[1.2rem]" />
+													{msg(
+														"backTo",
+														referrer?.name,
+													)}
+												</a>
+											</Button>
+										</DropdownMenuItem>
+									)}
+
 									<DropdownMenuItem asChild>
 										<Button
 											variant="ghost"
-											className="w-full">
+											className="w-full justify-start"
+											asChild>
 											<a
 												href={url.getLogoutUrl()}
 												className="flex gap-2 w-full self-start">
