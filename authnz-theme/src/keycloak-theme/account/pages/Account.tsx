@@ -27,23 +27,30 @@ export default function Account(
 		referrer: _referrer,
 	} = kcContext;
 
-	const { msg } = i18n;
+	const { msg, msgStr } = i18n;
 
 	return (
 		<Template
 			{...{ kcContext, i18n, doUseDefaultCss, classes }}
 			active="account">
-			<Large>{msg("editAccountHtmlTitle")}</Large>
-
 			<Form action={url.accountUrl} method="POST">
-				<Input type="hidden" name="stateChecker" value={stateChecker} />
+				<Large>{msgStr("editAccountHtmlTitle")}</Large>
+
+				<div className="hidden">
+					<Input
+						type="hidden"
+						name="stateChecker"
+						value={stateChecker}
+					/>
+				</div>
 
 				<FormGroup>
-					<Label>
+					<Label htmlFor="username">
 						{msg("username")}
 						{realm.editUsernameAllowed && "*"}
 					</Label>
 					<Input
+						id="username"
 						name="username"
 						disabled={!realm.editUsernameAllowed}
 						defaultValue={account.username ?? ""}
@@ -57,8 +64,9 @@ export default function Account(
 				</FormGroup>
 
 				<FormGroup>
-					<Label>{msg("email")}*</Label>
+					<Label htmlFor="email">{msg("email")}*</Label>
 					<Input
+						id="email"
 						type="text"
 						name="email"
 						autoFocus
@@ -73,9 +81,10 @@ export default function Account(
 				</FormGroup>
 
 				<FormGroup>
-					<Label>{msg("firstName")}*</Label>
+					<Label htmlFor="firstName">{msg("firstName")}*</Label>
 					<Input
 						type="text"
+						id="firstName"
 						name="firstName"
 						defaultValue={account.firstName ?? ""}
 						isError={messagesPerField.existsError("firstName")}
@@ -88,9 +97,10 @@ export default function Account(
 				</FormGroup>
 
 				<FormGroup>
-					<Label>{msg("lastName")}*</Label>
+					<Label htmlFor="lastName">{msg("lastName")}*</Label>
 					<Input
 						type="text"
+						id="lastName"
 						name="lastName"
 						defaultValue={account.lastName ?? ""}
 						isError={messagesPerField.existsError("lastName")}
