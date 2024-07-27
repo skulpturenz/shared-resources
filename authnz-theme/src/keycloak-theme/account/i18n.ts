@@ -10,6 +10,8 @@ export const { useI18n, ofTypeI18n } = createUseI18n({
 		selectLanguage: "Select language...",
 		searchLanguage: "Search language...",
 		noLanguages: "No language found",
+		hidePassword: "Hide password",
+		showPassword: "Show password",
 		// Modified base
 		backToApplication: "Back to application",
 	},

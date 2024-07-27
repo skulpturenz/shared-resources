@@ -1,9 +1,16 @@
-import { useState } from "react";
+import React from "react";
 import { clsx } from "keycloakify/tools/clsx";
-import { getKcClsx } from "keycloakify/account/lib/kcClsx";
+import { getKcClsx, type KcClsx } from "keycloakify/account/lib/kcClsx";
 import type { PageProps } from "keycloakify/account/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { Large } from "@/components/typography";
+import { Form, FormGroup } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { assert } from "tsafe/assert";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Password(
 	props: PageProps<Extract<KcContext, { pageId: "password.ftl" }>, I18n>,
@@ -24,14 +31,16 @@ export default function Password(
 
 	const { msgStr, msg } = i18n;
 
-	const [currentPassword, setCurrentPassword] = useState("");
-	const [newPassword, setNewPassword] = useState("");
-	const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
-	const [newPasswordError, setNewPasswordError] = useState("");
-	const [newPasswordConfirmError, setNewPasswordConfirmError] = useState("");
-	const [hasNewPasswordBlurred, setHasNewPasswordBlurred] = useState(false);
+	const [currentPassword, setCurrentPassword] = React.useState("");
+	const [newPassword, setNewPassword] = React.useState("");
+	const [newPasswordConfirm, setNewPasswordConfirm] = React.useState("");
+	const [newPasswordError, setNewPasswordError] = React.useState("");
+	const [newPasswordConfirmError, setNewPasswordConfirmError] =
+		React.useState("");
+	const [hasNewPasswordBlurred, setHasNewPasswordBlurred] =
+		React.useState(false);
 	const [hasNewPasswordConfirmBlurred, setHasNewPasswordConfirmBlurred] =
-		useState(false);
+		React.useState(false);
 
 	const checkNewPassword = (newPassword: string) => {
 		if (!password.passwordSet) {
@@ -85,40 +94,34 @@ export default function Password(
 				classes,
 			}}
 			active="password">
-			<div className="row">
-				<div className="col-md-10">
-					<h2>{msg("changePasswordHtmlTitle")}</h2>
-				</div>
-				<div className="col-md-2 subtitle">
-					<span className="subtitle">{msg("allFieldsRequired")}</span>
-				</div>
-			</div>
+			<Form action={url.passwordUrl} method="POST">
+				<Large>{msgStr("changePasswordHtmlTitle")}</Large>
 
-			<form
-				action={url.passwordUrl}
-				className="form-horizontal"
-				method="post">
-				<input
-					type="text"
-					id="username"
-					name="username"
-					value={account.username ?? ""}
-					autoComplete="username"
-					readOnly
-					style={{ display: "none" }}
-				/>
+				<div className="hidden">
+					<Input
+						type="text"
+						name="username"
+						value={account.username}
+						autoComplete="username"
+						readOnly
+						className="hidden"
+					/>
+					<Input
+						type="hidden"
+						name="stateChecker"
+						value={stateChecker}
+					/>
+				</div>
 
 				{password.passwordSet && (
-					<div className="form-group">
-						<div className="col-sm-2 col-md-2">
-							<label htmlFor="password" className="control-label">
-								{msg("password")}
-							</label>
-						</div>
-						<div className="col-sm-10 col-md-10">
-							<input
+					<FormGroup>
+						<Label htmlFor="password">{msg("password")}</Label>
+						<PasswordWrapper
+							kcClsx={kcClsx}
+							i18n={i18n}
+							passwordInputId="password">
+							<Input
 								type="password"
-								className="form-control"
 								id="password"
 								name="password"
 								autoFocus
@@ -128,27 +131,18 @@ export default function Password(
 									setCurrentPassword(event.target.value)
 								}
 							/>
-						</div>
-					</div>
+						</PasswordWrapper>
+					</FormGroup>
 				)}
 
-				<input
-					type="hidden"
-					id="stateChecker"
-					name="stateChecker"
-					value={stateChecker}
-				/>
-
-				<div className="form-group">
-					<div className="col-sm-2 col-md-2">
-						<label htmlFor="password-new" className="control-label">
-							{msg("passwordNew")}
-						</label>
-					</div>
-					<div className="col-sm-10 col-md-10">
-						<input
+				<FormGroup>
+					<Label htmlFor="password-new">{msg("passwordNew")}</Label>
+					<PasswordWrapper
+						kcClsx={kcClsx}
+						i18n={i18n}
+						passwordInputId="password-new">
+						<Input
 							type="password"
-							className="form-control"
 							id="password-new"
 							name="password-new"
 							autoComplete="new-password"
@@ -166,22 +160,19 @@ export default function Password(
 								checkNewPassword(newPassword);
 							}}
 						/>
-					</div>
-				</div>
+					</PasswordWrapper>
+				</FormGroup>
 
-				<div className="form-group">
-					<div className="col-sm-2 col-md-2">
-						<label
-							htmlFor="password-confirm"
-							className="control-label two-lines">
-							{msg("passwordConfirm")}
-						</label>
-					</div>
-
-					<div className="col-sm-10 col-md-10">
-						<input
+				<FormGroup>
+					<Label htmlFor="password-confirm">
+						{msg("passwordConfirm")}
+					</Label>
+					<PasswordWrapper
+						kcClsx={kcClsx}
+						i18n={i18n}
+						passwordInputId="password-confirm">
+						<Input
 							type="password"
-							className="form-control"
 							id="password-confirm"
 							name="password-confirm"
 							autoComplete="new-password"
@@ -199,33 +190,76 @@ export default function Password(
 								checkNewPasswordConfirm(newPasswordConfirm);
 							}}
 						/>
-					</div>
-				</div>
+					</PasswordWrapper>
+				</FormGroup>
 
-				<div className="form-group">
-					<div
-						id="kc-form-buttons"
-						className="col-md-offset-2 col-md-10 submit">
-						<div>
-							<button
-								disabled={
-									newPasswordError !== "" ||
-									newPasswordConfirmError !== ""
-								}
-								type="submit"
-								className={kcClsx(
-									"kcButtonClass",
-									"kcButtonPrimaryClass",
-									"kcButtonLargeClass",
-								)}
-								name="submitAction"
-								value="Save">
-								{msg("doSave")}
-							</button>
-						</div>
-					</div>
-				</div>
-			</form>
+				<FormGroup>
+					<Button
+						disabled={
+							newPasswordError !== "" ||
+							newPasswordConfirmError !== ""
+						}
+						type="submit"
+						name="submitAction"
+						value="Save">
+						{msg("doSave")}
+					</Button>
+				</FormGroup>
+			</Form>
 		</Template>
 	);
 }
+
+const PasswordWrapper = (props: {
+	kcClsx: KcClsx;
+	i18n: I18n;
+	passwordInputId: string;
+	children: JSX.Element;
+}) => {
+	const { i18n, passwordInputId, children } = props;
+
+	const { msgStr } = i18n;
+
+	const [isPasswordRevealed, toggleIsPasswordRevealed] = React.useReducer(
+		(isPasswordRevealed: boolean) => !isPasswordRevealed,
+		false,
+	);
+
+	React.useEffect(() => {
+		const passwordInputElement = document.getElementById(passwordInputId);
+
+		assert(passwordInputElement instanceof HTMLInputElement);
+
+		passwordInputElement.type = isPasswordRevealed ? "text" : "password";
+	}, [isPasswordRevealed]);
+
+	const onClickTogglePassword: React.MouseEventHandler<
+		HTMLButtonElement
+	> = event => {
+		event.preventDefault();
+
+		toggleIsPasswordRevealed();
+	};
+
+	return (
+		<div className="flex gap-2">
+			<div className="w-full">{children}</div>
+			<Button
+				variant="outline"
+				size="icon"
+				className="w-max"
+				onClick={onClickTogglePassword}
+				aria-label={msgStr(
+					isPasswordRevealed ? "hidePassword" : "showPassword",
+				)}
+				aria-controls={passwordInputId}>
+				{isPasswordRevealed && (
+					<Eye aria-hidden className="h-5 m-2 w-auto" />
+				)}
+				{!isPasswordRevealed && (
+					<EyeOff aria-hidden className="h-5 m-2 w-auto" />
+				)}
+			</Button>
+		</div>
+	);
+};
