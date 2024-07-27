@@ -115,7 +115,7 @@ export default function Password(
 
 				{password.passwordSet && (
 					<FormGroup>
-						<Label htmlFor="password">{msg("password")}</Label>
+						<Label htmlFor="password">{msg("password")}*</Label>
 						<PasswordWrapper
 							kcClsx={kcClsx}
 							i18n={i18n}
@@ -136,7 +136,7 @@ export default function Password(
 				)}
 
 				<FormGroup>
-					<Label htmlFor="password-new">{msg("passwordNew")}</Label>
+					<Label htmlFor="password-new">{msg("passwordNew")}*</Label>
 					<PasswordWrapper
 						kcClsx={kcClsx}
 						i18n={i18n}
@@ -165,7 +165,7 @@ export default function Password(
 
 				<FormGroup>
 					<Label htmlFor="password-confirm">
-						{msg("passwordConfirm")}
+						{msg("passwordConfirm")}*
 					</Label>
 					<PasswordWrapper
 						kcClsx={kcClsx}
