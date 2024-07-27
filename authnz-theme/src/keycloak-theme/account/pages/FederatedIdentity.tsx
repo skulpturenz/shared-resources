@@ -3,7 +3,13 @@ import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 import { Large } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 
 export const FederatedIdentity = (
 	props: PageProps<
@@ -44,11 +50,13 @@ export const FederatedIdentity = (
 							<Card className="h-32 gap-6 grid grid-rows-2">
 								<CardHeader>
 									<CardTitle className="text-left">
-										{identity.displayName}{" "}
-										{identity.userName
-											? `(${identity.userName})`
-											: ""}
+										{identity.displayName}
 									</CardTitle>
+									{identity.userName && (
+										<CardDescription className="text-left">
+											{identity.userName}
+										</CardDescription>
+									)}
 								</CardHeader>
 								<CardFooter>
 									<Button
