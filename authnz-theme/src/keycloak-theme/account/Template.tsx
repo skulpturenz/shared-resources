@@ -223,7 +223,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		<>
 			<header>
 				<nav className="bg-background w-screen bottom-0 border-t md:static fixed md:border-b md:border-t-0">
-					<div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+					<div className="mx-auto px-2 sm:px-6 lg:px-8">
 						<div className="hidden md:flex flex-row-reverse md:h-24 md:items-center">
 							<div className="flex gap-2">
 								{localizationOptions.length > 0 && (
@@ -477,7 +477,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			</div>
 
 			<div className="py-6 mb-24 md:mb-0 md:pl-72">
-				<div className="mx-8">
+				<div className="mx-8 flex flex-col gap-8">
 					{message && (
 						<div className="flex gap-2 items-center mb-6">
 							<span className="hidden md:block">

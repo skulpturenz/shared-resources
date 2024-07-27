@@ -12,9 +12,9 @@ import { assert } from "tsafe/assert";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function Password(
+export const Password = (
 	props: PageProps<Extract<KcContext, { pageId: "password.ftl" }>, I18n>,
-) {
+) => {
 	const { kcContext, i18n, doUseDefaultCss, Template } = props;
 
 	const classes = {
@@ -130,9 +130,9 @@ export default function Password(
 				classes,
 			}}
 			active="password">
-			<Form action={url.passwordUrl} method="POST">
-				<Large>{msgStr("changePasswordHtmlTitle")}</Large>
+			<Large>{msgStr("changePasswordHtmlTitle")}</Large>
 
+			<Form action={url.passwordUrl} method="POST">
 				<div className="hidden">
 					<Input
 						type="text"
@@ -222,7 +222,7 @@ export default function Password(
 			</Form>
 		</Template>
 	);
-}
+};
 
 const PasswordWrapper = (props: {
 	kcClsx: KcClsx;
