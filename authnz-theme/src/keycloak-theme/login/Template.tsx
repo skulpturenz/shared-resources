@@ -39,7 +39,9 @@ import { Label } from "@/components/ui/label";
 import { cn, toPlainText } from "@/lib/utils";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
-	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+	<ThemeProvider
+		defaultTheme="dark"
+		storageKey={`skulpture-iam-theme-${import.meta.env.MODE}`}>
 		<TemplateWithoutTheme {...props} />
 	</ThemeProvider>
 );
@@ -239,8 +241,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button variant="outline" size="icon">
-										<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-										<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+										<Sun className="h-5 w-auto aspect-square rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+										<MoonStar className="absolute h-5 w-auto aspect-square rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
 										<span className="sr-only">
 											{msg("toggleTheme")}
 										</span>

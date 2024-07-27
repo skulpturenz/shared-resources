@@ -20,9 +20,9 @@ import {
 	Shell,
 	AppWindowMac,
 	Logs,
-	Signature,
 	CircleX,
 	CircleCheck,
+	Blocks,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,7 +46,9 @@ import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import { toPlainText } from "@/lib/utils";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
-	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+	<ThemeProvider
+		defaultTheme="dark"
+		storageKey={`skulpture-iam-theme-${import.meta.env.MODE}`}>
 		<TemplateWithoutTheme {...props} />
 	</ThemeProvider>
 );
@@ -211,7 +213,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			label: msgStr("myResources"),
 			isHidden:
 				!realm.userManagedAccessAllowed || !features.authorization,
-			Icon: Signature,
+			Icon: Blocks,
 		},
 	];
 
@@ -255,8 +257,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 													onClick={
 														onClickToggleTheme
 													}>
-													<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-													<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+													<Sun className="h-5 w-auto aspect-square rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+													<MoonStar className="absolute h-5 w-auto aspect-square rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
 													<span className="sr-only">
 														{msg("toggleTheme")}
 													</span>
@@ -283,7 +285,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 														<a
 															href={referrer?.url}
 															id="referrer">
-															<UndoDot className="h-[1.2rem] w-[1.2rem]" />
+															<UndoDot className="h-5 w-auto aspect-square" />
 															<span className="sr-only">
 																{msg(
 																	"backTo",
@@ -316,7 +318,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 													asChild>
 													<a
 														href={url.getLogoutUrl()}>
-														<LogOut className="h-[1.2rem] w-[1.2rem]" />
+														<LogOut className="h-5 w-auto aspect-square" />
 														<span className="sr-only">
 															{msg("doSignOut")}
 														</span>
@@ -380,7 +382,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 												<a
 													href={url.getLogoutUrl()}
 													className="flex gap-2 w-full self-start">
-													<LogOut className="h-[1.2rem] w-[1.2rem]" />
+													<LogOut className="h-5 w-auto aspect-square" />
 													{msg("doSignOut")}
 												</a>
 											</Button>
@@ -393,8 +395,8 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 												onClick={onClickToggleTheme}>
 												<div className="w-full flex gap-2 self-start cursor-pointer">
 													<div className="relative">
-														<Sun className="absolute h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-														<MoonStar className="rotate-90 h-[1.2rem] w-[1.2rem] scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+														<Sun className="absolute h-5 w-auto aspect-square rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+														<MoonStar className="rotate-90 h-5 w-auto aspect-square scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
 													</div>
 													<span>
 														{msg("toggleTheme")}
@@ -413,7 +415,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 														href={referrer?.url}
 														id="referrer"
 														className="flex gap-2 w-full self-start">
-														<UndoDot className="h-[1.2rem] w-[1.2rem]" />
+														<UndoDot className="h-5 w-auto aspect-square" />
 														{msg(
 															"backTo",
 															referrer?.name,
