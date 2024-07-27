@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type ChangeEventHandler } from "react";
 import { clsx } from "keycloakify/tools/clsx";
 import { getKcClsx, type KcClsx } from "keycloakify/account/lib/kcClsx";
 import type { PageProps } from "keycloakify/account/pages/PageProps";
@@ -66,28 +66,64 @@ export default function Password(
 		}
 	};
 
+	const onChangePassword: ChangeEventHandler<HTMLInputElement> = event => {
+		setCurrentPassword(event.target.value);
+	};
+
+	const onChangeNewPassword: ChangeEventHandler<HTMLInputElement> = event => {
+		const newPassword = event.target.value;
+
+		setNewPassword(newPassword);
+		if (hasNewPasswordBlurred) {
+			checkNewPassword(newPassword);
+		}
+	};
+
+	const onBlurNewPassword: ChangeEventHandler<HTMLInputElement> = () => {
+		setHasNewPasswordBlurred(true);
+		checkNewPassword(newPassword);
+	};
+
+	const onChangeConfirmPassword: ChangeEventHandler<
+		HTMLInputElement
+	> = event => {
+		const newPasswordConfirm = event.target.value;
+
+		setNewPasswordConfirm(newPasswordConfirm);
+		if (hasNewPasswordConfirmBlurred) {
+			checkNewPasswordConfirm(newPasswordConfirm);
+		}
+	};
+
+	const onBlurConfirmPassword: ChangeEventHandler<HTMLInputElement> = () => {
+		setHasNewPasswordConfirmBlurred(true);
+		checkNewPasswordConfirm(newPasswordConfirm);
+	};
+
+	const getPageMessage = () => {
+		if (newPasswordError !== "") {
+			return {
+				type: "error",
+				summary: newPasswordError,
+			};
+		}
+
+		if (newPasswordConfirmError !== "") {
+			return {
+				type: "error",
+				summary: newPasswordConfirmError,
+			};
+		}
+
+		return kcContext.message;
+	};
+
 	return (
 		<Template
 			{...{
 				kcContext: {
 					...kcContext,
-					message: (() => {
-						if (newPasswordError !== "") {
-							return {
-								type: "error",
-								summary: newPasswordError,
-							};
-						}
-
-						if (newPasswordConfirmError !== "") {
-							return {
-								type: "error",
-								summary: newPasswordConfirmError,
-							};
-						}
-
-						return kcContext.message;
-					})(),
+					message: getPageMessage(),
 				},
 				i18n,
 				doUseDefaultCss,
@@ -127,9 +163,7 @@ export default function Password(
 								autoFocus
 								autoComplete="current-password"
 								value={currentPassword}
-								onChange={event =>
-									setCurrentPassword(event.target.value)
-								}
+								onChange={onChangePassword}
 							/>
 						</PasswordWrapper>
 					</FormGroup>
@@ -147,18 +181,8 @@ export default function Password(
 							name="password-new"
 							autoComplete="new-password"
 							value={newPassword}
-							onChange={event => {
-								const newPassword = event.target.value;
-
-								setNewPassword(newPassword);
-								if (hasNewPasswordBlurred) {
-									checkNewPassword(newPassword);
-								}
-							}}
-							onBlur={() => {
-								setHasNewPasswordBlurred(true);
-								checkNewPassword(newPassword);
-							}}
+							onChange={onChangeNewPassword}
+							onBlur={onBlurNewPassword}
 						/>
 					</PasswordWrapper>
 				</FormGroup>
@@ -177,18 +201,8 @@ export default function Password(
 							name="password-confirm"
 							autoComplete="new-password"
 							value={newPasswordConfirm}
-							onChange={event => {
-								const newPasswordConfirm = event.target.value;
-
-								setNewPasswordConfirm(newPasswordConfirm);
-								if (hasNewPasswordConfirmBlurred) {
-									checkNewPasswordConfirm(newPasswordConfirm);
-								}
-							}}
-							onBlur={() => {
-								setHasNewPasswordConfirmBlurred(true);
-								checkNewPasswordConfirm(newPasswordConfirm);
-							}}
+							onChange={onChangeConfirmPassword}
+							onBlur={onBlurConfirmPassword}
 						/>
 					</PasswordWrapper>
 				</FormGroup>
