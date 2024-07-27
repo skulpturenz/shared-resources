@@ -477,7 +477,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			</div>
 
 			<div className="py-6 mb-24 md:mb-0 md:pl-72">
-				<div className="mx-8">
+				<div className="mx-8 flex flex-col gap-8">
 					{message && (
 						<div className="flex gap-2 items-center mb-6">
 							<span className="hidden md:block">

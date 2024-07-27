@@ -4,8 +4,9 @@ import type { KcContext } from "./KcContext";
 import { useI18n } from "./i18n";
 import DefaultPage from "keycloakify/account/DefaultPage";
 import { Template } from "./Template";
-import Account from "./pages/Account";
-import Password from "./pages/Password";
+import { Account } from "./pages/Account";
+import { Password } from "./pages/Password";
+import { FederatedIdentity } from "./pages/FederatedIdentity";
 
 export default function KcPage(props: { kcContext: KcContext }) {
 	const { kcContext } = props;
@@ -30,6 +31,17 @@ export default function KcPage(props: { kcContext: KcContext }) {
 					case "password.ftl": {
 						return (
 							<Password
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "federatedIdentity.ftl": {
+						return (
+							<FederatedIdentity
 								kcContext={kcContext}
 								i18n={i18n}
 								classes={classes}

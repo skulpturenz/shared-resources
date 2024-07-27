@@ -8,9 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Large, Small } from "@/components/typography";
 
-export default function Account(
+export const Account = (
 	props: PageProps<Extract<KcContext, { pageId: "account.ftl" }>, I18n>,
-) {
+) => {
 	const { kcContext, i18n, doUseDefaultCss, Template } = props;
 
 	const classes = {
@@ -33,9 +33,9 @@ export default function Account(
 		<Template
 			{...{ kcContext, i18n, doUseDefaultCss, classes }}
 			active="account">
-			<Form action={url.accountUrl} method="POST">
-				<Large>{msgStr("editAccountHtmlTitle")}</Large>
+			<Large>{msgStr("editAccountHtmlTitle")}</Large>
 
+			<Form action={url.accountUrl} method="POST">
 				<div className="hidden">
 					<Input
 						type="hidden"
@@ -139,4 +139,4 @@ export default function Account(
 			</Form>
 		</Template>
 	);
-}
+};
