@@ -1,8 +1,12 @@
 import { clsx } from "keycloakify/tools/clsx";
 import type { PageProps } from "keycloakify/account/pages/PageProps";
-import { getKcClsx } from "keycloakify/account/lib/kcClsx";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { Form, FormGroup } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Large, Small } from "@/components/typography";
 
 export default function Account(
 	props: PageProps<Extract<KcContext, { pageId: "account.ftl" }>, I18n>,
@@ -14,13 +18,14 @@ export default function Account(
 		kcBodyClass: clsx(props.classes?.kcBodyClass, "user"),
 	};
 
-	const { kcClsx } = getKcClsx({
-		doUseDefaultCss,
-		classes,
-	});
-
-	const { url, realm, messagesPerField, stateChecker, account, referrer } =
-		kcContext;
+	const {
+		url,
+		realm,
+		messagesPerField,
+		stateChecker,
+		account,
+		referrer: _referrer,
+	} = kcContext;
 
 	const { msg } = i18n;
 
@@ -28,169 +33,100 @@ export default function Account(
 		<Template
 			{...{ kcContext, i18n, doUseDefaultCss, classes }}
 			active="account">
-			<div className="row">
-				<div className="col-md-10">
-					<h2>{msg("editAccountHtmlTitle")}</h2>
-				</div>
-				<div className="col-md-2 subtitle">
-					<span className="subtitle">
-						<span className="required">*</span>{" "}
-						{msg("requiredFields")}
-					</span>
-				</div>
-			</div>
+			<Large>{msg("editAccountHtmlTitle")}</Large>
 
-			<form
-				action={url.accountUrl}
-				className="form-horizontal"
-				method="post">
-				<input
-					type="hidden"
-					id="stateChecker"
-					name="stateChecker"
-					value={stateChecker}
-				/>
+			<Form action={url.accountUrl} method="POST">
+				<Input type="hidden" name="stateChecker" value={stateChecker} />
 
-				{!realm.registrationEmailAsUsername && (
-					<div
-						className={clsx(
-							"form-group",
-							messagesPerField.printIfExists(
-								"username",
-								"has-error",
-							),
-						)}>
-						<div className="col-sm-2 col-md-2">
-							<label htmlFor="username" className="control-label">
-								{msg("username")}
-							</label>
-							{realm.editUsernameAllowed && (
-								<span className="required">*</span>
-							)}
-						</div>
+				<FormGroup>
+					<Label>
+						{msg("username")}
+						{realm.editUsernameAllowed && "*"}
+					</Label>
+					<Input
+						name="username"
+						disabled={!realm.editUsernameAllowed}
+						defaultValue={account.username ?? ""}
+						isError={messagesPerField.exists("username")}
+					/>
+					{messagesPerField.existsError("username") && (
+						<Small aria-live="polite">
+							{messagesPerField.get("username")}
+						</Small>
+					)}
+				</FormGroup>
 
-						<div className="col-sm-10 col-md-10">
-							<input
-								type="text"
-								className="form-control"
-								id="username"
-								name="username"
-								disabled={!realm.editUsernameAllowed}
-								defaultValue={account.username ?? ""}
-							/>
-						</div>
-					</div>
-				)}
+				<FormGroup>
+					<Label>{msg("email")}*</Label>
+					<Input
+						type="text"
+						name="email"
+						autoFocus
+						defaultValue={account.email ?? ""}
+						isError={messagesPerField.exists("email")}
+					/>
+					{messagesPerField.existsError("email") && (
+						<Small aria-live="polite">
+							{messagesPerField.get("email")}
+						</Small>
+					)}
+				</FormGroup>
 
-				<div
-					className={clsx(
-						"form-group",
-						messagesPerField.printIfExists("email", "has-error"),
-					)}>
-					<div className="col-sm-2 col-md-2">
-						<label htmlFor="email" className="control-label">
-							{msg("email")}
-						</label>{" "}
-						<span className="required">*</span>
-					</div>
+				<FormGroup>
+					<Label>{msg("firstName")}*</Label>
+					<Input
+						type="text"
+						name="firstName"
+						defaultValue={account.firstName ?? ""}
+						isError={messagesPerField.existsError("firstName")}
+					/>
+					{messagesPerField.existsError("firstName") && (
+						<Small aria-live="polite">
+							{messagesPerField.get("firstName")}
+						</Small>
+					)}
+				</FormGroup>
 
-					<div className="col-sm-10 col-md-10">
-						<input
-							type="text"
-							className="form-control"
-							id="email"
-							name="email"
-							autoFocus
-							defaultValue={account.email ?? ""}
-						/>
-					</div>
-				</div>
+				<FormGroup>
+					<Label>{msg("lastName")}*</Label>
+					<Input
+						type="text"
+						name="lastName"
+						defaultValue={account.lastName ?? ""}
+						isError={messagesPerField.existsError("lastName")}
+					/>
+					{messagesPerField.existsError("lastName") && (
+						<Small aria-live="polite">
+							{messagesPerField.get("lastName")}
+						</Small>
+					)}
+				</FormGroup>
 
-				<div
-					className={clsx(
-						"form-group",
-						messagesPerField.printIfExists(
-							"firstName",
-							"has-error",
-						),
-					)}>
-					<div className="col-sm-2 col-md-2">
-						<label htmlFor="firstName" className="control-label">
-							{msg("firstName")}
-						</label>{" "}
-						<span className="required">*</span>
-					</div>
+				<FormGroup>
+					<Button variant="secondary" className="w-full">
+						{msg("backToApplication")}
+					</Button>
 
-					<div className="col-sm-10 col-md-10">
-						<input
-							type="text"
-							className="form-control"
-							id="firstName"
-							name="firstName"
-							defaultValue={account.firstName ?? ""}
-						/>
-					</div>
-				</div>
+					<FormGroup flexDirection="row" className="w-full">
+						<Button
+							type="submit"
+							name="submitAction"
+							value="Save"
+							className="w-full">
+							{msg("doSave")}
+						</Button>
 
-				<div
-					className={clsx(
-						"form-group",
-						messagesPerField.printIfExists("lastName", "has-error"),
-					)}>
-					<div className="col-sm-2 col-md-2">
-						<label htmlFor="lastName" className="control-label">
-							{msg("lastName")}
-						</label>{" "}
-						<span className="required">*</span>
-					</div>
-
-					<div className="col-sm-10 col-md-10">
-						<input
-							type="text"
-							className="form-control"
-							id="lastName"
-							name="lastName"
-							defaultValue={account.lastName ?? ""}
-						/>
-					</div>
-				</div>
-
-				<div className="form-group">
-					<div
-						id="kc-form-buttons"
-						className="col-md-offset-2 col-md-10 submit">
-						<div>
-							{referrer !== undefined && (
-								<a href={referrer?.url}>
-									{msg("backToApplication")}
-								</a>
-							)}
-							<button
-								type="submit"
-								className={kcClsx(
-									"kcButtonClass",
-									"kcButtonPrimaryClass",
-									"kcButtonLargeClass",
-								)}
-								name="submitAction"
-								value="Save">
-								{msg("doSave")}
-							</button>
-							<button
-								type="submit"
-								className={kcClsx(
-									"kcButtonClass",
-									"kcButtonDefaultClass",
-									"kcButtonLargeClass",
-								)}
-								name="submitAction"
-								value="Cancel">
-								{msg("doCancel")}
-							</button>
-						</div>
-					</div>
-				</div>
-			</form>
+						<Button
+							type="submit"
+							name="submitAction"
+							value="Cancel"
+							variant="destructive"
+							className="w-full">
+							{msg("doCancel")}
+						</Button>
+					</FormGroup>
+				</FormGroup>
+			</Form>
 		</Template>
 	);
 }
