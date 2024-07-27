@@ -36,10 +36,12 @@ import {
 } from "lucide-react";
 import { LogoLight, LogoDark } from "@/components/assets";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn, toPlainText } from "@/lib/utils";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
-	<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+	<ThemeProvider
+		defaultTheme="dark"
+		storageKey={`skulpture-iam-theme-${import.meta.env.MODE}`}>
 		<TemplateWithoutTheme {...props} />
 	</ThemeProvider>
 );
@@ -207,18 +209,6 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		);
 	};
 
-	const toPlainText = (rawHtml: string) => {
-		const tempNode = document.createElement("div");
-
-		tempNode.innerHTML = rawHtml;
-
-		const text = tempNode.textContent || tempNode.innerText || "";
-
-		tempNode.remove();
-
-		return text.replace(/\.(?=\w+\s)/gi, ". ");
-	};
-
 	const onClickTryAnotherWay = () => {
 		document.forms["kc-select-try-another-way-form" as never].submit();
 
@@ -243,15 +233,16 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 						<div
 							className={cn(
 								"flex gap-2",
-								localizationOptions.length > 0
+								realm.internationalizationEnabled &&
+									localizationOptions.length > 0
 									? "md:justify-end"
 									: "justify-end",
 							)}>
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button variant="outline" size="icon">
-										<Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-										<MoonStar className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+										<Sun className="h-5 w-auto aspect-square rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+										<MoonStar className="absolute h-5 w-auto aspect-square rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
 										<span className="sr-only">
 											{msg("toggleTheme")}
 										</span>
@@ -296,16 +287,21 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
-							{localizationOptions.length > 0 && (
-								<Combobox
-									className="w-full md:max-w-xs"
-									options={localizationOptions}
-									initialValue={currentLocalizationOption}
-									selectPlaceholder={msgStr("selectLanguage")}
-									searchPlaceholder={msgStr("searchLanguage")}
-									noResultsText={msgStr("noLanguages")}
-								/>
-							)}
+							{realm.internationalizationEnabled &&
+								localizationOptions.length > 0 && (
+									<Combobox
+										className="w-full md:max-w-xs"
+										options={localizationOptions}
+										initialValue={currentLocalizationOption}
+										selectPlaceholder={msgStr(
+											"selectLanguage",
+										)}
+										searchPlaceholder={msgStr(
+											"searchLanguage",
+										)}
+										noResultsText={msgStr("noLanguages")}
+									/>
+								)}
 						</div>
 
 						<CardTitle className="flex flex-col gap-2">
