@@ -107,6 +107,10 @@ func init() {
 			panic(err)
 		}
 
+		for _, proxyTarget := range cfg.Targets {
+			proxyTarget.Scopes = append(proxyTarget.Scopes, oidc.ScopeOpenID)
+		}
+
 		PROXY_TARGETS = append(PROXY_TARGETS, cfg.Targets...)
 	}
 }
