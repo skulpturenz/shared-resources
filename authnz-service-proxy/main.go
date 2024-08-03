@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"io"
+	"errors"
 	"log/slog"
 	"net/http"
 	"os"
@@ -26,6 +26,10 @@ var (
 		Required()
 	PROXY_TARGETS = map[string]target{}
 )
+
+type ContextKey string
+
+const TargetUrl ContextKey = "targetUrl"
 
 type target struct {
 	Url          string   `yaml:"url"`
@@ -129,6 +133,7 @@ func main() {
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
+	r.Use(verify)
 
 	methods := []string{
 		http.MethodGet, http.MethodPost,
@@ -137,33 +142,69 @@ func main() {
 	}
 
 	for _, method := range methods {
-		r.MethodFunc(method, "*", verifyAndProxy)
+		r.MethodFunc(method, "*", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, r.Context().Value(TargetUrl).(string), http.StatusPermanentRedirect)
+		})
 	}
 
 	slog.InfoContext(ctx, "listening", "port", ":80")
 	http.ListenAndServe(":80", r)
 }
 
-func verifyAndProxy(w http.ResponseWriter, r *http.Request) {
-	var targetUrl = r.Header.Get("AUTHNZ_PROXY_TARGET")
-	w.Header().Del("AUTHNZ_PROXY_TARGET")
-
-	if targetUrl == "" {
-		return
-	}
-
+func getTargetConfig(targetUrl string) *target {
 	proxyTarget, ok := PROXY_TARGETS[targetUrl]
 	if !ok {
-		http.Error(w, "undefined target", http.StatusInternalServerError)
+		return nil
+	}
 
-		return
+	return &proxyTarget
+}
+
+func verify(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		targetUrl := r.Header.Get("AUTHNZ_PROXY_TARGET")
+		w.Header().Del("AUTHNZ_PROXY_TARGET")
+
+		reqWithTargetUrl := r.WithContext(context.WithValue(r.Context(), TargetUrl, targetUrl))
+
+		_, err := r.Cookie("state")
+		if err != nil {
+			authenticate(w, reqWithTargetUrl)
+
+			return
+		}
+
+		isAuthenticated, err := isAuthenticationValid(w, reqWithTargetUrl)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		if !isAuthenticated {
+			authUrl, err := authenticate(w, reqWithTargetUrl)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+
+			http.Redirect(w, r, authUrl, http.StatusFound)
+
+			return
+		}
+
+		next.ServeHTTP(w, reqWithTargetUrl)
+	}
+
+	return http.HandlerFunc(fn)
+}
+
+func authenticate(w http.ResponseWriter, r *http.Request) (string, error) {
+	proxyTarget := getTargetConfig(r.Context().Value(TargetUrl).(string))
+	if proxyTarget == nil {
+		return "", errors.New("invalid target")
 	}
 
 	provider, err := oidc.NewProvider(r.Context(), proxyTarget.Issuer)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
+		return "", err
 	}
 
 	config := oauth2.Config{
@@ -174,51 +215,64 @@ func verifyAndProxy(w http.ResponseWriter, r *http.Request) {
 		Scopes:       proxyTarget.Scopes,
 	}
 
-	hasState := false
+	state, err := randString(16)
+	if err != nil {
 
-	existingState, err := r.Cookie("state")
-	if err == nil {
-		hasState = true
+		return "", err
 	}
 
-	if hasState && existingState.Value != r.URL.Query().Get("state") {
-		http.Error(w, "state did not match", http.StatusBadRequest)
-
-		return
+	nonce, err := randString(16)
+	if err != nil {
+		return "", err
 	}
 
-	if !hasState {
-		newState, err := randString(16)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+	stateCookie := toCookie("state", state, r.TLS != nil)
+	nonceCookie := toCookie("nonce", nonce, r.TLS != nil)
 
-			return
-		}
-		newNonce, err := randString(16)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		setCallbackCookie(w, r, "state", newState)
-		setCallbackCookie(w, r, "nonce", newNonce)
+	http.SetCookie(w, stateCookie)
+	http.SetCookie(w, nonceCookie)
 
-		http.Redirect(w, r, config.AuthCodeURL(newState, oidc.Nonce(newNonce)), http.StatusFound)
+	return config.AuthCodeURL(state, oidc.Nonce(nonce)), nil
+}
 
-		return
+func isAuthenticationValid(w http.ResponseWriter, r *http.Request) (bool, error) {
+	proxyTarget := getTargetConfig(r.Context().Value(TargetUrl).(string))
+	if proxyTarget == nil {
+		http.Error(w, "undefined target", http.StatusInternalServerError)
+
+		return false, errors.New("invalid target")
+	}
+
+	provider, err := oidc.NewProvider(r.Context(), proxyTarget.Issuer)
+	if err != nil {
+		return false, err
+	}
+
+	config := oauth2.Config{
+		ClientID:     proxyTarget.ClientID,
+		ClientSecret: proxyTarget.ClientSecret,
+		Endpoint:     provider.Endpoint(),
+		RedirectURL:  proxyTarget.RedirectUrl,
+		Scopes:       proxyTarget.Scopes,
+	}
+
+	state, err := r.Cookie("state")
+	if err != nil {
+		return false, err
+	}
+
+	if state.Value != r.URL.Query().Get("state") {
+		return false, errors.New("state did not match")
 	}
 
 	oauth2Token, err := config.Exchange(r.Context(), r.URL.Query().Get("code"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
+		return false, err
 	}
 
 	rawIdToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
-		http.Error(w, "no id_token field", http.StatusInternalServerError)
-
-		return
+		return false, err
 	}
 
 	verfier := provider.Verifier(&oidc.Config{
@@ -226,39 +280,37 @@ func verifyAndProxy(w http.ResponseWriter, r *http.Request) {
 	})
 	idToken, err := verfier.Verify(r.Context(), rawIdToken)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
+		return false, errors.New("no id_token field")
 	}
 
-	existingNonce, err := r.Cookie("nonce")
+	nonce, err := r.Cookie("nonce")
 	if err != nil {
-		http.Error(w, "nonce not found", http.StatusBadRequest)
-		return
+		return false, errors.New("nonce not found")
 	}
-	if idToken.Nonce != existingNonce.Value {
-		http.Error(w, "nonce did not match", http.StatusBadRequest)
-		return
+	if idToken.Nonce != nonce.Value {
+		return false, errors.New("nonce did not match")
 	}
 
-	http.Redirect(w, r, targetUrl, http.StatusPermanentRedirect)
+	return true, nil
 }
 
-func setCallbackCookie(w http.ResponseWriter, r *http.Request, name, value string) {
-	c := &http.Cookie{
+func toCookie(name string, value string, secure bool) *http.Cookie {
+	return &http.Cookie{
 		Name:     name,
 		Value:    value,
 		MaxAge:   int(time.Hour.Seconds()),
-		Secure:   r.TLS != nil,
+		Secure:   secure,
 		HttpOnly: true,
 	}
-	http.SetCookie(w, c)
 }
 
-func randString(nByte int) (string, error) {
-	b := make([]byte, nByte)
-	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+func randString(n int) (string, error) {
+	b := make([]byte, n)
+
+	_, err := rand.Read(b)
+	if err != nil {
 		return "", err
 	}
+
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
