@@ -32,6 +32,7 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:authnz/keycloak"
+          platforms: linux/amd64,linux/arm64
           build-contexts: |
             theme=./authnz-theme
           push: false
@@ -50,6 +51,7 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/elasticsearch"
+          platforms: linux/amd64,linux/arm64
           push: false
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
@@ -62,6 +64,7 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/kibana"
+          platforms: linux/amd64,linux/arm64
           push: false
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
@@ -74,6 +77,7 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/apm-server"
+          platforms: linux/amd64,linux/arm64
           push: false
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
@@ -86,6 +90,7 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:kryptos"
+          platforms: linux/amd64,linux/arm64
           push: false
           tags: |
             skulpture/kryptos:${{ env.TAG }}
