@@ -50,7 +50,7 @@ func main() {
 
 		ctx.Export("githubWIFProvider", githubProvider.Name)
 
-		const REPOSITORY = "nmathew98/shared-resources"
+		const REPOSITORY = "skulpturenz/shared-resources"
 		pool.Name.ApplyT(func(workloadIdentityPoolId string) error {
 			principalSet := fmt.Sprintf("principalSet://iam.googleapis.com/%s/attribute.repository/%s", workloadIdentityPoolId, REPOSITORY)
 

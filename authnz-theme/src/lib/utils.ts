@@ -37,3 +37,15 @@ export const flattenChildren = (
 		.flatMap(child => flattenChildren(child, maxDepth, currentDepth + 1))
 		.filter(Boolean);
 };
+
+export const toPlainText = (rawHtml: string) => {
+	const tempNode = document.createElement("div");
+
+	tempNode.innerHTML = rawHtml;
+
+	const text = tempNode.textContent || tempNode.innerText || "";
+
+	tempNode.remove();
+
+	return text.replace(/\.(?=\w+\s)/gi, ". ");
+};

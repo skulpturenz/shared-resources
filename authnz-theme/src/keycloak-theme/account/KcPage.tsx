@@ -3,7 +3,10 @@ import type { ClassKey } from "keycloakify/account";
 import type { KcContext } from "./KcContext";
 import { useI18n } from "./i18n";
 import DefaultPage from "keycloakify/account/DefaultPage";
-import Template from "keycloakify/account/Template";
+import { Template } from "./Template";
+import { Account } from "./pages/Account";
+import { Password } from "./pages/Password";
+import { FederatedIdentity } from "./pages/FederatedIdentity";
 
 export default function KcPage(props: { kcContext: KcContext }) {
 	const { kcContext } = props;
@@ -14,6 +17,39 @@ export default function KcPage(props: { kcContext: KcContext }) {
 		<Suspense>
 			{(() => {
 				switch (kcContext.pageId) {
+					case "account.ftl": {
+						return (
+							<Account
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "password.ftl": {
+						return (
+							<Password
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "federatedIdentity.ftl": {
+						return (
+							<FederatedIdentity
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+							/>
+						);
+					}
 					default:
 						return (
 							<DefaultPage
@@ -21,7 +57,7 @@ export default function KcPage(props: { kcContext: KcContext }) {
 								i18n={i18n}
 								classes={classes}
 								Template={Template}
-								doUseDefaultCss={true}
+								doUseDefaultCss={false}
 							/>
 						);
 				}
