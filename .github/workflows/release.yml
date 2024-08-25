@@ -43,8 +43,8 @@ jobs:
       - uses: softprops/action-gh-release@v2
         if: ${{ steps.release-label.outputs.level != null }}
         with:
-          prerelease: ${{ env.BRANCH_NAME == 'master' && false || true }}
+          prerelease: ${{ env.BRANCH_NAME == 'staging' && false || true }}
           name: ${{ steps.bump-semver.outputs.new_version }}
           tag_name: ${{ steps.bump-semver.outputs.new_version }}
-          target_commitish: ${{ env.BRANCH_NAME == 'master' && 'staging' || 'dev' }}
+          target_commitish: ${{ env.BRANCH_NAME }}
           generate_release_notes: true
