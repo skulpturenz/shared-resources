@@ -233,6 +233,7 @@ jobs:
     environment: "${{ matrix.service }}-${{ matrix.branch }}"
 
     needs: [
+      up,
       build-authnz,
       build-elasticsearch,
       build-kibana,
