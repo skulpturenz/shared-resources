@@ -29,7 +29,7 @@ export default function Code(
 					: msg("codeErrorTitle", code.error)
 			}>
 			<div id="kc-code">
-				{code.success ? (
+				{/* {code.success ? (
 					<>
 						<p>{msg("copyCodeInstruction")}</p>
 						<input
@@ -40,7 +40,7 @@ export default function Code(
 					</>
 				) : (
 					<p id="error">{code.error}</p>
-				)}
+				)} */}
 			</div>
 		</Template>
 	);
