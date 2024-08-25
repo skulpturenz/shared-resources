@@ -119,12 +119,12 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		hrefs: !doUseDefaultCss
 			? []
 			: [
-					`${url.resourcesCommonPath}/node_modules/@patternfly/patternfly/patternfly.min.css`,
-					`${url.resourcesCommonPath}/node_modules/patternfly/dist/css/patternfly.min.css`,
-					`${url.resourcesCommonPath}/node_modules/patternfly/dist/css/patternfly-additions.min.css`,
-					`${url.resourcesCommonPath}/lib/pficon/pficon.css`,
-					`${url.resourcesPath}/css/login.css`,
-				],
+				`${url.resourcesCommonPath}/node_modules/@patternfly/patternfly/patternfly.min.css`,
+				`${url.resourcesCommonPath}/node_modules/patternfly/dist/css/patternfly.min.css`,
+				`${url.resourcesCommonPath}/node_modules/patternfly/dist/css/patternfly-additions.min.css`,
+				`${url.resourcesCommonPath}/lib/pficon/pficon.css`,
+				`${url.resourcesPath}/css/login.css`,
+			],
 	});
 
 	const { insertScriptTags } = useInsertScriptTags({
@@ -137,19 +137,19 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			...(authenticationSession === undefined
 				? []
 				: [
-						{
-							type: "module",
-							textContent: [
-								`import { checkCookiesAndSetTimer } from "${url.resourcesPath}/js/authChecker.js";`,
-								``,
-								`checkCookiesAndSetTimer(`,
-								`  "${authenticationSession.authSessionId}",`,
-								`  "${authenticationSession.tabId}",`,
-								`  "${url.ssoLoginInOtherTabsUrl}"`,
-								`);`,
-							].join("\n"),
-						} as const,
-					]),
+					{
+						type: "module",
+						textContent: [
+							`import { checkCookiesAndSetTimer } from "${url.resourcesPath}/js/authChecker.js";`,
+							``,
+							`checkCookiesAndSetTimer(`,
+							`  "${authenticationSession.authSessionId}",`,
+							`  "${authenticationSession.tabId}",`,
+							`  "${url.ssoLoginInOtherTabsUrl}"`,
+							`);`,
+						].join("\n"),
+					} as const,
+				]),
 			...scripts.map(
 				script =>
 					({
