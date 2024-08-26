@@ -122,7 +122,7 @@ func main() {
 		_, err = cloudflare.NewRecord(ctx, COMPUTE_INSTANCE_NAME.Value(), &cloudflare.RecordArgs{
 			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
 			Name:    pulumi.String("telemetry"),
-			Value:   static.Address,
+			Content: static.Address,
 			Type:    pulumi.String("A"),
 			Proxied: pulumi.Bool(true),
 		})
