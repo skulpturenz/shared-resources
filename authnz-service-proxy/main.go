@@ -120,7 +120,7 @@ func main() {
 	}
 
 	for _, method := range methods {
-		r.MethodFunc(method, "*", func(w http.ResponseWriter, r *http.Request) {
+		r.MethodFunc(method, "/*", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, r.Context().Value(authnzMiddleware.TargetUrl).(string), http.StatusPermanentRedirect)
 		})
 	}

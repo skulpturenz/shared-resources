@@ -34,14 +34,22 @@ func Verify(next http.Handler) http.Handler {
 
 		_, err := r.Cookie("state")
 		if err != nil {
-			authenticate(w, reqWithTargetUrl)
+			authUrl, err := authenticate(w, reqWithTargetUrl)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+
+			http.Redirect(w, r, authUrl, http.StatusFound)
 
 			return
 		}
 
-		isAuthenticated, err := isAuthenticationValid(w, reqWithTargetUrl)
+		isAuthenticated, err := isAuthenticationValid(reqWithTargetUrl)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
 		}
 
 		if !isAuthenticated {
@@ -100,11 +108,9 @@ func authenticate(w http.ResponseWriter, r *http.Request) (string, error) {
 	return config.AuthCodeURL(state, oidc.Nonce(nonce)), nil
 }
 
-func isAuthenticationValid(w http.ResponseWriter, r *http.Request) (bool, error) {
+func isAuthenticationValid(r *http.Request) (bool, error) {
 	proxyTarget := getTargetConfig(r.Context().Value(TargetUrl).(string))
 	if proxyTarget == nil {
-		http.Error(w, "undefined target", http.StatusInternalServerError)
-
 		return false, errors.New("invalid target")
 	}
 

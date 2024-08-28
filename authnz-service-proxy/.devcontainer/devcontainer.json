@@ -9,7 +9,9 @@
 		"--env-file",
 		".devcontainer/.env"
 	],
-	"containerEnv": {},
+	"containerEnv": {
+		"GO_ENV": "development"
+	},
 	"customizations": {
 		"settings": {
 			"go.buildTags": "",
