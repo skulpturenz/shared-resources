@@ -8,11 +8,19 @@ import (
 	"net/http"
 	"time"
 
+	enums "skulpture/authnz-service-proxy/enums"
+
 	"github.com/coreos/go-oidc/v3/oidc"
+	"github.com/dogmatiq/ferrite"
 	"golang.org/x/oauth2"
 )
 
 var (
+	GO_ENV = ferrite.
+		Enum("GO_ENV", "Golang environment").
+		WithMembers(string(enums.Production), string(enums.Development), string(enums.Test)).
+		WithDefault(string(enums.Development)).
+		Required()
 	PROXY_TARGETS = map[string]Target{}
 )
 
@@ -27,7 +35,24 @@ func getTargetConfig(targetUrl string) *Target {
 
 func Verify(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		targetUrl := r.Header.Get("AUTHNZ_PROXY_TARGET")
+		var targetUrl string
+		if GO_ENV.Value() != string(enums.Development) {
+			targetUrl = r.Header.Get("AUTHNZ_PROXY_TARGET")
+
+			if targetUrl == "" && len(PROXY_TARGETS) == 1 {
+				for key := range PROXY_TARGETS {
+					targetUrl = key
+				}
+			}
+		} else {
+			targetUrl = r.URL.Query().Get("authnzProxyTarget")
+
+			if targetUrl == "" && len(PROXY_TARGETS) == 1 {
+				for key := range PROXY_TARGETS {
+					targetUrl = key
+				}
+			}
+		}
 
 		reqWithTargetUrl := r.WithContext(context.WithValue(r.Context(), TargetUrl, targetUrl))
 

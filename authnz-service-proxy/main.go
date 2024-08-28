@@ -19,7 +19,7 @@ import (
 var (
 	GO_ENV = ferrite.
 		String("GO_ENV", "Golang environment").
-		WithDefault("Development").
+		WithDefault("development").
 		Required()
 )
 
