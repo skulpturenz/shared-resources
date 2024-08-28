@@ -35,9 +35,10 @@ func Verify(next http.Handler) http.Handler {
 		_, err := r.Cookie("state")
 		if err != nil {
 			authUrl, err := authenticate(w, reqWithTargetUrl)
-
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+
+				return
 			}
 
 			http.Redirect(w, r, authUrl, http.StatusFound)
@@ -56,6 +57,8 @@ func Verify(next http.Handler) http.Handler {
 			authUrl, err := authenticate(w, reqWithTargetUrl)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+
+				return
 			}
 
 			http.Redirect(w, r, authUrl, http.StatusFound)
@@ -90,7 +93,6 @@ func authenticate(w http.ResponseWriter, r *http.Request) (string, error) {
 
 	state, err := randString(16)
 	if err != nil {
-
 		return "", err
 	}
 
