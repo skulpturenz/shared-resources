@@ -113,6 +113,9 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(authnzMiddleware.Verify)
 
+	r.Get("/authenticated", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, r.Context().Value(authnzMiddleware.TargetUrl).(string), http.StatusPermanentRedirect)
 	})
