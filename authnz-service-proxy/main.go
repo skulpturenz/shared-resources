@@ -113,17 +113,9 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(authnzMiddleware.Verify)
 
-	methods := []string{
-		http.MethodGet, http.MethodPost,
-		http.MethodPut, http.MethodDelete,
-		http.MethodPatch,
-	}
-
-	for _, method := range methods {
-		r.MethodFunc(method, "/*", func(w http.ResponseWriter, r *http.Request) {
-			http.Redirect(w, r, r.Context().Value(authnzMiddleware.TargetUrl).(string), http.StatusPermanentRedirect)
-		})
-	}
+	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, r.Context().Value(authnzMiddleware.TargetUrl).(string), http.StatusPermanentRedirect)
+	})
 
 	slog.InfoContext(ctx, "listening", "port", ":80")
 	http.ListenAndServe(":80", r)
