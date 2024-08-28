@@ -28,7 +28,6 @@ func getTargetConfig(targetUrl string) *Target {
 func Verify(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		targetUrl := r.Header.Get("AUTHNZ_PROXY_TARGET")
-		w.Header().Del("AUTHNZ_PROXY_TARGET")
 
 		reqWithTargetUrl := r.WithContext(context.WithValue(r.Context(), TargetUrl, targetUrl))
 
@@ -65,6 +64,10 @@ func Verify(next http.Handler) http.Handler {
 
 			return
 		}
+
+		http.SetCookie(w, clearCookie("state", reqWithTargetUrl.TLS != nil))
+		http.SetCookie(w, clearCookie("nonce", reqWithTargetUrl.TLS != nil))
+		w.Header().Del("AUTHNZ_PROXY_TARGET")
 
 		next.ServeHTTP(w, reqWithTargetUrl)
 	}
@@ -165,6 +168,16 @@ func isAuthenticationValid(r *http.Request) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func clearCookie(name string, secure bool) *http.Cookie {
+	return &http.Cookie{
+		Name:     name,
+		Value:    "",
+		MaxAge:   -1,
+		Secure:   secure,
+		HttpOnly: true,
+	}
 }
 
 func toCookie(name string, value string, secure bool) *http.Cookie {
