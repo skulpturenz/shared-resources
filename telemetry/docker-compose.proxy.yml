@@ -28,8 +28,29 @@ services:
       - elastic
     ulimits:
       nofile:
-        soft: 15000
-        hard: 15000
+        soft: 200000
+        hard: 200000
+    depends_on:
+      - authnz
+
+  authnz:
+    image: skulpture/authnz-service-proxy:${TAG:-latest}
+    restart: unless-stopped
+    environment:
+      PROXY_TARGET: https://kibana
+      OIDC_PROVIDER_NAME: ${OIDC_PROVIDER_NAME}
+      OIDC_ISSUER_URL: ${OIDC_ISSUER_URL}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_REDIRECT_URL: ${OIDC_REDIRECT_URL}
+      OIDC_SCOPES: email
+    ulimits:
+      nofile:
+        soft: 200000
+        hard: 200000
+    deploy:
+      mode: replicated
+      replicas: 1
 
 networks:
   elastic:
