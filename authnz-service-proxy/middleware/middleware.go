@@ -88,8 +88,8 @@ func Verify(next http.Handler) http.Handler {
 		}
 
 		// clear authentication state once authenticated
-		http.SetCookie(w, clearCookie("state", reqWithTargetUrl.TLS != nil))
-		http.SetCookie(w, clearCookie("nonce", reqWithTargetUrl.TLS != nil))
+		http.SetCookie(w, clearCookie("state"))
+		http.SetCookie(w, clearCookie("nonce"))
 		w.Header().Del("AUTHNZ_PROXY_TARGET")
 
 		next.ServeHTTP(w, reqWithTargetUrl)
@@ -127,8 +127,8 @@ func authenticate(w http.ResponseWriter, r *http.Request) (string, error) {
 		return "", err
 	}
 
-	stateCookie := toCookie("state", state, r.TLS != nil)
-	nonceCookie := toCookie("nonce", nonce, r.TLS != nil)
+	stateCookie := toCookie("state", state)
+	nonceCookie := toCookie("nonce", nonce)
 
 	http.SetCookie(w, stateCookie)
 	http.SetCookie(w, nonceCookie)
@@ -194,22 +194,22 @@ func isAuthenticationValid(r *http.Request) (bool, error) {
 	return true, nil
 }
 
-func clearCookie(name string, secure bool) *http.Cookie {
+func clearCookie(name string) *http.Cookie {
 	return &http.Cookie{
 		Name:     name,
 		Value:    "",
 		MaxAge:   -1,
-		Secure:   secure,
+		Secure:   os.Getenv("GO_ENV") == string(enums.Production),
 		HttpOnly: true,
 	}
 }
 
-func toCookie(name string, value string, secure bool) *http.Cookie {
+func toCookie(name string, value string) *http.Cookie {
 	return &http.Cookie{
 		Name:     name,
 		Value:    value,
 		MaxAge:   int(time.Hour.Seconds()),
-		Secure:   secure,
+		Secure:   os.Getenv("GO_ENV") == string(enums.Production),
 		HttpOnly: true,
 	}
 }
