@@ -34,7 +34,7 @@ services:
       - authnz
 
   authnz:
-    image: skulpture/elasticsearch:${TAG:-latest}
+    image: skulpture/authnz-service-proxy:${TAG:-latest}
     restart: unless-stopped
     environment:
       PROXY_TARGET: https://kibana
