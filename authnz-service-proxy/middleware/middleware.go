@@ -31,40 +31,41 @@ func getTargetConfig(targetUrl string) *Target {
 func Verify(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var targetUrl string
-		if os.Getenv("GO_ENV") != string(enums.Development) {
-			targetUrl = r.Header.Get("AUTHNZ_PROXY_TARGET")
 
-			if targetUrl == "" && len(PROXY_TARGETS) == 1 {
-				for key := range PROXY_TARGETS {
-					targetUrl = key
+		getProxyTarget := func() (string, error) {
+			targetUrl := r.Header.Get("AUTHNZ_PROXY_TARGET")
+
+			if targetUrl != "" {
+				return targetUrl, nil
+			}
+
+			if os.Getenv("GO_ENV") == string(enums.Development) {
+				targetUrl = r.URL.Query().Get("authnzProxyTarget")
+
+				if targetUrl != "" {
+					return targetUrl, nil
 				}
 			}
-		} else {
-			targetUrl = r.URL.Query().Get("authnzProxyTarget")
 
-			if targetUrl == "" && len(PROXY_TARGETS) == 1 {
+			if len(PROXY_TARGETS) == 1 {
 				for key := range PROXY_TARGETS {
-					targetUrl = key
+					return key, nil
 				}
 			}
+
+			return "", errors.New("proxy target not specified")
 		}
 
-		reqWithTargetUrl := r.WithContext(context.WithValue(r.Context(), TargetUrl, targetUrl))
-
-		_, err := r.Cookie("state")
+		targetUrl, err := getProxyTarget()
 		if err != nil {
-			authUrl, err := authenticate(w, reqWithTargetUrl)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-
-				return
-			}
-
-			http.Redirect(w, r, authUrl, http.StatusFound)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
 		}
 
+		reqWithTargetUrl := r.WithContext(context.WithValue(r.Context(), TargetUrl, targetUrl))
+
+		// check authentication state
 		isAuthenticated, err := isAuthenticationValid(reqWithTargetUrl)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -72,6 +73,7 @@ func Verify(next http.Handler) http.Handler {
 			return
 		}
 
+		// if unauthenticated redirect to IDP until authenticated
 		if !isAuthenticated {
 			authUrl, err := authenticate(w, reqWithTargetUrl)
 			if err != nil {
@@ -85,6 +87,7 @@ func Verify(next http.Handler) http.Handler {
 			return
 		}
 
+		// clear authentication state once authenticated
 		http.SetCookie(w, clearCookie("state", reqWithTargetUrl.TLS != nil))
 		http.SetCookie(w, clearCookie("nonce", reqWithTargetUrl.TLS != nil))
 		w.Header().Del("AUTHNZ_PROXY_TARGET")
@@ -153,8 +156,9 @@ func isAuthenticationValid(r *http.Request) (bool, error) {
 	}
 
 	state, err := r.Cookie("state")
+	// no authentication in progress
 	if err != nil {
-		return false, err
+		return false, nil
 	}
 
 	if state.Value != r.URL.Query().Get("state") {
