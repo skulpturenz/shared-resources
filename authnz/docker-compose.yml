@@ -38,7 +38,7 @@ services:
     command: "start --optimized --proxy-headers xforwarded"
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
       endpoint_mode: dnsrr
 
   logstash:
@@ -54,17 +54,10 @@ services:
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
       LS_JAVA_OPTS: "-Xmx${LOGSTASH_HEAP} -Xms${LOGSTASH_HEAP} -Dlog4j2.formatMsgNoLookups=true"
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-s",
-          "-XGET",
-          "http://127.0.0.1:9600"
-        ]
+      test: [ "CMD", "curl", "-s", "-XGET", "http://127.0.0.1:9600" ]
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
@@ -84,16 +77,9 @@ services:
       - filebeat-data:/var/lib/filebeat/data
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
+      test: [ "CMD", "curl", "-sf", "-XGET", "localhost:5066/?pretty" ]
 
   heartbeat:
     image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
@@ -106,7 +92,7 @@ services:
     command: -e --strict.perms=false
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
     environment:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
@@ -114,14 +100,7 @@ services:
       KEYCLOAK_PUBLIC_HOST: ${KC_HOSTNAME}
       JAVA_ENV: ${JAVA_ENV}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
+      test: [ "CMD", "curl", "-sf", "-XGET", "localhost:5066/?pretty" ]
 
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
@@ -136,17 +115,10 @@ services:
       - metricbeat-data:/var/lib/metricbeat/data
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
     environment:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
+      test: [ "CMD", "curl", "-sf", "-XGET", "localhost:5066/?pretty" ]

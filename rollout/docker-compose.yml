@@ -48,7 +48,7 @@ services:
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV},deployment.node={{.Task.Slot}}"
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 2
 
   logstash:
     image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
@@ -63,17 +63,10 @@ services:
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
       LS_JAVA_OPTS: "-Xmx${LOGSTASH_HEAP} -Xms${LOGSTASH_HEAP} -Dlog4j2.formatMsgNoLookups=true"
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-s",
-          "-XGET",
-          "http://127.0.0.1:9600"
-        ]
+      test: [ "CMD", "curl", "-s", "-XGET", "http://127.0.0.1:9600" ]
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
@@ -93,16 +86,9 @@ services:
       - filebeat-data:/var/lib/filebeat/data
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
+      test: [ "CMD", "curl", "-sf", "-XGET", "localhost:5066/?pretty" ]
 
   heartbeat:
     image: docker.elastic.co/beats/heartbeat:${ELK_VERSION}
@@ -121,16 +107,9 @@ services:
       GO_ENV: ${GO_ENV}
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
+      test: [ "CMD", "curl", "-sf", "-XGET", "localhost:5066/?pretty" ]
 
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:${ELK_VERSION}
@@ -149,13 +128,6 @@ services:
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
+      test: [ "CMD", "curl", "-sf", "-XGET", "localhost:5066/?pretty" ]
