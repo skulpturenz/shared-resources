@@ -25,16 +25,9 @@ services:
       - elastic
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0 # 1
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-sf",
-          "-XGET",
-          "localhost:5066/?pretty"
-        ]
+      test: [ "CMD", "curl", "-sf", "-XGET", "localhost:5066/?pretty" ]
 
 networks:
   elastic:
