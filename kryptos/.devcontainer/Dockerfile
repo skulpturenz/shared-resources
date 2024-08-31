@@ -1,4 +1,4 @@
-FROM golang:alpine as base
+FROM golang:alpine AS base
 
 RUN go install github.com/mitranim/gow@latest
 RUN apk add git bash shadow gnupg curl python3 py3-pip bash-completion && echo '/bin/bash' | chsh `whoami`
