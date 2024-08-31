@@ -289,7 +289,9 @@ jobs:
             sleep 30s
             docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }} --detach=false
             # proxy has to be redeployed in the case of authnz because we are not going through swarm dns
-            # and referring to the node directly for sticky sessions
+            # and referring to the node directly for sticky sessions. without sticky sessions, if the user reloads
+            # the page, then they will have to login again if they get a different node. swarm does not redeploy a
+            # service unless the image sha has changed
             docker service update --force ${{ env.STACK_NAME }}_proxy
             sleep 30s
             docker system prune -af
