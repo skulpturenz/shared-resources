@@ -27,22 +27,29 @@ import (
 type contextKey string
 
 var (
+	PROJECT_ENV              = "PROJECT"
+	DB_DRIVER_ENV            = "DB_DRIVER"
+	DB_CONNECTION_STRING_ENV = "DB_CONNECTION_STRING"
+	ENCRYPTION_KEY_ENV       = "ENCRYPTION_KEY"
+)
+
+var (
 	ContextKeyDebug = contextKey("debug")
 	VERSION         = "0.0.1"
 	PROJECT         = ferrite.
-			String("PROJECT", "Project to load environments for").
+			String(PROJECT_ENV, "Project to load environments for").
 			WithDefault("*").
 			Required()
 	DB_DRIVER = ferrite.
-			Enum("DB_DRIVER", "Database driver").
+			Enum(DB_DRIVER_ENV, "Database driver").
 			WithMembers("sqlite3", "pgx").
 			WithDefault("sqlite3").
 			Required()
 	DB_CONNECTION_STRING = ferrite.
-				String("DB_CONNECTION_STRING", "Database connection string").
+				String(DB_CONNECTION_STRING_ENV, "Database connection string").
 				Required()
 	ENCRYPTION_KEY = ferrite.
-			String("ENCRYPTION_KEY", "32 byte encryption key, `openssl rand -hex 32`").
+			String(ENCRYPTION_KEY_ENV, "32 byte encryption key, `openssl rand -hex 32`").
 			Required()
 )
 
