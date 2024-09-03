@@ -9,6 +9,7 @@ import (
 	"github.com/docopt/docopt-go"
 	"github.com/dogmatiq/ferrite"
 	"github.com/joho/godotenv"
+	"github.com/manifoldco/promptui"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -19,6 +20,65 @@ var (
 )
 
 func init() {
+	promptEnvs := func() {
+		if os.Getenv(kryptos.PROJECT_ENV) == "" {
+			prompt := promptui.Prompt{
+				Label: "Project",
+			}
+
+			result, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+
+			os.Setenv(kryptos.PROJECT_ENV, result)
+		}
+
+		if os.Getenv(kryptos.DB_DRIVER_ENV) == "" {
+			prompt := promptui.Select{
+				Label: "Database driver",
+				Items: []string{
+					"sqlite3",
+					"pgx",
+				},
+			}
+
+			_, result, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+
+			os.Setenv(kryptos.DB_DRIVER_ENV, result)
+		}
+
+		if os.Getenv(kryptos.DB_CONNECTION_STRING_ENV) == "" {
+			prompt := promptui.Prompt{
+				Label: "Database connection string",
+			}
+
+			result, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+
+			os.Setenv(kryptos.DB_CONNECTION_STRING_ENV, result)
+		}
+
+		if os.Getenv(kryptos.ENCRYPTION_KEY_ENV) == "" {
+			prompt := promptui.Prompt{
+				Label: "Encryption key",
+			}
+
+			result, err := prompt.Run()
+			if err != nil {
+				panic(err)
+			}
+
+			os.Setenv(kryptos.ENCRYPTION_KEY_ENV, result)
+		}
+	}
+
+	promptEnvs()
 	ferrite.Init()
 
 	ctx := context.WithValue(context.Background(), kryptos.ContextKeyDebug, false)
