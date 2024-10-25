@@ -5,7 +5,6 @@ import type { UserProfileFormFieldsProps } from "keycloakify/login/UserProfileFo
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
-import { kcSanitize } from "keycloakify/lib/kcSanitize";
 
 type RegisterProps = PageProps<
 	Extract<KcContext, { pageId: "register.ftl" }>,
@@ -178,9 +177,7 @@ function TermsAcceptance(props: {
 							className={kcClsx("kcInputErrorMessageClass")}
 							aria-live="polite"
 							dangerouslySetInnerHTML={{
-								__html: kcSanitize(
-									messagesPerField.get("termsAccepted"),
-								),
+								__html: messagesPerField.get("termsAccepted"),
 							}}
 						/>
 					</div>

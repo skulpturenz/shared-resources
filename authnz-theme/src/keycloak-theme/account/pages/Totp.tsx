@@ -3,7 +3,6 @@ import { getKcClsx } from "keycloakify/account/lib/kcClsx";
 import type { PageProps } from "keycloakify/account/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
-import { kcSanitize } from "keycloakify/lib/kcSanitize";
 
 export default function Totp(
 	props: PageProps<Extract<KcContext, { pageId: "totp.ftl" }>, I18n>,
@@ -228,10 +227,8 @@ export default function Totp(
 											)}
 											aria-live="polite"
 											dangerouslySetInnerHTML={{
-												__html: kcSanitize(
-													messagesPerField.get(
-														"totp",
-													),
+												__html: messagesPerField.get(
+													"totp",
 												),
 											}}
 										/>
@@ -284,10 +281,8 @@ export default function Totp(
 											)}
 											aria-live="polite"
 											dangerouslySetInnerHTML={{
-												__html: kcSanitize(
-													messagesPerField.get(
-														"userLabel",
-													),
+												__html: messagesPerField.get(
+													"userLabel",
 												),
 											}}
 										/>
