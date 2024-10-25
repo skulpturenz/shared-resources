@@ -37,6 +37,8 @@ export function KcPage(props: { kcContext: KcContext; fallback?: ReactNode }) {
 				switch (kcContext.themeType) {
 					case "login":
 						return <KcLoginPage kcContext={kcContext} />;
+					case "account":
+						<KcAccountThemePage kcContext={window.kcContext} />;
 				}
 			})()}
 		</Suspense>
