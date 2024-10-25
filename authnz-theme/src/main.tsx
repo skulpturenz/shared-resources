@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createRoot } from "react-dom/client";
-import { StrictMode, lazy, Suspense } from "react";
+import { StrictMode } from "react";
+import { KcPage } from "./keycloak-theme/kc.gen";
 import "./index.css";
 
 // The following block can be uncommented to test a specific page with `yarn dev`
@@ -16,35 +17,12 @@ if (import.meta.env.DEV) {
 }
 */
 
-const KcLoginThemePage = lazy(() => import("./keycloak-theme/login/KcPage"));
-const KcAccountThemePage = lazy(
-	() => import("./keycloak-theme/account/KcPage"),
-);
-
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
-		<Suspense>
-			{(() => {
-				switch (window.kcContext?.themeType) {
-					case "login":
-						return (
-							<KcLoginThemePage kcContext={window.kcContext} />
-						);
-					case "account":
-						return (
-							<KcAccountThemePage kcContext={window.kcContext} />
-						);
-				}
-				return <h1>No Keycloak Context</h1>;
-			})()}
-		</Suspense>
+		{!window.kcContext ? (
+			<h1>No Keycloak Context</h1>
+		) : (
+			<KcPage kcContext={window.kcContext} />
+		)}
 	</StrictMode>,
 );
-
-declare global {
-	interface Window {
-		kcContext?:
-			| import("./keycloak-theme/login/KcContext").KcContext
-			| import("./keycloak-theme/account/KcContext").KcContext;
-	}
-}

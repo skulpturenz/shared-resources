@@ -89,7 +89,7 @@ export const LoginUsername = (
 			headerNode={msg("doLogIn")}
 			socialProvidersNode={
 				<>
-					{realm.password && social.providers?.length && (
+					{realm.password && social?.providers?.length && (
 						<>
 							<div className="flex flex-col items-center gap-4 w-full">
 								<H4>{msg("identity-provider-login-label")}</H4>

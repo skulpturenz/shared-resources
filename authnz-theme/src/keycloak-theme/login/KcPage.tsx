@@ -214,6 +214,7 @@ export default function KcPage(props: { kcContext: KcContext }) {
 						return (
 							<DefaultPage
 								kcContext={kcContext}
+								/// @ts-expect-error: TODO type issues
 								i18n={i18n}
 								classes={classes}
 								Template={Template}

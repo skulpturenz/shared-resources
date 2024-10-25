@@ -7,7 +7,11 @@ import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [react(), keycloakify(), svgr()],
+	plugins: [
+		react(),
+		keycloakify({ accountThemeImplementation: "none" }),
+		svgr(),
+	],
 	resolve: {
 		alias: {
 			"@": resolve(__dirname, "./src"),
