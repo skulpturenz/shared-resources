@@ -1,8 +1,7 @@
-import { useEffect, Fragment } from "react";
-import { assert } from "keycloakify/tools/assert";
+import { Fragment } from "react";
 import { clsx } from "keycloakify/tools/clsx";
-import { useInsertScriptTags } from "keycloakify/tools/useInsertScriptTags";
 import { getKcClsx } from "keycloakify/login/lib/kcClsx";
+import { useScript } from "keycloakify/login/pages/WebauthnAuthenticate.useScript";
 import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
@@ -19,12 +18,6 @@ export default function WebauthnAuthenticate(
 
 	const {
 		url,
-		isUserIdentified,
-		challenge,
-		userVerification,
-		rpId,
-		createTimeout,
-		messagesPerField,
 		realm,
 		registrationDisabled,
 		authenticators,
@@ -33,111 +26,13 @@ export default function WebauthnAuthenticate(
 
 	const { msg, msgStr, advancedMsg } = i18n;
 
-	const { insertScriptTags } = useInsertScriptTags({
-		componentOrHookName: "WebauthnAuthenticate",
-		scriptTags: [
-			{
-				type: "text/javascript",
-				src: `${url.resourcesCommonPath}/node_modules/jquery/dist/jquery.min.js`,
-			},
-			{
-				type: "text/javascript",
-				src: `${url.resourcesPath}/js/base64url.js`,
-			},
-			{
-				type: "text/javascript",
-				textContent: `
+	const authButtonId = "authenticateWebAuthnButton";
 
-                    function webAuthnAuthenticate() {
-                        let isUserIdentified = ${isUserIdentified};
-                        if (!isUserIdentified) {
-                            doAuthenticate([]);
-                            return;
-                        }
-                        checkAllowCredentials();
-                    }
-
-                    function checkAllowCredentials() {
-                        let allowCredentials = [];
-                        let authn_use = document.forms['authn_select'].authn_use_chk;
-                    
-                        if (authn_use !== undefined) {
-                            if (authn_use.length === undefined) {
-                                allowCredentials.push({
-                                    id: base64url.decode(authn_use.value, {loose: true}),
-                                    type: 'public-key',
-                                });
-                            } else {
-                                for (let i = 0; i < authn_use.length; i++) {
-                                    allowCredentials.push({
-                                        id: base64url.decode(authn_use[i].value, {loose: true}),
-                                        type: 'public-key',
-                                    });
-                                }
-                            }
-                        }
-                        doAuthenticate(allowCredentials);
-                    }
-
-
-                    function doAuthenticate(allowCredentials) {
-                    
-                        // Check if WebAuthn is supported by this browser
-                        if (!window.PublicKeyCredential) {
-                            $("#error").val("${msgStr("webauthn-unsupported-browser-text")}");
-                            $("#webauth").submit();
-                            return;
-                        }
-                    
-                        let challenge = "${challenge}";
-                        let userVerification = "${userVerification}";
-                        let rpId = "${rpId}";
-                        let publicKey = {
-                            rpId : rpId,
-                            challenge: base64url.decode(challenge, { loose: true })
-                        };
-                    
-                        let createTimeout = ${createTimeout};
-                        if (createTimeout !== 0) publicKey.timeout = createTimeout * 1000;
-                    
-                        if (allowCredentials.length) {
-                            publicKey.allowCredentials = allowCredentials;
-                        }
-                    
-                        if (userVerification !== 'not specified') publicKey.userVerification = userVerification;
-                    
-                        navigator.credentials.get({publicKey})
-                            .then((result) => {
-                                window.result = result;
-                            
-                                let clientDataJSON = result.response.clientDataJSON;
-                                let authenticatorData = result.response.authenticatorData;
-                                let signature = result.response.signature;
-                            
-                                $("#clientDataJSON").val(base64url.encode(new Uint8Array(clientDataJSON), { pad: false }));
-                                $("#authenticatorData").val(base64url.encode(new Uint8Array(authenticatorData), { pad: false }));
-                                $("#signature").val(base64url.encode(new Uint8Array(signature), { pad: false }));
-                                $("#credentialId").val(result.id);
-                                if(result.response.userHandle) {
-                                    $("#userHandle").val(base64url.encode(new Uint8Array(result.response.userHandle), { pad: false }));
-                                }
-                                $("#webauth").submit();
-                            })
-                            .catch((err) => {
-                                $("#error").val(err);
-                                $("#webauth").submit();
-                            })
-                        ;
-                    }
-
-                `,
-			},
-		],
+	useScript({
+		authButtonId,
+		kcContext,
+		i18n,
 	});
-
-	useEffect(() => {
-		insertScriptTags();
-	}, []);
 
 	return (
 		<Template
@@ -145,12 +40,7 @@ export default function WebauthnAuthenticate(
 			i18n={i18n}
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
-			displayMessage={!messagesPerField.existsError("username")}
-			displayInfo={
-				realm.password &&
-				realm.registrationAllowed &&
-				!registrationDisabled
-			}
+			displayInfo={realm.registrationAllowed && !registrationDisabled}
 			infoNode={
 				<div id="kc-registration">
 					<span>
@@ -225,7 +115,7 @@ export default function WebauthnAuthenticate(
 											(authenticator, i) => (
 												<div
 													key={i}
-													id="kc-webauthn-authenticator"
+													id={`kc-webauthn-authenticator-item-${i}`}
 													className={kcClsx(
 														"kcSelectAuthListItemClass",
 													)}>
@@ -265,7 +155,7 @@ export default function WebauthnAuthenticate(
 															"kcSelectAuthListItemArrowIconClass",
 														)}>
 														<div
-															id="kc-webauthn-authenticator-label"
+															id={`kc-webauthn-authenticator-label-${i}`}
 															className={kcClsx(
 																"kcSelectAuthListItemHeadingClass",
 															)}>
@@ -278,7 +168,7 @@ export default function WebauthnAuthenticate(
 															.displayNameProperties
 															?.length && (
 															<div
-																id="kc-webauthn-authenticator-transport"
+																id={`kc-webauthn-authenticator-transport-${i}`}
 																className={kcClsx(
 																	"kcSelectAuthListItemDescriptionClass",
 																)}>
@@ -322,12 +212,14 @@ export default function WebauthnAuthenticate(
 															className={kcClsx(
 																"kcSelectAuthListItemDescriptionClass",
 															)}>
-															<span id="kc-webauthn-authenticator-created-label">
+															<span
+																id={`kc-webauthn-authenticator-createdlabel-${i}`}>
 																{msg(
 																	"webauthn-createdAt-label",
 																)}
 															</span>
-															<span id="kc-webauthn-authenticator-created">
+															<span
+																id={`kc-webauthn-authenticator-created-${i}`}>
 																{
 																	authenticator.createdAt
 																}
@@ -347,21 +239,12 @@ export default function WebauthnAuthenticate(
 							)}
 						</>
 					)}
-
 					<div
 						id="kc-form-buttons"
 						className={kcClsx("kcFormButtonsClass")}>
 						<input
-							id="authenticateWebAuthnButton"
+							id={authButtonId}
 							type="button"
-							onClick={() => {
-								assert("webAuthnAuthenticate" in window);
-								assert(
-									typeof window.webAuthnAuthenticate ===
-										"function",
-								);
-								window.webAuthnAuthenticate();
-							}}
 							autoFocus
 							value={msgStr("webauthn-doAuthenticate")}
 							className={kcClsx(
