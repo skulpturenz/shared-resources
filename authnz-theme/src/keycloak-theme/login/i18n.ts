@@ -1,4 +1,4 @@
-import { i18nBuilder } from "keycloakify/account";
+import { i18nBuilder } from "keycloakify/login";
 import type { ThemeName } from "../kc.gen";
 
 // Must be able to statically evaluate
