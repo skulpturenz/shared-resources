@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import ReactDOMServer from "react-dom/server";
 import { Portal } from "@/components/ui/portal";
 import { Toaster } from "@/components/ui/sonner";
+import { useScript } from "keycloakify/login/pages/LoginRecoveryAuthnCodeConfig.useScript";
+import { kcSanitize } from "keycloakify/lib/kcSanitize";
 
 export const LoginRecoveryAuthnCodeConfig = (
 	props: PageProps<
@@ -28,6 +30,10 @@ export const LoginRecoveryAuthnCodeConfig = (
 		doUseDefaultCss,
 		classes,
 	});
+
+	const olRecoveryCodesListId = "kc-recovery-codes-list";
+
+	useScript({ olRecoveryCodesListId, i18n });
 
 	const { recoveryAuthnCodesConfigBean, isAppInitiatedAction } = kcContext;
 
@@ -141,7 +147,7 @@ export const LoginRecoveryAuthnCodeConfig = (
 						<p>{msgStr("recovery-codes-download-file-header")}</p>
 						<div
 							dangerouslySetInnerHTML={{
-								__html: recoveryCodeListHTML ?? "",
+								__html: kcSanitize(recoveryCodeListHTML ?? ""),
 							}}
 						/>
 						<p>
