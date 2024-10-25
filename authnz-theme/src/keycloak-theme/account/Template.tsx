@@ -1,4 +1,5 @@
 import React from "react";
+import { assert } from "keycloakify/tools/assert";
 import { clsx } from "keycloakify/tools/clsx";
 import { getKcClsx } from "keycloakify/account/lib/kcClsx";
 import { useInsertLinkTags } from "keycloakify/tools/useInsertLinkTags";
@@ -61,9 +62,15 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 	const { kcClsx } = getKcClsx({ doUseDefaultCss, classes });
 
-	const { msg, msgStr, currentLanguage, enabledLanguages } = i18n;
+	const {
+		msg,
+		msgStr,
+		getChangeLocaleUrl,
+		labelBySupportedLanguageTag,
+		currentLanguageTag,
+	} = i18n;
 
-	const { url, features, realm, message, referrer } = kcContext;
+	const { locale, url, features, realm, message, referrer } = kcContext;
 
 	const [buttonWidth, setButtonWidth] = React.useState(0);
 
@@ -81,6 +88,18 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		className: clsx("admin-console", "user", kcClsx("kcBodyClass")),
 	});
 
+	React.useEffect(() => {
+		const { currentLanguageTag } = locale ?? {};
+
+		if (currentLanguageTag === undefined) {
+			return;
+		}
+
+		const html = document.querySelector("html");
+		assert(html !== null);
+		html.lang = currentLanguageTag;
+	}, []);
+
 	const { areAllStyleSheetsLoaded } = useInsertLinkTags({
 		componentOrHookName: "Template",
 		hrefs: !doUseDefaultCss
@@ -97,13 +116,14 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	}
 
 	const localizationOptions =
-		enabledLanguages.map(locale => ({
-			value: locale.label,
-			label: locale.label,
-			href: locale.href,
+		locale?.supported.map(locale => ({
+			value: labelBySupportedLanguageTag[locale.languageTag],
+			label: labelBySupportedLanguageTag[locale.languageTag],
+			href: getChangeLocaleUrl(locale.languageTag),
 		})) ?? [];
 	const currentLocalizationOption = localizationOptions.find(
-		option => option.value === currentLanguage.label,
+		option =>
+			option.value === labelBySupportedLanguageTag[currentLanguageTag],
 	);
 
 	const nextTheme = () => {
