@@ -12,7 +12,8 @@ updates:
       interval: "weekly"
     allow:
       - dependency-type: "all"
-    assignees: "nmathew98"
+    assignees:
+      - "nmathew98"
     commit-message:
       prefix: "[golang] "
 
@@ -24,6 +25,7 @@ updates:
       interval: "weekly"
     allow:
       - dependency-type: "all"
-    assignees: "nmathew98"
+    assignees:
+      - "nmathew98"
     commit-message:
       prefix: "[npm] "
