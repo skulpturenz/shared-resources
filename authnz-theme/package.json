@@ -26,7 +26,7 @@
 		"clsx": "^2.1.1",
 		"cmdk": "1.0.0",
 		"input-otp": "^1.2.4",
-		"keycloakify": "11.3.12",
+		"keycloakify": "11.3.15",
 		"lucide-react": "^0.453.0",
 		"next-themes": "^0.3.0",
 		"oidc-spa": "^5.5.3",
