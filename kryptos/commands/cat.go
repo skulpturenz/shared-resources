@@ -13,7 +13,7 @@ type Cat struct {
 
 // eval $(kryptos cat)
 func (command *Cat) Execute(ctx context.Context) error {
-	for key, value := range kryptos.ENVS {
+	for key, value := range kryptos.ENVS.Iterator() {
 		_, err := fmt.Fprintf(command.View, "%s=%s\n", key, value)
 		if err != nil {
 			return err

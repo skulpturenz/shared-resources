@@ -14,7 +14,7 @@ type Dump struct {
 func (command *Dump) Execute(ctx context.Context) error {
 	out := ""
 
-	for key, value := range kryptos.ENVS {
+	for key, value := range kryptos.ENVS.Iterator() {
 		out += fmt.Sprintf("%s=%s\n", key, value)
 	}
 
