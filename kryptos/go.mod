@@ -1,6 +1,6 @@
 module skulpture/kryptos
 
-go 1.22.4
+go 1.23.0
 
 require (
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815

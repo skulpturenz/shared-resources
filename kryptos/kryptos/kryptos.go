@@ -132,7 +132,8 @@ func GetEnvs(ctx context.Context, db *sql.DB) error {
 		UNION ALL
 		SELECT key, value
 		FROM global_environments
-		WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key);`)
+		WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key)
+		ORDER BY key COLLATE NOCASE;`)
 	if err != nil {
 		return err
 	}
