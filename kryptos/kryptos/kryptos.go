@@ -14,6 +14,7 @@ import (
 	"runtime"
 
 	"github.com/dogmatiq/ferrite"
+	"github.com/elliotchance/orderedmap/v2"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"
 	"github.com/golang-migrate/migrate/v4/database/pgx"
@@ -53,7 +54,7 @@ var (
 			Required()
 )
 
-var ENVS = map[string]string{}
+var ENVS = orderedmap.NewOrderedMap[string, string]()
 
 type envStat struct {
 	Key     string
@@ -82,6 +83,7 @@ func Stats(ctx context.Context, db *sql.DB) ([]envStat, error) {
 		SELECT DISTINCT counts.key, scoped_environments.project, counts.count FROM counts
 		INNER JOIN scoped_environments
 		ON scoped_environments.key = counts.key
+		ORDER BY counts.key COLLATE NOCASE;
 	`, PROJECT.Value())
 	if err != nil {
 		return nil, err
@@ -145,6 +147,7 @@ func GetEnvs(ctx context.Context, db *sql.DB) error {
 	}
 	defer rows.Close()
 
+	ENVS = orderedmap.NewOrderedMap[string, string]()
 	for rows.Next() {
 		var key string
 		var encrypted string
@@ -166,7 +169,7 @@ func GetEnvs(ctx context.Context, db *sql.DB) error {
 			slog.InfoContext(ctx, "decrypt", "env", key)
 		}
 
-		ENVS[key] = decrypted
+		ENVS.Set(key, decrypted)
 	}
 
 	err = rows.Err()
@@ -224,7 +227,7 @@ func DeleteEnv(ctx context.Context, db *sql.DB, key string, includeDeprecated bo
 			slog.InfoContext(ctx, "delete", "env", key)
 		}
 
-		delete(ENVS, key)
+		ENVS.Delete(key)
 	}
 
 	if isDebugEnabled {
@@ -296,7 +299,7 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 		return err
 	}
 
-	_, ok := ENVS[key]
+	_, ok := ENVS.Get(key)
 	if project == "*" && PROJECT.Value() != "*" && ok {
 		find, err := db.PrepareContext(ctx, "SELECT uuid FROM environments WHERE key = $1 AND project = $2 AND deprecated = 0;")
 		if err != nil {
@@ -313,7 +316,7 @@ func SetEnv(ctx context.Context, db *sql.DB, key string, value string, isGlobal 
 		}
 	}
 
-	ENVS[key] = value
+	ENVS.Set(key, value)
 	os.Setenv(key, value)
 
 	return nil
@@ -350,11 +353,11 @@ func Rename(ctx context.Context, db *sql.DB, previous string, next string, isGlo
 	defer rows.Close()
 
 	if !isProject {
-		value := ENVS[previous]
+		value, _ := ENVS.Get(previous)
 
-		delete(ENVS, previous)
+		ENVS.Delete(previous)
 
-		ENVS[next] = value
+		ENVS.Set(next, value)
 	}
 
 	if isDebugEnabled {
@@ -412,7 +415,7 @@ func PruneEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) erro
 			slog.InfoContext(ctx, "prune", "env", key)
 		}
 
-		delete(ENVS, key)
+		ENVS.Delete(key)
 	}
 
 	if isDebugEnabled {
@@ -472,7 +475,7 @@ func ClearEnv(ctx context.Context, db *sql.DB, offset int, withGlobal bool) erro
 			slog.InfoContext(ctx, "clear", "env", key)
 		}
 
-		delete(ENVS, key)
+		ENVS.Delete(key)
 	}
 
 	err = rows.Err()

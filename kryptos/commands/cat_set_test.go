@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"maps"
 	"skulpture/kryptos/commands"
 	"skulpture/kryptos/kryptos"
 	"slices"
@@ -43,8 +42,8 @@ func TestCatMixed(t *testing.T) {
 			},
 			{
 				Db:       db,
-				Key:      "CAT2",
-				Value:    "CAT2",
+				Key:      "AAT2",
+				Value:    "AAT2",
 				IsGlobal: false,
 			},
 			{
@@ -67,6 +66,11 @@ func TestCatMixed(t *testing.T) {
 			View: &out,
 		}
 
+		kryptos.GetEnvs(ctx, db)
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		err = catCommand.Execute(ctx)
 		if err != nil {
 			t.Fatal(err)
@@ -82,9 +86,9 @@ func TestCatMixed(t *testing.T) {
 		assert.Contains(t, RESULT, GLOBAL_ENV_DECLARATION)
 		assert.Contains(t, RESULT, PROJECT_ENV_DECLARATION)
 
-		keysInitial := slices.Collect(maps.Keys(kryptos.ENVS))
+		keysInitial := kryptos.ENVS.Keys()
 
-		keysFinal := slices.Collect(maps.Keys(kryptos.ENVS))
+		keysFinal := kryptos.ENVS.Keys()
 		slices.SortStableFunc(keysFinal, func(a string, b string) int {
 			return strings.Compare(strings.ToLower(a), strings.ToLower(b))
 		})

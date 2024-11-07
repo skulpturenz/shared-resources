@@ -94,7 +94,7 @@ func init() {
 		panic(err)
 	}
 
-	for key, value := range kryptos.ENVS {
+	for key, value := range kryptos.ENVS.Iterator() {
 		os.Setenv(key, value)
 	}
 
