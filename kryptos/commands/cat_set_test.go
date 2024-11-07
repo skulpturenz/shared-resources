@@ -68,7 +68,7 @@ func TestCatMixed(t *testing.T) {
 
 		kryptos.GetEnvs(ctx, db)
 		if err != nil {
-			panic(err)
+			t.Fatal(err)
 		}
 
 		err = catCommand.Execute(ctx)
