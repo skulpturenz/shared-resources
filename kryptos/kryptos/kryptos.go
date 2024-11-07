@@ -82,6 +82,7 @@ func Stats(ctx context.Context, db *sql.DB) ([]envStat, error) {
 		SELECT DISTINCT counts.key, scoped_environments.project, counts.count FROM counts
 		INNER JOIN scoped_environments
 		ON scoped_environments.key = counts.key
+		ORDER BY counts.key COLLATE NOCASE;
 	`, PROJECT.Value())
 	if err != nil {
 		return nil, err
@@ -145,6 +146,7 @@ func GetEnvs(ctx context.Context, db *sql.DB) error {
 	}
 	defer rows.Close()
 
+	ENVS = map[string]string{}
 	for rows.Next() {
 		var key string
 		var encrypted string
