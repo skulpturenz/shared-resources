@@ -121,7 +121,7 @@ func Stats(ctx context.Context, db *sql.DB) ([]envStat, error) {
 func GetEnvs(ctx context.Context, db *sql.DB) error {
 	isDebugEnabled := ctx.Value(ContextKeyDebug).(bool)
 
-	envs, err := db.PrepareContext(ctx, `WITH 
+	query := `WITH 
 		project_environments AS (SELECT key, value 
 			FROM environments
 			WHERE deprecated = 0 AND project = $1),
@@ -134,8 +134,19 @@ func GetEnvs(ctx context.Context, db *sql.DB) error {
 		UNION ALL
 		SELECT key, value
 		FROM global_environments
-		WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key)
-		ORDER BY key COLLATE NOCASE;`)
+		WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key)`
+
+	if DB_DRIVER.Value() == "sqlite3" {
+		queryWithSort := fmt.Sprintf(`%s ORDER BY key COLLATE NOCASE;`, query)
+
+		query = queryWithSort
+	} else if DB_DRIVER.Value() == "pgx" {
+		queryWithSort := fmt.Sprintf("%s ORDER BY LOWER(key), key;", query)
+
+		query = queryWithSort
+	}
+
+	envs, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		return err
 	}
