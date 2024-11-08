@@ -1,0 +1,31 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    target-branch: "dev"
+    directories:
+      - "authnz"
+      - "infrastructure"
+      - "kryptos"
+      - "rollout"
+      - "telemetry"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "nmathew98"
+    commit-message:
+      prefix: "[gomod] "
+
+  - package-ecosystem: "npm"
+    target-branch: "dev"
+    directories:
+      - "authnz-theme"
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-type: "direct"
+    assignees:
+      - "nmathew98"
+    commit-message:
+      prefix: "[npm] "

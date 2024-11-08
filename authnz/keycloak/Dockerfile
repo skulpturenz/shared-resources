@@ -14,7 +14,7 @@ RUN apk add maven && \
     corepack pnpm build-keycloak-theme
 
 # Build Keycloak
-FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} as keycloak_builder
+FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} AS keycloak_builder
 
 ARG KEYCLOAK_CACHE
 ARG KEYCLOAK_CACHE_STACK
@@ -22,17 +22,17 @@ ARG KEYCLOAK_FEATURES
 ARG KEYCLOAK_DB
 
 # Enable health and metrics support
-ENV KC_HEALTH_ENABLED true
-ENV KC_METRICS_ENABLED true
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
 
-ENV KC_CACHE $KEYCLOAK_CACHE
-ENV KC_CACHE_STACK $KEYCLOAK_CACHE_STACK
-ENV KC_FEATURES $KEYCLOAK_FEATURES
-ENV KC_DB $KEYCLOAK_DB
+ENV KC_CACHE=$KEYCLOAK_CACHE
+ENV KC_CACHE_STACK=$KEYCLOAK_CACHE_STACK
+ENV KC_FEATURES=$KEYCLOAK_FEATURES
+ENV KC_DB=$KEYCLOAK_DB
 
 WORKDIR /opt/keycloak
 
-COPY --from=theme_builder /build/dist_keycloak/keycloak-theme-for-kc-25-and-above.jar /opt/keycloak/providers/
+COPY --from=theme_builder /build/dist_keycloak/keycloak-theme-for-kc-22-to-25.jar /opt/keycloak/providers/
 
 RUN /opt/keycloak/bin/kc.sh build
 

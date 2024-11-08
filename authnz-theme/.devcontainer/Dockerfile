@@ -1,4 +1,4 @@
-FROM node:lts-alpine as base
+FROM node:lts-alpine AS base
 
 RUN apk add git bash shadow gnupg curl bash-completion && echo '/bin/bash' | chsh `whoami`
 RUN git config --global pager.branch false

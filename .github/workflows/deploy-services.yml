@@ -275,17 +275,6 @@ jobs:
           passphrase: ${{ secrets.GCP_SSH_PASSPHRASE }}
           port: 22
           script: |
-            sudo su
-
-            # TODO: before, updated env wasn't being applied when just updating a stack like this
-            # TODO: if we refer to a node specifically by ip, there are issues with nginx not being able
-            # to resolve the hostname because it caches
-            docker stack rm ${{ env.STACK_NAME }}
-            docker container prune -f
-
-            sleep 30s
-
-            docker pull ${{ env.KRYPTOS }}
             export $(docker run --rm --env-file ${{ env.ENV_FILE }} ${{ env.KRYPTOS }} cat | xargs)
             
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
@@ -294,8 +283,10 @@ jobs:
 
             cd shared-resources-${{ env.BRANCH_NAME }}/${{ matrix.service }}
 
-            docker stack deploy --compose-file ${{ env.SERVICES_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
+            docker stack deploy --compose-file ${{ env.SERVICES_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }} --detach=false
+            docker service update ${{ env.STACK_NAME }}_proxy --force
+            docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }} --detach=false
             sleep 30s
-            docker stack deploy --compose-file ${{ env.LOGS_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
+            docker stack deploy --compose-file ${{ env.LOGS_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }} --detach=false
             sleep 30s
-            docker stack deploy --compose-file ${{ env.PROXY_DOCKER_COMPOSE_FILE }} ${{ env.STACK_NAME }}
+            docker system prune -af

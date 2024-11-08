@@ -1,9 +1,6 @@
 import React from "react";
-import { assert } from "keycloakify/tools/assert";
 import type { TemplateProps } from "keycloakify/login/TemplateProps";
 import { getKcClsx } from "keycloakify/login/lib/kcClsx";
-import { useInsertScriptTags } from "keycloakify/tools/useInsertScriptTags";
-import { useInsertLinkTags } from "keycloakify/tools/useInsertLinkTags";
 import { useSetClassName } from "keycloakify/tools/useSetClassName";
 import type { I18n } from "./i18n";
 import type { KcContext } from "./KcContext";
@@ -37,6 +34,7 @@ import {
 import { LogoLight, LogoDark } from "@/components/assets";
 import { Label } from "@/components/ui/label";
 import { cn, toPlainText } from "@/lib/utils";
+import { useInitialize } from "keycloakify/login/Template.useInitialize";
 
 export const Template = (props: TemplateProps<KcContext, I18n>) => (
 	<ThemeProvider
@@ -68,24 +66,9 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 	const { kcClsx } = getKcClsx({ doUseDefaultCss, classes });
 
-	const {
-		msg,
-		msgStr,
-		getChangeLocaleUrl,
-		labelBySupportedLanguageTag,
-		currentLanguageTag,
-	} = i18n;
+	const { msg, msgStr, currentLanguage, enabledLanguages } = i18n;
 
-	const {
-		realm,
-		locale,
-		auth,
-		url,
-		message,
-		isAppInitiatedAction,
-		authenticationSession,
-		scripts,
-	} = kcContext;
+	const { realm, auth, url, message, isAppInitiatedAction } = kcContext;
 
 	React.useEffect(() => {
 		document.title =
@@ -102,87 +85,20 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 		className: bodyClassName ?? kcClsx("kcBodyClass"),
 	});
 
-	React.useEffect(() => {
-		const { currentLanguageTag } = locale ?? {};
+	const { isReadyToRender } = useInitialize({ kcContext, doUseDefaultCss });
 
-		if (currentLanguageTag === undefined) {
-			return;
-		}
-
-		const html = document.querySelector("html");
-		assert(html !== null);
-		html.lang = currentLanguageTag;
-	}, []);
-
-	const { areAllStyleSheetsLoaded } = useInsertLinkTags({
-		componentOrHookName: "Template",
-		hrefs: !doUseDefaultCss
-			? []
-			: [
-				`${url.resourcesCommonPath}/node_modules/@patternfly/patternfly/patternfly.min.css`,
-				`${url.resourcesCommonPath}/node_modules/patternfly/dist/css/patternfly.min.css`,
-				`${url.resourcesCommonPath}/node_modules/patternfly/dist/css/patternfly-additions.min.css`,
-				`${url.resourcesCommonPath}/lib/pficon/pficon.css`,
-				`${url.resourcesPath}/css/login.css`,
-			],
-	});
-
-	const { insertScriptTags } = useInsertScriptTags({
-		componentOrHookName: "Template",
-		scriptTags: [
-			{
-				type: "module",
-				src: `${url.resourcesPath}/js/menu-button-links.js`,
-			},
-			...(authenticationSession === undefined
-				? []
-				: [
-					{
-						type: "module",
-						textContent: [
-							`import { checkCookiesAndSetTimer } from "${url.resourcesPath}/js/authChecker.js";`,
-							``,
-							`checkCookiesAndSetTimer(`,
-							`  "${authenticationSession.authSessionId}",`,
-							`  "${authenticationSession.tabId}",`,
-							`  "${url.ssoLoginInOtherTabsUrl}"`,
-							`);`,
-						].join("\n"),
-					} as const,
-				]),
-			...scripts.map(
-				script =>
-					({
-						type: "text/javascript",
-						src: script,
-					}) as const,
-			),
-		],
-	});
-
-	React.useEffect(() => {
-		if (areAllStyleSheetsLoaded) {
-			insertScriptTags();
-		}
-	}, [areAllStyleSheetsLoaded]);
-
-	if (!areAllStyleSheetsLoaded) {
+	if (!isReadyToRender) {
 		return null;
 	}
 
-	if (realm.internationalizationEnabled) {
-		assert(locale !== undefined);
-	}
-
 	const localizationOptions =
-		locale?.supported.map(locale => ({
-			value: labelBySupportedLanguageTag[locale.languageTag],
-			label: labelBySupportedLanguageTag[locale.languageTag],
-			href: getChangeLocaleUrl(locale.languageTag),
+		enabledLanguages.map(locale => ({
+			value: locale.label,
+			label: locale.label,
+			href: locale.href,
 		})) ?? [];
 	const currentLocalizationOption = localizationOptions.find(
-		option =>
-			option.value === labelBySupportedLanguageTag[currentLanguageTag],
+		option => option.value === currentLanguage.label,
 	);
 
 	const onClickLightTheme = () => setTheme("light");
@@ -233,8 +149,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 						<div
 							className={cn(
 								"flex gap-2",
-								realm.internationalizationEnabled &&
-									localizationOptions.length > 0
+								enabledLanguages.length > 1
 									? "md:justify-end"
 									: "justify-end",
 							)}>
@@ -287,21 +202,16 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
-							{realm.internationalizationEnabled &&
-								localizationOptions.length > 0 && (
-									<Combobox
-										className="w-full md:max-w-xs"
-										options={localizationOptions}
-										initialValue={currentLocalizationOption}
-										selectPlaceholder={msgStr(
-											"selectLanguage",
-										)}
-										searchPlaceholder={msgStr(
-											"searchLanguage",
-										)}
-										noResultsText={msgStr("noLanguages")}
-									/>
-								)}
+							{enabledLanguages.length > 1 && (
+								<Combobox
+									className="w-full md:max-w-xs"
+									options={localizationOptions}
+									initialValue={currentLocalizationOption}
+									selectPlaceholder={msgStr("selectLanguage")}
+									searchPlaceholder={msgStr("searchLanguage")}
+									noResultsText={msgStr("noLanguages")}
+								/>
+							)}
 						</div>
 
 						<CardTitle className="flex flex-col gap-2">

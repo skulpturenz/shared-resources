@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"skulpture/kryptos/commands"
 	"skulpture/kryptos/kryptos"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,8 +42,8 @@ func TestCatMixed(t *testing.T) {
 			},
 			{
 				Db:       db,
-				Key:      "CAT2",
-				Value:    "CAT2",
+				Key:      "AAT2",
+				Value:    "AAT2",
 				IsGlobal: false,
 			},
 			{
@@ -64,6 +66,11 @@ func TestCatMixed(t *testing.T) {
 			View: &out,
 		}
 
+		kryptos.GetEnvs(ctx, db)
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		err = catCommand.Execute(ctx)
 		if err != nil {
 			t.Fatal(err)
@@ -78,5 +85,14 @@ func TestCatMixed(t *testing.T) {
 		assert.NotContains(t, RESULT, DEPRECATED_GLOBAL_ENV_DECLARATION)
 		assert.Contains(t, RESULT, GLOBAL_ENV_DECLARATION)
 		assert.Contains(t, RESULT, PROJECT_ENV_DECLARATION)
+
+		keysInitial := kryptos.ENVS.Keys()
+
+		keysFinal := kryptos.ENVS.Keys()
+		slices.SortStableFunc(keysFinal, func(a string, b string) int {
+			return strings.Compare(strings.ToLower(a), strings.ToLower(b))
+		})
+
+		assert.Equal(t, keysFinal, keysInitial)
 	}
 }
