@@ -127,14 +127,16 @@ func GetEnvs(ctx context.Context, db *sql.DB) error {
 			WHERE deprecated = 0 AND project = $1),
 		global_environments AS (SELECT key, value
 			FROM environments
-			WHERE deprecated = 0 AND project = '*')
+			WHERE deprecated = 0 AND project = '*'),
+		result AS (SELECT key, value
+			FROM project_environments
+			UNION ALL
+			SELECT key, value
+			FROM global_environments
+			WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key))
 
-		SELECT key, value
-		FROM project_environments
-		UNION ALL
-		SELECT key, value
-		FROM global_environments
-		WHERE NOT EXISTS(SELECT * FROM project_environments WHERE project_environments.key = global_environments.key)`
+		SELECT * FROM result
+		`
 
 	if DB_DRIVER.Value() == "sqlite3" {
 		queryWithSort := fmt.Sprintf(`%s ORDER BY key COLLATE NOCASE;`, query)
