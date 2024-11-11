@@ -75,8 +75,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.14)
       tsafe:
-        specifier: ^1.7.5
-        version: 1.7.5
+        specifier: ^1.8.4
+        version: 1.8.4
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.1.0
@@ -3303,8 +3303,8 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  tsafe@1.7.5:
-    resolution: {integrity: sha512-tbNyyBSbwfbilFfiuXkSOj82a6++ovgANwcoqBAcO9/REPoZMEQoE8kWPeO0dy5A2D/2Lajr8Ohue5T0ifIvLQ==}
+  tsafe@1.8.4:
+    resolution: {integrity: sha512-k1myNdDFEbqfq2hS7ln4qlgpvRlJq3wkOawQWieqVHu/K7dX+qQHTDkdzfvBBPNFrkIM7S/846JD6B3fm6MWHQ==}
 
   tsconfig-paths@4.2.0:
     resolution: {integrity: sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==}
@@ -6106,7 +6106,7 @@ snapshots:
 
   keycloakify@11.3.15:
     dependencies:
-      tsafe: 1.7.5
+      tsafe: 1.8.4
 
   keyv@4.5.4:
     dependencies:
@@ -6822,7 +6822,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  tsafe@1.7.5: {}
+  tsafe@1.8.4: {}
 
   tsconfig-paths@4.2.0:
     dependencies:
