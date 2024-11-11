@@ -6,7 +6,7 @@ require (
 	github.com/dogmatiq/ferrite v1.4.0
 	github.com/pulumi/pulumi-digitalocean/sdk/v4 v4.34.0
 	github.com/pulumi/pulumi-gcp/sdk/v7 v7.38.0
-	github.com/pulumi/pulumi/sdk/v3 v3.137.0
+	github.com/pulumi/pulumi/sdk/v3 v3.138.0
 )
 
 require (
