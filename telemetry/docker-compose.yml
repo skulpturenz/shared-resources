@@ -163,6 +163,12 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+    healthcheck:
+      test: [ "CMD", "curl", "--insecure", "-sf", "-XGET", "https://127.0.0.1:8200" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 1m
     depends_on:
       - elasticsearch
 
