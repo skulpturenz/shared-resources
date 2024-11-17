@@ -67,21 +67,12 @@ services:
       OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}"
     command: "start --optimized --proxy-headers xforwarded"
-    # https://www.reddit.com/r/KeyCloak/comments/14a5a1y/comment/k64ilng/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+    # https://stackoverflow.com/a/78229437
+    interval: 10s
+    timeout: 5s
+    retries: 5
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r
-
-            host: http://localhost\r
-
-            Connection: close\r
-
-            \r
-
-            \" >&3;grep \"HTTP/1.1 200 OK\" <&3"
-        ]
+      test: [ "CMD-SHELL", 'exec 3<>/dev/tcp/localhost/8080; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:8080\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $ERROR' ]
     deploy:
       mode: replicated
       replicas: 2

@@ -201,8 +201,6 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - filebeat-data:/var/lib/filebeat/data
-    networks:
-      - elastic
     deploy:
       mode: replicated
       replicas: 0 # 1
