@@ -4,4 +4,6 @@ ARG ELK_VERSION
 FROM docker.elastic.co/apm/apm-server:${ELK_VERSION}
 ARG ELK_VERSION
 
+USER root
 RUN apt update && apt install curl
+USER apm-server
