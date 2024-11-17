@@ -103,6 +103,10 @@ services:
         hard: 200000
     healthcheck:
       test: [ "CMD", "sh", "-c", "curl -sf --insecure https://$ELASTIC_USERNAME:$ELASTIC_PASSWORD@localhost:$ELASTICSEARCH_PORT/_cat/health | grep -ioE 'green|yellow' || echo 'not green/yellow cluster status'" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 1m
     deploy:
       mode: replicated
       replicas: 3
@@ -134,6 +138,10 @@ services:
       - elasticsearch
     healthcheck:
       test: [ "CMD", "curl", "--insecure", "-sf", "-XGET", "https://127.0.0.1:5601" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 1m
 
   apm-server:
     image: skulpture/apm-server:${TAG:-latest}
@@ -155,6 +163,12 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+    healthcheck:
+      test: [ "CMD", "curl", "--insecure", "-sf", "-XGET", "https://127.0.0.1:8200" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 1m
     depends_on:
       - elasticsearch
 
