@@ -66,7 +66,7 @@ services:
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}"
     command: "start --optimized --proxy-headers xforwarded"
     healthcheck:
-      test: [ "CMD-SHELL", "wget -O - http://localhost:8080 &>/dev/null || exit 1" ]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080 || test $? -eq 8 || exit 1" ]
       interval: 1m30s
       timeout: 30s
       retries: 5
