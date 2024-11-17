@@ -8,6 +8,7 @@ networks:
 # will contain all elasticsearch data.
 volumes:
   elasticsearch-data:
+  filebeat-data:
 
 
 secrets:
@@ -60,7 +61,7 @@ services:
         soft: 20000
         hard: 20000
     healthcheck:
-      test: [ "CMD", "curl", "-sf", "-XGET", "http://127.0.0.1:443" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://127.0.0.1:443" ]
     depends_on:
       - elasticsearch
       - apm-server
