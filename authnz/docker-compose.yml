@@ -38,7 +38,7 @@ services:
         soft: 20000
         hard: 20000
     healthcheck:
-      test: [ "CMD", "curl", "-sf", "-XGET", "http://127.0.0.1:443" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://127.0.0.1:443" ]
     depends_on:
       - keycloak
 
@@ -67,8 +67,21 @@ services:
       OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}"
     command: "start --optimized --proxy-headers xforwarded"
+    # https://www.reddit.com/r/KeyCloak/comments/14a5a1y/comment/k64ilng/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
     healthcheck:
-      test: [ "CMD", "curl", "-sf", "-XGET", "http://127.0.0.1:8080" ]
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e \"GET /health/ready HTTP/1.1\r
+
+            host: http://localhost\r
+
+            Connection: close\r
+
+            \r
+
+            \" >&3;grep \"HTTP/1.1 200 OK\" <&3"
+        ]
     deploy:
       mode: replicated
       replicas: 2

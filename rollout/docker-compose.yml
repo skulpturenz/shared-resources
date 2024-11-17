@@ -38,7 +38,7 @@ services:
         soft: 20000
         hard: 20000
     healthcheck:
-      test: [ "CMD", "curl", "-sf", "-XGET", "http://127.0.0.1:443" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://127.0.0.1:443" ]
     depends_on:
       - flipt
 
@@ -82,7 +82,7 @@ services:
       mode: replicated
       replicas: 2
     healthcheck:
-      test: [ "CMD", "curl", "-sf", "-XGET", "http://127.0.0.1:8080" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080" ]
 
   logstash:
     image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
