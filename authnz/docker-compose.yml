@@ -37,8 +37,6 @@ services:
       nofile:
         soft: 20000
         hard: 20000
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://127.0.0.1:443" ]
     depends_on:
       - keycloak
 
@@ -67,12 +65,6 @@ services:
       OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}"
     command: "start --optimized --proxy-headers xforwarded"
-    # https://stackoverflow.com/a/78229437
-    interval: 10s
-    timeout: 5s
-    retries: 5
-    healthcheck:
-      test: [ "CMD-SHELL", 'exec 3<>/dev/tcp/localhost/8080; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:8080\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $ERROR' ]
     deploy:
       mode: replicated
       replicas: 2
