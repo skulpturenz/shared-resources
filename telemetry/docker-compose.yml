@@ -155,8 +155,6 @@ services:
     deploy:
       mode: replicated
       replicas: 2
-    healthcheck:
-      test: [ "CMD", "curl", "-sf", "-XGET", "http://127.0.0.1:8200" ]
     depends_on:
       - elasticsearch
 
