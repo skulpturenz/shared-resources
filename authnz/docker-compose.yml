@@ -74,7 +74,7 @@ services:
     deploy:
       mode: replicated
       replicas: 2
-      endpoint_mode: dnsrr
+      endpoint_mode: vip
 
   logstash:
     image: docker.elastic.co/logstash/logstash:${ELK_VERSION}
