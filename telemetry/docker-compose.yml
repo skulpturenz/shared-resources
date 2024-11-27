@@ -134,6 +134,7 @@ services:
     deploy:
       mode: replicated
       replicas: 2
+      endpoint_mode: vip
     depends_on:
       - elasticsearch
     healthcheck:
