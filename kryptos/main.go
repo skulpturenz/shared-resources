@@ -2,9 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"net/http"
 	"os"
 	"skulpture/kryptos/commands"
 	"skulpture/kryptos/kryptos"
+	"strings"
 
 	"github.com/docopt/docopt-go"
 	"github.com/dogmatiq/ferrite"
@@ -15,8 +19,22 @@ import (
 
 var (
 	ENV_FILE_PATH = ferrite.
-		String("ENV_FILE_PATH", "Load environment from file at path").
+			String("ENV_FILE_PATH", "Load environment from file at path").
+			Optional()
+	GITHUB_REPO = ferrite.
+			String("GITHUB_REPO", "GitHub repo in the format {owner:string}/{repo:string}").
+			WithConstraint("Format", func(githubRepo string) bool {
+			ownerAndRepository := strings.Split(githubRepo, "/")
+
+			return strings.TrimSpace(ownerAndRepository[0]) != "" && strings.TrimSpace(ownerAndRepository[1]) != ""
+		}).
 		Optional()
+	GITHUB_WORKFLOW = ferrite.
+			String("GITHUB_WORKFLOW", "GitHub workflow id to trigger").
+			Optional()
+	GITHUB_TOKEN = ferrite.
+			String("GITHUB_TOKEN", "GitHub access token").
+			Optional()
 )
 
 func init() {
@@ -204,6 +222,37 @@ Options:
 		if err != nil {
 			panic(err)
 		}
+
+		if isGithubWorkflowTriggerEnabled() {
+			githubOwnerAndRepo, _ := GITHUB_REPO.Value()
+			ownerAndRepository := strings.Split(githubOwnerAndRepo, "/")
+			githubOwner := strings.TrimSpace(ownerAndRepository[0])
+			githubRepo := strings.TrimSpace(ownerAndRepository[1])
+
+			githubToken, _ := GITHUB_TOKEN.Value()
+			githubWorkflow, _ := GITHUB_WORKFLOW.Value()
+
+			postWorkflowDispatch := fmt.Sprintf(
+				"https://api.github.com/repos/%s/%s/actions/workflows/%s/dispatches",
+				githubOwner, githubRepo, githubWorkflow)
+			req, err := http.NewRequest(http.MethodPost, postWorkflowDispatch, nil)
+			if err != nil {
+				panic(err)
+			}
+
+			req.Header.Set("Accept", "application/vnd.github+json")
+			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", githubToken))
+			req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				panic(err)
+			}
+
+			if res.StatusCode != http.StatusNoContent {
+				panic(errors.New("failed to dispatch workflow"))
+			}
+		}
 	} else if mv {
 		previous, _ := options.String("<previous>")
 		next, _ := options.String("<next>")
@@ -324,4 +373,12 @@ Options:
 			panic(err)
 		}
 	}
+}
+
+func isGithubWorkflowTriggerEnabled() bool {
+	_, isGithubOwnerAndRepoSpecified := GITHUB_REPO.Value()
+	_, isGithubWorkflowSpecified := GITHUB_WORKFLOW.Value()
+	_, isGithubTokenSpecified := GITHUB_TOKEN.Value()
+
+	return isGithubOwnerAndRepoSpecified && isGithubWorkflowSpecified && isGithubTokenSpecified
 }
