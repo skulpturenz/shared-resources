@@ -6,7 +6,7 @@ require (
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
 	github.com/dogmatiq/ferrite v1.4.0
 	github.com/elliotchance/orderedmap/v2 v2.5.0
-	github.com/fergusstrange/embedded-postgres v1.29.0
+	github.com/fergusstrange/embedded-postgres v1.30.0
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.1
