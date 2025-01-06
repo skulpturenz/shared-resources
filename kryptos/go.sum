@@ -38,8 +38,8 @@ github.com/dogmatiq/ferrite v1.4.0 h1:cXmorC8NdSieWhPBfgmnj4cmWIeaCQK2sflGa2H0xX
 github.com/dogmatiq/ferrite v1.4.0/go.mod h1:M/WQ/JM1ra9cuLEervv0R5N7VVqzPYjtCff4Z2B1200=
 github.com/dogmatiq/iago v0.4.0 h1:57nZqVT34IZxtCZEW/RFif7DNUEjMXgevfr/Mmd0N8I=
 github.com/dogmatiq/iago v0.4.0/go.mod h1:fishMWBtzYcjgis6d873VTv9kFm/wHYLOzOyO9ECBDc=
-github.com/elliotchance/orderedmap/v2 v2.5.0 h1:WRPmWGChucaZ09eEd3UkU8XfVajv6ZZ6eg3+x0cLWPM=
-github.com/elliotchance/orderedmap/v2 v2.5.0/go.mod h1:85lZyVbpGaGvHvnKa7Qhx7zncAdBIBq6u56Hb1PRU5Q=
+github.com/elliotchance/orderedmap/v2 v2.7.0 h1:WHuf0DRo63uLnldCPp9ojm3gskYwEdIIfAUVG5KhoOc=
+github.com/elliotchance/orderedmap/v2 v2.7.0/go.mod h1:85lZyVbpGaGvHvnKa7Qhx7zncAdBIBq6u56Hb1PRU5Q=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/fergusstrange/embedded-postgres v1.29.0 h1:Uv8hdhoiaNMuH0w8UuGXDHr60VoAQPFdgx7Qf3bzXJM=
