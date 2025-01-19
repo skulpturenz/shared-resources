@@ -4,9 +4,9 @@ go 1.23.0
 
 require (
 	github.com/dogmatiq/ferrite v1.4.0
-	github.com/pulumi/pulumi-cloudflare/sdk/v5 v5.47.0
+	github.com/pulumi/pulumi-cloudflare/sdk/v5 v5.48.0
 	github.com/pulumi/pulumi-gcp/sdk/v7 v7.38.0
-	github.com/pulumi/pulumi/sdk/v3 v3.143.0
+	github.com/pulumi/pulumi/sdk/v3 v3.145.0
 )
 
 require (
@@ -80,7 +80,7 @@ require (
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
 	golang.org/x/mod v0.21.0 // indirect
-	golang.org/x/net v0.30.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/term v0.27.0 // indirect
