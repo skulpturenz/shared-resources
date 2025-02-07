@@ -8,6 +8,7 @@ WORKDIR /build
 COPY --from=theme . .
 
 RUN apk add maven && \
+    npm install -g corepack@latest && \
     corepack enable pnpm && \
     pnpm config set store-dir /home/node/.local/share/pnpm/store && \
     corepack pnpm install && \
