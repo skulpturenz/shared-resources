@@ -57,8 +57,8 @@ importers:
         specifier: ^0.4.3
         version: 0.4.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       oidc-spa:
-        specifier: ^6.1.2
-        version: 6.1.2(@types/react@18.3.18)(react@18.3.1)
+        specifier: ^6.5.2
+        version: 6.5.2(@types/react@18.3.18)(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -238,6 +238,10 @@ packages:
 
   '@babel/runtime@7.26.7':
     resolution: {integrity: sha512-AOPI3D+a8dXnja+iwsUqGRjr1BbZIe771sXdapOtYI531gSqpi92vXivKcq2asu/DFpdl1ceFAKZyRzK2PCVcQ==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.26.9':
+    resolution: {integrity: sha512-aA63XwOkcl4xxQa3HjPMqOP6LiK0ZDv3mUPYEFXkpHbaFjtGggE1A61FjFzJnB+p7/oy2gA8E+rcBNl/zC1tMg==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.25.9':
@@ -2678,8 +2682,8 @@ packages:
     resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
     engines: {node: '>= 0.4'}
 
-  oidc-spa@6.1.2:
-    resolution: {integrity: sha512-v1qOlUwRcmgZsQw37NKHBIj2varcSBt9M0NFLBTef7ZsiMe/p3NzPXeZlYfKtiaCPHnv6rekYxFfk1meJHsGSQ==}
+  oidc-spa@6.5.2:
+    resolution: {integrity: sha512-YZ/Gvo6o/M78C3fQsJK+Zq+AUXOR//+njgeb1bP4dWdfjBFo7qH0x19ccDBaooVLwaa2+mW1o7o3bWKKOIHNhA==}
     peerDependencies:
       '@types/react': '*'
       react: '*'
@@ -3592,6 +3596,10 @@ snapshots:
       '@babel/types': 7.26.7
 
   '@babel/runtime@7.26.7':
+    dependencies:
+      regenerator-runtime: 0.14.1
+
+  '@babel/runtime@7.26.9':
     dependencies:
       regenerator-runtime: 0.14.1
 
@@ -4553,7 +4561,7 @@ snapshots:
   '@testing-library/dom@10.3.2':
     dependencies:
       '@babel/code-frame': 7.26.2
-      '@babel/runtime': 7.26.7
+      '@babel/runtime': 7.26.9
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       chalk: 4.1.2
@@ -6051,7 +6059,7 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
 
-  oidc-spa@6.1.2(@types/react@18.3.18)(react@18.3.1):
+  oidc-spa@6.5.2(@types/react@18.3.18)(react@18.3.1):
     optionalDependencies:
       '@types/react': 18.3.18
       react: 18.3.1
