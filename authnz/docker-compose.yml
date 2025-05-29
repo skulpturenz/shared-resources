@@ -57,6 +57,8 @@ services:
       KC_DB_POOL_MIN_SIZE: ${KC_DB_POOL_MIN_SIZE:-0}
       KC_HOSTNAME: ${KC_HOSTNAME}
       KC_HTTP_ENABLED: "true"
+      JAVA_OPTS_APPEND: "-Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
+      # with otel agent
       # JAVA_OPTS_APPEND: "-javaagent:/tmp/opentelemetry-javaagent.jar -Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
       OTEL_SERVICE_NAME: keycloak
       OTEL_TRACES_EXPORTER: otlp
