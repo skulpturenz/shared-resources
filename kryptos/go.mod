@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/docopt/docopt-go v0.0.0-20180111231733-ee0de3bc6815
-	github.com/dogmatiq/ferrite v1.4.0
+	github.com/dogmatiq/ferrite v1.5.1
 	github.com/elliotchance/orderedmap/v2 v2.5.0
 	github.com/fergusstrange/embedded-postgres v1.29.0
 	github.com/golang-migrate/migrate/v4 v4.18.2
@@ -41,8 +41,8 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/sync v0.13.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/text v0.24.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
