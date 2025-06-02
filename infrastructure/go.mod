@@ -3,7 +3,7 @@ module network
 go 1.23.0
 
 require (
-	github.com/dogmatiq/ferrite v1.4.0
+	github.com/dogmatiq/ferrite v1.5.1
 	github.com/pulumi/pulumi-digitalocean/sdk/v4 v4.39.1
 	github.com/pulumi/pulumi-gcp/sdk/v7 v7.38.0
 	github.com/pulumi/pulumi/sdk/v3 v3.147.0
@@ -80,15 +80,15 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
+	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c // indirect
-	golang.org/x/mod v0.21.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
-	golang.org/x/tools v0.26.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/net v0.39.0 // indirect
+	golang.org/x/sync v0.13.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/term v0.31.0 // indirect
+	golang.org/x/text v0.24.0 // indirect
+	golang.org/x/tools v0.32.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240610135401-a8a62080eff3 // indirect
 	google.golang.org/grpc v1.64.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
