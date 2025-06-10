@@ -104,7 +104,7 @@ jobs:
             KEYCLOAK_CACHE=ispn
             KEYCLOAK_CACHE_STACK=kubernetes
           tags: |
-            skulpture/authnz:${{ env.TAG }}-${{ matrix.os }}
+            skulpture/authnz:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   build-elasticsearch:
     strategy:
@@ -135,7 +135,7 @@ jobs:
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
-            skulpture/elasticsearch:${{ env.TAG }}-${{ matrix.os }}
+            skulpture/elasticsearch:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   build-kibana:
     strategy:
@@ -166,7 +166,7 @@ jobs:
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
-            skulpture/kibana:${{ env.TAG }}-${{ matrix.os }}
+            skulpture/kibana:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   build-apm-server:
     strategy:
@@ -197,7 +197,7 @@ jobs:
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
-            skulpture/apm-server:${{ env.TAG }}-${{ matrix.os }}
+            skulpture/apm-server:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   build-kryptos:
     strategy:
@@ -226,7 +226,7 @@ jobs:
           platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           push: true
           tags: |
-            skulpture/kryptos:${{ env.TAG }}-${{ matrix.os }}
+            skulpture/kryptos:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   docker-push:
     needs:
@@ -268,8 +268,8 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           inputs: >
-            ${{ matrix.image }}:${{ env.TAG }}-linux/amd64,
-            ${{ matrix.image }}:${{ env.TAG }}-linux/arm64
+            ${{ matrix.image }}:${{ env.TAG }}-amd64,
+            ${{ matrix.image }}:${{ env.TAG }}-arm64
           tags: >
             ${{ matrix.image }}:${{ env.TAG }}
           push: true
