@@ -48,8 +48,8 @@ importers:
         specifier: ^1.4.1
         version: 1.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       keycloakify:
-        specifier: 11.8.13
-        version: 11.8.13
+        specifier: 11.8.47
+        version: 11.8.47
       lucide-react:
         specifier: ^0.474.0
         version: 0.474.0(react@18.3.1)
@@ -2505,8 +2505,8 @@ packages:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
     engines: {node: '>=4.0'}
 
-  keycloakify@11.8.13:
-    resolution: {integrity: sha512-eR9Kp7CHselq4+mrK0VLVOIjSXuwXh8uT7pSA3yaoTljTBwCCu5STWjWpPrRdYseTkWcIcGXCyyTMkgDIjN2wA==}
+  keycloakify@11.8.47:
+    resolution: {integrity: sha512-BhcsbQxa04hvvpoH2Dw0osuPlXiiXWakh3mtzqsXDxpjVyt0HvA7wwC+N08TqzWwKgruV48nEt37c3XzLo7rCw==}
     hasBin: true
 
   keyv@4.5.4:
@@ -6005,7 +6005,7 @@ snapshots:
       object.assign: 4.1.7
       object.values: 1.2.1
 
-  keycloakify@11.8.13:
+  keycloakify@11.8.47:
     dependencies:
       tsafe: 1.8.5
 
