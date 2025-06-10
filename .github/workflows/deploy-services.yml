@@ -70,13 +70,14 @@ jobs:
           GCP_SSH_PUBLIC_KEY: ${{ secrets.GCP_SSH_PUBLIC_KEY }}
 
   build-authnz:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -92,7 +93,7 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:authnz/keycloak"
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           build-contexts: |
             theme=./authnz-theme
           push: true
@@ -103,16 +104,17 @@ jobs:
             KEYCLOAK_CACHE=ispn
             KEYCLOAK_CACHE_STACK=kubernetes
           tags: |
-            skulpture/authnz:${{ env.TAG }}
+            skulpture/authnz:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   build-elasticsearch:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -128,21 +130,22 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/elasticsearch"
-          platforms: linux/amd64 #,linux/arm64
+          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           push: true
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
-            skulpture/elasticsearch:${{ env.TAG }}
+            skulpture/elasticsearch:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   build-kibana:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -158,21 +161,22 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/kibana"
-          platforms: linux/amd64 #,linux/arm64
+          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           push: true
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
-            skulpture/kibana:${{ env.TAG }}
+            skulpture/kibana:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   build-apm-server:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -188,21 +192,22 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:telemetry/apm-server"
-          platforms: linux/amd64 #,linux/arm64
+          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           push: true
           build-args: |
             ELK_VERSION=${{ vars.ELK_VERSION }}
           tags: |
-            skulpture/apm-server:${{ env.TAG }}
+            skulpture/apm-server:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
   build-kryptos:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -218,12 +223,58 @@ jobs:
           TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
         with:
           context: "{{defaultContext}}:kryptos"
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
           push: true
           tags: |
-            skulpture/kryptos:${{ env.TAG }}
+            skulpture/kryptos:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
-  deploy:    
+  docker-push:
+    needs:
+      [
+        build-authnz,
+        build-elasticsearch,
+        build-kibana,
+        build-apm-server,
+        build-kryptos,
+      ]
+
+    strategy:
+      matrix:
+        image:
+          [
+            skulpture/authnz,
+            skulpture/elasticsearch,
+            skulpture/kibana,
+            skulpture/apm-server,
+            skulpture/kryptos,
+          ]
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push ${{ matrix.image }}
+        uses: Noelware/docker-manifest-action@v1
+        env:
+          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
+        with:
+          inputs: >
+            ${{ matrix.image }}:${{ env.TAG }}-amd64,
+            ${{ matrix.image }}:${{ env.TAG }}-arm64
+          tags: >
+            ${{ matrix.image }}:${{ env.TAG }}
+          push: true
+
+  deploy:
     permissions:
       contents: read
       id-token: write
@@ -236,14 +287,7 @@ jobs:
 
     environment: "${{ matrix.service }}-${{ matrix.branch }}"
 
-    needs: [
-      up,
-      build-authnz,
-      build-elasticsearch,
-      build-kibana,
-      build-apm-server,
-      build-kryptos
-    ]
+    needs: [up, docker-push]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
@@ -280,7 +324,7 @@ jobs:
           port: 22
           script: |
             export $(docker run --rm --env-file ${{ env.ENV_FILE }} ${{ env.KRYPTOS }} cat | xargs)
-            
+
             if [[ "${{ env.BRANCH_NAME }}" != "master" ]]; then
               export TAG=${{ env.BRANCH_NAME }}
             fi
