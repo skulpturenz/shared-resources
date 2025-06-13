@@ -11,8 +11,13 @@
 	],
 	"containerEnv": {
 		// "GOOGLE_PROJECT": "",
-		// "DIGITAL_OCEAN_TOKEN": ""
+		// "DIGITAL_OCEAN_TOKEN": "",
+		// "GCP_SSH_PUBLIC_KEY": "",
+		// "PULUMI_ACCESS_TOKEN": ""
 	},
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
 	"customizations": {
 		"settings": {
 			"go.buildTags": "",
@@ -46,5 +51,8 @@
 		}
 	},
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "go version"
+	"postCreateCommand": {
+		// "configure-docker": "sudo chown $(whoami) /var/run/docker.sock",
+		"go-version": "go version"
+	}
 }
