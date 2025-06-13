@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compute: [authnz, rollout, infrastructure, telemetry]
+        compute: [authnz, rollout, infrastructure]
 
     runs-on: ubuntu-latest
     steps:
