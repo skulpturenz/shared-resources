@@ -49,6 +49,7 @@ services:
     command: >
       --providers.swarm.endpoint=unix:///var/run/docker.sock
       --providers.swarm.exposedByDefault=false
+      --providers.swarm.tls.insecureSkipVerify=true
       --providers.file.directory=/traefik
       --providers.file.watch=true
       --entryPoints.web.address=:80
@@ -58,7 +59,6 @@ services:
       --entryPoints.web.http.redirections.entryPoint.scheme=https
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./traefik:/traefik
     secrets:
       - source: proxy.certificate
@@ -77,7 +77,7 @@ services:
       node.name: telemetry_elasticsearch.{{.Task.Slot}}
       path.data: ./data/elasticsearch.{{.Task.Slot}}
       discovery.seed_hosts: tasks.elasticsearch
-      cluster.initial_master_nodes: telemetry_elasticsearch.1,telemetry_elasticsearch.2,telemetry_elasticsearch.3
+      cluster.initial_master_nodes: telemetry_elasticsearch.1,telemetry_elasticsearch.2 # ,telemetry_elasticsearch.3
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTIC_CLUSTER_NAME: ${ELASTIC_CLUSTER_NAME}
@@ -113,7 +113,7 @@ services:
       start_period: 1m
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 2
       labels:
         traefik.enable: "true"
         traefik.http.routers.elasticsearch.rule: Host(`telemetry.skulpture.xyz`) && Path(`/elasticsearch`)
