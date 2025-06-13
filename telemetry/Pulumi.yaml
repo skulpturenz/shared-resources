@@ -1,6 +1,6 @@
-name: rollout
+name: telemetry
 runtime: go
-description: Deploy rollout tools
+description: Deploy telemetry tools
 config:
   pulumi:tags:
     value:
