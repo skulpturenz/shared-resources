@@ -49,6 +49,7 @@ services:
     command: >
       --providers.swarm.endpoint=unix:///var/run/docker.sock
       --providers.swarm.exposedByDefault=false
+      --providers.swarm.tls.insecureSkipVerify=true
       --providers.file.directory=/traefik
       --providers.file.watch=true
       --entryPoints.web.address=:80
@@ -58,7 +59,6 @@ services:
       --entryPoints.web.http.redirections.entryPoint.scheme=https
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./traefik:/traefik
     secrets:
       - source: proxy.certificate
@@ -77,7 +77,7 @@ services:
       node.name: telemetry_elasticsearch.{{.Task.Slot}}
       path.data: ./data/elasticsearch.{{.Task.Slot}}
       discovery.seed_hosts: tasks.elasticsearch
-      cluster.initial_master_nodes: telemetry_elasticsearch.1,telemetry_elasticsearch.2 #,telemetry_elasticsearch.3
+      cluster.initial_master_nodes: telemetry_elasticsearch.1,telemetry_elasticsearch.2 # ,telemetry_elasticsearch.3
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTIC_CLUSTER_NAME: ${ELASTIC_CLUSTER_NAME}
@@ -120,7 +120,7 @@ services:
         traefik.http.routers.elasticsearch.tls.domains.main: skulpture.xyz
         traefik.http.routers.elasticsearch.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.elasticsearch-service.loadbalancer.server.port: ${ELASTICSEARCH_PORT}
-        traefik.http.services.elasticsearch-service.loadbalancer.server.scheme: http
+        traefik.http.services.elasticsearch-service.loadbalancer.server.scheme: https
         traefik.swarm.lbswarm: "true"
 
   kibana:
@@ -151,12 +151,11 @@ services:
         traefik.http.routers.kibana.tls.domains.main: skulpture.xyz
         traefik.http.routers.kibana.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.kibana-service.loadbalancer.server.port: ${KIBANA_PORT}
-        traefik.http.services.kibana-service.loadbalancer.server.scheme: http
+        traefik.http.services.kibana-service.loadbalancer.server.scheme: https
         traefik.swarm.lbswarm: "true"
 
   apm-server:
     image: skulpture/apm-server:${TAG:-latest}
-    restart: unless-stopped
     volumes:
       - ./apm-server/config/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro
     environment:
@@ -180,7 +179,7 @@ services:
         traefik.http.routers.apm-server.tls.domains.main: skulpture.xyz
         traefik.http.routers.apm-server.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.apm-server-service.loadbalancer.server.port: 8200
-        traefik.http.services.apm-server-service.loadbalancer.server.scheme: http
+        traefik.http.services.apm-server-service.loadbalancer.server.scheme: https
         traefik.swarm.lbswarm: "true"
 
   logstash:
