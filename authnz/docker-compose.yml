@@ -23,7 +23,7 @@ services:
         published: 443
     deploy:
       mode: replicated
-      replicas: 2 # (e2-micro) # (e2-small)
+      replicas: 2
       placement:
         constraints:
           - node.role == manager
@@ -84,7 +84,7 @@ services:
       start_period: 1m
     deploy:
       mode: replicated
-      replicas: 2 # (e2-micro) # 2 (e2-small)
+      replicas: 2
       labels:
         traefik.enable: "true"
         traefik.http.routers.authnz.rule: Host(`authnz.skulpture.xyz`)
