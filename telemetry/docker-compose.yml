@@ -1,0 +1,120 @@
+networks:
+  default:
+    name: flipt
+    driver: overlay
+    attachable: true
+
+secrets:
+  proxy.certificate:
+    file: ${PROXY_CERT_PATH}
+  proxy.key:
+    file: ${PROXY_KEY_PATH}
+
+volumes:
+  parseable-staging:
+
+services:
+  proxy:
+    image: traefik:v3.4
+    ports:
+      - target: 443
+        published: 443
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == manager
+    command: >
+      --providers.swarm.endpoint=unix:///var/run/docker.sock
+      --providers.swarm.exposedByDefault=false
+      --providers.file.directory=/traefik
+      --providers.file.watch=true
+      --entryPoints.web.address=:80
+      --entryPoints.websecure.address=:443
+      --entryPoints.websecure.asDefault=true
+      --entryPoints.web.http.redirections.entryPoint.to=websecure
+      --entryPoints.web.http.redirections.entryPoint.scheme=https
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik:/traefik
+    secrets:
+      - source: proxy.certificate
+        target: /certs/fullchain.pem
+      - source: proxy.key
+        target: /certs/privkey.pem
+    ulimits:
+      nofile:
+        soft: 20000
+        hard: 20000
+
+  parseable:
+    image: containers.parseable.com/parseable/parseable
+    command: parseable s3-store
+    volumes:
+      - parseable-staging:/parseable/staging
+    environment:
+      P_STAGING_DIR: /parseable/staging
+      P_S3_URL: ${PARSEABLE_S3_URL}
+      P_S3_REGION: ${PARSEABLE_S3_REGION}
+      P_S3_BUCKET: ${PARSEABLE_S3_BUCKET}
+      P_S3_ACCESS_KEY: ${PARSEABLE_S3_ACCESS_KEY}
+      P_S3_SECRET_KEY: ${PARSEABLE_S3_SECRET_KEY}
+      P_USERNAME: ${PARSEABLE_ADMIN_USERNAME}
+      P_PASSWORD: ${PARSEABLE_ADMIN_PASSWORD}
+      P_CHECK_UPDATE: "true"
+      P_MODE: ALL
+    # P_OIDC_CLIENT_ID: ${PARSEABLE_OIDC_CLIENT_ID}
+    # P_OIDC_CLIENT_SECRET: ${PARSEABLE_OIDC_CLIENT_SECRET}
+    # P_OIDC_ISSUER: ${PARSEABLE_OIDC_ISSUER}
+    # P_ORIGIN_URI: https://telemetry.skulpture.xyz
+    deploy:
+      mode: replicated
+      replicas: 2
+      labels:
+        traefik.enable: "true"
+        traefik.http.routers.rollout.rule: Host(`telemetry.skulpture.xyz`)
+        traefik.http.routers.rollout.tls.domains.main: skulpture.xyz
+        traefik.http.routers.rollout.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.services.rollout-service.loadbalancer.server.port: 8000
+        traefik.http.services.rollout-service.loadbalancer.server.scheme: http
+        traefik.http.services.rollout-service.loadbalancer.healthcheck.path: /v1/liveness
+        traefik.http.services.rollout-service.loadbalancer.healthcheck.status: 200
+        traefik.http.services.rollout-service.loadbalancer.healthcheck.port: 8000
+        traefik.swarm.lbswarm: "true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/liveness"]
+      interval: 1m30s
+      timeout: 1m
+      retries: 5
+      start_period: 1m
+
+  bugsink:
+    image: bugsink/bugsink
+    environment:
+      SECRET_KEY: ${BUGSINK_SECRET_KEY}
+      CREATE_SUPERUSER: ${BUGSINK_SUPERUSER_USERNAME}:${BUGSINK_SUPERUSER_PASSWORD}
+      PORT: 8000
+      DATABASE_URL: ${BUGSINK_PG_CONNECTION_STRING}
+      BEHIND_HTTPS_PROXY: "true"
+      BASE_URL: "http://localhost:8000"
+    deploy:
+      mode: replicated
+      replicas: 2
+      labels:
+        traefik.enable: "true"
+        traefik.http.routers.rollout.rule: Host(`telemetry.skulpture.xyz`) && Path(`/bugsink`)
+        traefik.http.routers.rollout.tls.domains.main: skulpture.xyz
+        traefik.http.routers.rollout.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.services.rollout-service.loadbalancer.server.port: 8000
+        traefik.http.services.rollout-service.loadbalancer.server.scheme: http
+        traefik.http.services.rollout-service.loadbalancer.healthcheck.path: /
+        traefik.http.services.rollout-service.loadbalancer.healthcheck.status: 200
+        traefik.http.services.rollout-service.loadbalancer.healthcheck.port: 8000
+        traefik.swarm.lbswarm: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import requests; requests.get(\"http://localhost:8000/\").raise_for_status()'"]
+      interval: 1m30s
+      timeout: 1m
+      retries: 5
+      start_period: 1m

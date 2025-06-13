@@ -1,0 +1,7 @@
+name: rollout
+runtime: go
+description: Deploy rollout tools
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: gcp-go
