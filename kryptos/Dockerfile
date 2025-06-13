@@ -9,5 +9,6 @@ RUN go build -o kryptos-exec
 FROM scratch
 
 COPY --from=build /build/kryptos-exec /kryptos
+COPY ./migrations /migrations
 
 ENTRYPOINT [ "/kryptos" ]
