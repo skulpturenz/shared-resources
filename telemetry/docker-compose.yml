@@ -120,7 +120,7 @@ services:
         traefik.http.routers.elasticsearch.tls.domains.main: skulpture.xyz
         traefik.http.routers.elasticsearch.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.elasticsearch-service.loadbalancer.server.port: ${ELASTICSEARCH_PORT}
-        traefik.http.services.elasticsearch-service.loadbalancer.server.scheme: http
+        traefik.http.services.elasticsearch-service.loadbalancer.server.scheme: https
         traefik.swarm.lbswarm: "true"
 
   kibana:
@@ -151,7 +151,7 @@ services:
         traefik.http.routers.kibana.tls.domains.main: skulpture.xyz
         traefik.http.routers.kibana.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.kibana-service.loadbalancer.server.port: ${KIBANA_PORT}
-        traefik.http.services.kibana-service.loadbalancer.server.scheme: http
+        traefik.http.services.kibana-service.loadbalancer.server.scheme: https
         traefik.swarm.lbswarm: "true"
 
   apm-server:
@@ -179,7 +179,7 @@ services:
         traefik.http.routers.apm-server.tls.domains.main: skulpture.xyz
         traefik.http.routers.apm-server.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.apm-server-service.loadbalancer.server.port: 8200
-        traefik.http.services.apm-server-service.loadbalancer.server.scheme: http
+        traefik.http.services.apm-server-service.loadbalancer.server.scheme: https
         traefik.swarm.lbswarm: "true"
 
   logstash:
