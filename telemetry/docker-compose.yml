@@ -1,6 +1,6 @@
 networks:
   default:
-    name: flipt
+    name: telemetry
     driver: overlay
     attachable: true
 
