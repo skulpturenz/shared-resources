@@ -83,7 +83,7 @@ func main() {
 				sudo chmod 0600 /etc/letsencrypt/dnscloudflare.ini &&
 				sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
 				sudo chmod 0600 /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
-				sudo certbot certonly -d rollout.skulpture.xyz \
+				sudo certbot certonly -d telemetry.skulpture.xyz \
 					--dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini \
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
