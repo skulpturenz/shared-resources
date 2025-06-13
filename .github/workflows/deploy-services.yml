@@ -106,99 +106,6 @@ jobs:
           tags: |
             skulpture/authnz:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
 
-  build-elasticsearch:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm]
-
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: "Build Docker image: elasticsearch"
-        uses: docker/build-push-action@v5
-        env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
-        with:
-          context: "{{defaultContext}}:telemetry/elasticsearch"
-          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
-          push: true
-          build-args: |
-            ELK_VERSION=${{ vars.ELK_VERSION }}
-          tags: |
-            skulpture/elasticsearch:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
-
-  build-kibana:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm]
-
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: "Build Docker image: kibana"
-        uses: docker/build-push-action@v5
-        env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
-        with:
-          context: "{{defaultContext}}:telemetry/kibana"
-          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
-          push: true
-          build-args: |
-            ELK_VERSION=${{ vars.ELK_VERSION }}
-          tags: |
-            skulpture/kibana:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
-
-  build-apm-server:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm]
-
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: "Build Docker image: apm-server"
-        uses: docker/build-push-action@v5
-        env:
-          TAG: ${{ (env.BRANCH_NAME == 'master' && 'latest') || env.BRANCH_NAME }}
-        with:
-          context: "{{defaultContext}}:telemetry/apm-server"
-          platforms: ${{ matrix.os == 'ubuntu-latest' && 'linux/amd64' || 'linux/arm64' }}
-          push: true
-          build-args: |
-            ELK_VERSION=${{ vars.ELK_VERSION }}
-          tags: |
-            skulpture/apm-server:${{ env.TAG }}-${{ matrix.os == 'ubuntu-latest' && 'amd64' || 'arm64' }}
-
   build-kryptos:
     strategy:
       matrix:
@@ -232,9 +139,6 @@ jobs:
     needs:
       [
         build-authnz,
-        build-elasticsearch,
-        build-kibana,
-        build-apm-server,
         build-kryptos,
       ]
 
@@ -243,9 +147,6 @@ jobs:
         image:
           [
             skulpture/authnz,
-            skulpture/elasticsearch,
-            skulpture/kibana,
-            skulpture/apm-server,
             skulpture/kryptos,
           ]
 
@@ -282,7 +183,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [authnz, rollout, telemetry]
+        service: [authnz, rollout]
         branch: [master] # staging, dev
 
     environment: "${{ matrix.service }}-${{ matrix.branch }}"
