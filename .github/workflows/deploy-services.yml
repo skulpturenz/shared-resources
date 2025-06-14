@@ -68,6 +68,7 @@ jobs:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT: ${{ vars.GOOGLE_SERVICE_ACCOUNT }}
           GCP_SSH_PUBLIC_KEY: ${{ secrets.GCP_SSH_PUBLIC_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
 
   build-authnz:
     strategy:
@@ -183,7 +184,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [authnz, rollout]
+        service: [authnz, rollout, telemetry]
         branch: [master] # staging, dev
 
     environment: "${{ matrix.service }}-${{ matrix.branch }}"

@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compute: [authnz, rollout, infrastructure]
+        compute: [authnz, rollout, infrastructure, telemetry]
 
     runs-on: ubuntu-latest
     steps:
@@ -63,3 +63,4 @@ jobs:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT: ${{ vars.GOOGLE_SERVICE_ACCOUNT }}
           GCP_SSH_PUBLIC_KEY: ${{ vars.GCP_SSH_PUBLIC_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
