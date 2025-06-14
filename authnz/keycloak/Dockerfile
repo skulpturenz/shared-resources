@@ -8,6 +8,7 @@ WORKDIR /build
 COPY --from=theme . .
 
 RUN apk add maven && \
+    npm install -g corepack@latest && \
     corepack enable pnpm && \
     pnpm config set store-dir /home/node/.local/share/pnpm/store && \
     corepack pnpm install && \
@@ -39,6 +40,10 @@ ENV KC_CACHE_STACK=$KEYCLOAK_CACHE_STACK
 ENV KC_FEATURES=$KEYCLOAK_FEATURES
 ENV KC_DB=$KEYCLOAK_DB
 
+# Enable tracing
+ENV KC_TRACING_ENABLED=true
+ENV KC_FEATURES="opentelemetry"
+
 WORKDIR /opt/keycloak
 
 COPY --from=theme_builder /build/dist_keycloak/keycloak-theme-for-kc-22-to-25.jar /opt/keycloak/providers/
@@ -49,7 +54,5 @@ RUN /opt/keycloak/bin/kc.sh build
 FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION}
 COPY --from=keycloak_builder /opt/keycloak/ /opt/keycloak/
 COPY --from=ubi-micro-build /mnt/rootfs /
-
-ADD --chown=keycloak:keycloak https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar /tmp/opentelemetry-javaagent.jar
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]

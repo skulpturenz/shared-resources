@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vite";
+import { defineConfig, type UserConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { keycloakify } from "keycloakify/vite-plugin";
 import { resolve } from "path";
@@ -24,4 +24,4 @@ export default defineConfig({
 		},
 		environment: "jsdom",
 	},
-});
+} as UserConfig);

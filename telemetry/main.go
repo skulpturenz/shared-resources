@@ -16,11 +16,14 @@ var (
 	GOOGLE_PROJECT = ferrite.
 			String("GOOGLE_PROJECT", "GCP Project").
 			Required()
-	GOOGLE_SERVICE_ACCOUNT = ferrite.
-				String("GOOGLE_SERVICE_ACCOUNT", "Service account linked to vm").
+	CLOUDFLARE_ACCOUNT_ID = ferrite.
+				String("CLOUDFLARE_ACCOUNT_ID", "Cloudflare account id").
 				Required()
 	CLOUDFLARE_ZONE_ID = ferrite.
 				String("CLOUDFLARE_ZONE_ID", "Cloudflare zone id").
+				Required()
+	GOOGLE_SERVICE_ACCOUNT = ferrite.
+				String("GOOGLE_SERVICE_ACCOUNT", "Service account linked to vm").
 				Required()
 	CLOUDFLARE_API_TOKEN = ferrite.
 				String("CLOUDFLARE_API_TOKEN", "Cloudflare API token").
@@ -36,7 +39,7 @@ func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
 			Name:   pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			Region: pulumi.String("australia-southeast1"),
+			Region: pulumi.String("us-central1"),
 		})
 		if err != nil {
 			return err
@@ -44,8 +47,8 @@ func main() {
 
 		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			MachineType: pulumi.String("e2-highmem-2"),
-			Zone:        pulumi.String("australia-southeast1-a"),
+			MachineType: pulumi.String("e2-small"),
+			Zone:        pulumi.String("us-central1-a"),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
 				"allow-ssh",
@@ -64,19 +67,16 @@ func main() {
 				"ssh-keys": GCP_SSH_PUBLIC_KEY.Value(),
 			}),
 			// Docker setup on Debian 12: https://www.thomas-krenn.com/en/wiki/Docker_installation_on_Debian_12
-			// Permanently increase vm.max_map_count value: https://thetechdarts.com/how-to-change-default-vm-max_map_count-on-linux/
 			MetadataStartupScript: pulumi.String(fmt.Sprintf(`#! /bin/bash 
 				curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
 				sudo bash add-google-cloud-ops-agent-repo.sh --also-install
-				
+
 				sudo apt update &&
 				sudo apt install certbot python3-certbot-dns-cloudflare make git ca-certificates curl gnupg apt-transport-https gpg -y &&
 				curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg &&
 				echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
 				sudo apt update &&
 				sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose -y &&
-				sudo grep -qxF 'vm.max_map_count=262144' /etc/sysctl.conf || echo vm.max_map_count=262144 | sudo tee -a /etc/sysctl.conf &&
-				sudo sysctl -p &&
 				sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy && 
 				echo "dns_cloudflare_api_token = %s" | sudo tee /etc/letsencrypt/dnscloudflare.ini &&
 				echo "#! /bin/bash sudo docker service ls -q | xargs -n1 sudo docker service update --force" | sudo tee /etc/letsencrypt/renewal-hooks/deploy/reload-services.sh &&
@@ -87,7 +87,8 @@ func main() {
 					--dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini \
 					--non-interactive --agree-tos \
 					--register-unsafely-without-email \
-					--dns-cloudflare-propagation-seconds 60`, CLOUDFLARE_API_TOKEN.Value())),
+					--dns-cloudflare-propagation-seconds 60
+				EOF`, CLOUDFLARE_API_TOKEN.Value())),
 			Scheduling: compute.InstanceSchedulingArgs{
 				AutomaticRestart:  pulumi.Bool(true),
 				OnHostMaintenance: pulumi.String("MIGRATE"),
@@ -125,6 +126,26 @@ func main() {
 			Content: static.Address,
 			Type:    pulumi.String("A"),
 			Proxied: pulumi.Bool(true),
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-triage", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
+			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
+			Name:    pulumi.String("triage"),
+			Content: static.Address,
+			Type:    pulumi.String("A"),
+			Proxied: pulumi.Bool(true),
+		})
+		if err != nil {
+			return err
+		}
+
+		_, err = cloudflare.NewR2Bucket(ctx, fmt.Sprintf("%s-parseable-data", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.R2BucketArgs{
+			AccountId: pulumi.String(CLOUDFLARE_ACCOUNT_ID.Value()),
+			Name:      pulumi.String("parseable-data"),
+			Location:  pulumi.String("WNAM"),
 		})
 		if err != nil {
 			return err
