@@ -40,6 +40,10 @@ ENV KC_CACHE_STACK=$KEYCLOAK_CACHE_STACK
 ENV KC_FEATURES=$KEYCLOAK_FEATURES
 ENV KC_DB=$KEYCLOAK_DB
 
+# Enable tracing
+ENV KC_TRACING_ENABLED=true
+ENV KC_FEATURES="opentelemetry"
+
 WORKDIR /opt/keycloak
 
 COPY --from=theme_builder /build/dist_keycloak/keycloak-theme-for-kc-22-to-25.jar /opt/keycloak/providers/
