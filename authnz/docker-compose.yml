@@ -61,14 +61,11 @@ services:
       KC_DB_POOL_MIN_SIZE: ${KC_DB_POOL_MIN_SIZE:-0}
       KC_HOSTNAME: ${KC_HOSTNAME}
       KC_HTTP_ENABLED: "true"
-      JAVA_OPTS_APPEND: "-Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
-      # with otel agent
-      # JAVA_OPTS_APPEND: "-javaagent:/tmp/opentelemetry-javaagent.jar -Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
+      JAVA_OPTS_APPEND: "-javaagent:/tmp/opentelemetry-javaagent.jar -Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
       OTEL_SERVICE_NAME: keycloak
       OTEL_TRACES_EXPORTER: otlp
       OTEL_METRICS_EXPORTER: otlp
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
-      OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Bearer ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}"
     command: "start --optimized --http-enabled true --proxy-headers xforwarded"
     healthcheck:
@@ -94,3 +91,14 @@ services:
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.httpOnly: "true"
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.domain: authnz.skulpture.xyz        
         traefik.swarm.lbswarm: "false"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+    volumes:
+      - ./otel/collector-config.yml:/etc/otelcol-contrib/config.yaml
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+      OTEL_EXPORTER_OTLP_AUTH_TOKEN: ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}

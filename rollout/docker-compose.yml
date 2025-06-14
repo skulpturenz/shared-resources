@@ -47,8 +47,6 @@ services:
 
   flipt:
     image: docker.flipt.io/flipt/flipt:${FLIPT_VERSION}
-    volumes:
-      - ${FLIPT_CONFIG_DIR}:/etc/flipt/config/default.yml:ro
     environment:
       FLIPT_LOG_LEVEL: "DEBUG"
       FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
@@ -74,12 +72,12 @@ services:
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_REDIRECT_ADDRESS: ${FLIPT_SKULPTURE_OIDC_REDIRECT_ADDRESS}
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_SCOPES: "email"
       FLIPT_CACHE_ENABLED: "true"
-    # FLIPT_METRICS_EXPORTER: "otlp"
-    # FLIPT_METRICS_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
-    # FLIPT_TRACING_ENABLED: "true"
-    # FLIPT_TRACING_EXPORTER: "otlp"
-    # FLIPT_TRACING_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
-    # OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV},deployment.node={{.Task.Slot}}"
+      FLIPT_METRICS_EXPORTER: "otlp"
+      FLIPT_METRICS_OTLP_ENDPOINT: http://otel-collector:4318
+      FLIPT_TRACING_ENABLED: "true"
+      FLIPT_TRACING_EXPORTER: "otlp"
+      FLIPT_TRACING_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV},deployment.node={{.Task.Slot}}"
     deploy:
       mode: replicated
       replicas: 2
@@ -100,3 +98,14 @@ services:
       timeout: 1m
       retries: 5
       start_period: 1m
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+    volumes:
+      - ./otel/collector-config.yml:/etc/otelcol-contrib/config.yaml
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+      OTEL_EXPORTER_OTLP_AUTH_TOKEN: ${OTEL_EXPORTER_OTLP_AUTH_TOKEN}

@@ -1,9 +1,0 @@
-metrics:
-  otlp:
-    headers:
-      "Authorization": "Bearer token"
-
-tracing:
-  otlp:
-    headers:
-      "Authorization": "Bearer token"
