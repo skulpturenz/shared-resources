@@ -131,6 +131,17 @@ func main() {
 			return err
 		}
 
+		_, err = cloudflare.NewRecord(ctx, fmt.Sprintf("%s-triage", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.RecordArgs{
+			ZoneId:  pulumi.String(CLOUDFLARE_ZONE_ID.Value()),
+			Name:    pulumi.String("triage"),
+			Content: static.Address,
+			Type:    pulumi.String("A"),
+			Proxied: pulumi.Bool(true),
+		})
+		if err != nil {
+			return err
+		}
+
 		_, err = cloudflare.NewR2Bucket(ctx, fmt.Sprintf("%s-parseable-data", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.R2BucketArgs{
 			AccountId: pulumi.String(CLOUDFLARE_ACCOUNT_ID.Value()),
 			Name:      pulumi.String("parseable-data"),

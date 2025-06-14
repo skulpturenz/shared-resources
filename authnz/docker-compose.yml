@@ -90,4 +90,6 @@ services:
         traefik.http.services.authnz-service.loadbalancer.healthcheck.path: /health/ready
         traefik.http.services.authnz-service.loadbalancer.healthcheck.status: 200
         traefik.http.services.authnz-service.loadbalancer.healthcheck.port: 9000
+        # https://www.keycloak.org/server/reverseproxy#_enable_sticky_sessions
+        traefik.http.services.parseable-service.loadbalancer.sticky.cookie.name: "AUTH_SESSION_ID"
         traefik.swarm.lbswarm: "false"

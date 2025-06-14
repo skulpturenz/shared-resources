@@ -1,8 +1,0 @@
-http:
-  services:
-    authnz-service:
-      loadBalancer:
-        sticky:
-          cookie:
-            # https://www.keycloak.org/server/reverseproxy#_enable_sticky_sessions
-            name: AUTH_SESSION_ID

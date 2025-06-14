@@ -77,10 +77,13 @@ services:
         traefik.http.routers.parseable.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.parseable-service.loadbalancer.server.port: 8000
         traefik.http.services.parseable-service.loadbalancer.server.scheme: http
+        traefik.http.services.parseable-service.loadbalancer.sticky.cookie.secure: "true"
+        traefik.http.services.parseable-service.loadbalancer.sticky.cookie.httpOnly: "true"
+        traefik.http.services.parseable-service.loadbalancer.sticky.cookie.domain: telemetry.skulpture.xyz
         traefik.http.services.parseable-service.loadbalancer.healthcheck.path: /api/v1/liveness
         traefik.http.services.parseable-service.loadbalancer.healthcheck.status: 200
         traefik.http.services.parseable-service.loadbalancer.healthcheck.port: 8000
-        traefik.swarm.lbswarm: "true"
+        traefik.swarm.lbswarm: "false"
 
   bugsink:
     image: bugsink/bugsink
@@ -90,22 +93,28 @@ services:
       PORT: 8000
       DATABASE_URL: ${BUGSINK_PG_CONNECTION_STRING}
       BEHIND_HTTPS_PROXY: "true"
-      BASE_URL: "http://localhost:8000"
+      BASE_URL: "https://triage.skulpture.xyz"
+      ALLOWED_HOSTS: "triage.skulpture.xyz,localhost"
+      EMAIL_HOST: ${BUGSINK_EMAIL_HOST}
+      EMAIL_HOST_USER: ${BUGSINK_EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${BUGSINK_EMAIL_HOST_PASSWORD}
+      EMAIL_PORT: ${BUGSINK_EMAIL_PORT}
+      DEFAULT_FROM_EMAIL: "Bugsink <support@skulpture.xyz>"
+      TIMEZONE: "Pacific/Auckland"
     deploy:
       mode: replicated
       replicas: 2
       labels:
         traefik.enable: "true"
-        traefik.http.routers.bugsink.rule: Host(`telemetry.skulpture.xyz`) && Path(`/bugsink`)
-        traefik.http.middlewares.test-stripprefix.stripprefix.prefixes: /bugsink
+        traefik.http.routers.bugsink.rule: Host(`triage.skulpture.xyz`)
         traefik.http.routers.bugsink.tls.domains.main: skulpture.xyz
         traefik.http.routers.bugsink.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.services.bugsink-service.loadbalancer.server.port: 8000
         traefik.http.services.bugsink-service.loadbalancer.server.scheme: http
-        traefik.http.services.bugsink-service.loadbalancer.healthcheck.path: /
-        traefik.http.services.bugsink-service.loadbalancer.healthcheck.status: 200
-        traefik.http.services.bugsink-service.loadbalancer.healthcheck.port: 8000
-        traefik.swarm.lbswarm: "true"
+        traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.secure: "true"
+        traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.httpOnly: "true"
+        traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.domain: triage.skulpture.xyz
+        traefik.swarm.lbswarm: "false"
     healthcheck:
       test: ["CMD-SHELL", "python -c 'import requests; requests.get(\"http://localhost:8000/\").raise_for_status()'"]
       interval: 1m30s
