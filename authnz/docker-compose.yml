@@ -65,7 +65,7 @@ services:
     command: >
       start 
       --optimized --http-enabled true --proxy-headers xforwarded
-      --tracing-enabled true --tracing-endpoint http://otel-collector:4318
+      --tracing-enabled true --tracing-endpoint http://otel-collector:4317
       --tracing-resource-attributes deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9000/health/ready || test $$? -eq 8 || exit 1" ]
