@@ -68,6 +68,7 @@ jobs:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT: ${{ vars.GOOGLE_SERVICE_ACCOUNT }}
           GCP_SSH_PUBLIC_KEY: ${{ secrets.GCP_SSH_PUBLIC_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
 
   build-authnz:
     strategy:
