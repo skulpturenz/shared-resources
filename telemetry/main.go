@@ -134,7 +134,7 @@ func main() {
 		_, err = cloudflare.NewR2Bucket(ctx, fmt.Sprintf("%s-parseable-data", COMPUTE_INSTANCE_NAME.Value()), &cloudflare.R2BucketArgs{
 			AccountId: pulumi.String(CLOUDFLARE_ACCOUNT_ID.Value()),
 			Name:      pulumi.String("parseable-data"),
-			Location:  pulumi.String("wnam"),
+			Location:  pulumi.String("WNAM"),
 		})
 		if err != nil {
 			return err
