@@ -1,6 +1,6 @@
 http:
   services:
-    keycloak:
+    authnz-service:
       loadBalancer:
         sticky:
           cookie:
