@@ -12,3 +12,4 @@ COPY --from=build /build/kryptos-exec /kryptos
 COPY ./migrations /build/migrations
 
 ENTRYPOINT [ "/kryptos" ]
+CMD [ "" ]

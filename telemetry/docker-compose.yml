@@ -63,10 +63,10 @@ services:
       P_USERNAME: ${PARSEABLE_ADMIN_USERNAME}
       P_PASSWORD: ${PARSEABLE_ADMIN_PASSWORD}
       P_CHECK_UPDATE: "true"
-    # P_OIDC_CLIENT_ID: ${PARSEABLE_OIDC_CLIENT_ID}
-    # P_OIDC_CLIENT_SECRET: ${PARSEABLE_OIDC_CLIENT_SECRET}
-    # P_OIDC_ISSUER: ${PARSEABLE_OIDC_ISSUER}
-    # P_ORIGIN_URI: https://telemetry.skulpture.xyz
+      P_OIDC_CLIENT_ID: ${PARSEABLE_OIDC_CLIENT_ID}
+      P_OIDC_CLIENT_SECRET: ${PARSEABLE_OIDC_CLIENT_SECRET}
+      P_OIDC_ISSUER: ${PARSEABLE_OIDC_ISSUER}
+      P_ORIGIN_URI: https://telemetry.skulpture.xyz
     deploy:
       mode: replicated
       replicas: 2
