@@ -183,7 +183,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [authnz, rollout]
+        service: [authnz, rollout, telemetry]
         branch: [master] # staging, dev
 
     environment: "${{ matrix.service }}-${{ matrix.branch }}"
