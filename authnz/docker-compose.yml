@@ -61,13 +61,12 @@ services:
       KC_DB_POOL_MIN_SIZE: ${KC_DB_POOL_MIN_SIZE:-0}
       KC_HOSTNAME: ${KC_HOSTNAME}
       KC_HTTP_ENABLED: "true"
-      JAVA_OPTS_APPEND: "-javaagent:/tmp/opentelemetry-javaagent.jar -Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
-      OTEL_SERVICE_NAME: keycloak
-      OTEL_TRACES_EXPORTER: otlp
-      OTEL_METRICS_EXPORTER: otlp
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}"
-    command: "start --optimized --http-enabled true --proxy-headers xforwarded"
+      JAVA_OPTS_APPEND: "-Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
+    command: >
+      start 
+      --optimized --http-enabled true --proxy-headers xforwarded
+      --tracing-enabled true --tracing-endpoint http://otel-collector:4318
+      --tracing-resource-attributes deployment.environment=${JAVA_ENV},deployment.node={{.Task.Slot}}
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9000/health/ready || test $$? -eq 8 || exit 1" ]
       interval: 1m30s
