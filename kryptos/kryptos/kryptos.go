@@ -10,8 +10,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"path/filepath"
-	"runtime"
+	"skulpture/kryptos/migrations"
 
 	"github.com/dogmatiq/ferrite"
 	"github.com/elliotchance/orderedmap/v2"
@@ -20,6 +19,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/pgx"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/mattn/go-sqlite3"
@@ -524,11 +524,17 @@ func Open(ctx context.Context) (*sql.DB, func() error, error) {
 		}
 	}
 
-	_, basePath, _, _ := runtime.Caller(0)
-	rootDirectory := filepath.Dir(basePath)
+	// see: https://github.com/golang-migrate/migrate/tree/master/source/go_bindata
+	s := bindata.Resource(migrations.AssetNames(),
+		func(name string) ([]byte, error) {
+			return migrations.Asset(name)
+		})
+	d, err := bindata.WithInstance(s)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	path, _ := filepath.Abs(fmt.Sprintf("%s/../migrations", rootDirectory))
-	m, err := migrate.NewWithDatabaseInstance(fmt.Sprintf("file://%s", path), "kryptos", driver)
+	m, err := migrate.NewWithInstance("go-bindata", d, "kryptos", driver)
 	if err != nil {
 		return nil, nil, err
 	}
