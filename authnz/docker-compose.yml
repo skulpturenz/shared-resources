@@ -88,12 +88,12 @@ services:
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.secure: "true"
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.httpOnly: "true"
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.domain: authnz.skulpture.xyz
-        traefik.http.middlewares.authnz-inflightreq-limit.inflightreq.amount: 50
+        traefik.http.middlewares.authnz-inflightreq-limit.inflightreq.amount: 5
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies
         traefik.http.middlewares.authnz-inflightreq-limit.inflightreq.sourcecriterion.ipstrategy.depth: 1
-        traefik.http.middlewares.authnz-service-limit.ratelimit.average: 50
-        traefik.http.middlewares.authnz-service-limit.ratelimit.burst: 100
+        traefik.http.middlewares.authnz-service-limit.ratelimit.average: 5
+        traefik.http.middlewares.authnz-service-limit.ratelimit.burst: 10
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies
         traefik.http.middlewares.authnz-service-limit.ratelimit.sourcecriterion.ipstrategy.depth: 1   
