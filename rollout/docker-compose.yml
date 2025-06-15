@@ -95,6 +95,15 @@ services:
         traefik.http.services.rollout-service.loadbalancer.healthcheck.path: /health
         traefik.http.services.rollout-service.loadbalancer.healthcheck.status: 200
         traefik.http.services.rollout-service.loadbalancer.healthcheck.port: 8080
+        traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.amount: 50
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.sourcecriterion.ipstrategy.depth: 1
+        traefik.http.middlewares.rollout-service-limit.ratelimit.average: 50
+        traefik.http.middlewares.rollout-service-limit.ratelimit.burst: 100
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.rollout-service-limit.ratelimit.sourcecriterion.ipstrategy.depth: 1
         traefik.swarm.lbswarm: "true"
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1" ]
