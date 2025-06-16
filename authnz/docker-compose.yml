@@ -80,7 +80,7 @@ services:
         traefik.http.routers.authnz.rule: Host(`authnz.skulpture.xyz`)
         traefik.http.routers.authnz.tls.domains.main: skulpture.xyz
         traefik.http.routers.authnz.tls.domains.sans: "*.skulpture.xyz"
-        traefik.http.routers.authnz.middlewares: cors, authnz-inflightreq-limit, authnz-service-limit
+        traefik.http.routers.authnz.middlewares: authnz-inflightreq-limit, authnz-service-limit
         traefik.http.services.authnz-service.loadbalancer.server.port: 8080
         traefik.http.services.authnz-service.loadbalancer.server.scheme: http
         traefik.http.services.authnz-service.loadbalancer.healthcheck.path: /health/ready
@@ -89,11 +89,6 @@ services:
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.secure: "true"
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.httpOnly: "true"
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.domain: authnz.skulpture.xyz
-        traefik.http.middlewares.cors.headers.accesscontrolallowmethods: "*"
-        traefik.http.middlewares.cors.headers.accesscontrolallowheaders: "*"
-        traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
-        traefik.http.middlewares.cors.headers.accesscontrolmaxage: 100
-        traefik.http.middlewares.cors.headers.addvaryheader: "true"
         traefik.http.middlewares.authnz-inflightreq-limit.inflightreq.amount: 5
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies
