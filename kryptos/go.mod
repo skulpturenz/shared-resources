@@ -7,7 +7,7 @@ require (
 	github.com/dogmatiq/ferrite v1.4.0
 	github.com/elliotchance/orderedmap/v2 v2.5.0
 	github.com/fergusstrange/embedded-postgres v1.29.0
-	github.com/golang-migrate/migrate/v4 v4.18.2
+	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/joho/godotenv v1.5.1
