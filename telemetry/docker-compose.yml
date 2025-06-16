@@ -124,7 +124,7 @@ services:
         traefik.http.routers.bugsink.rule: Host(`triage.skulpture.xyz`)
         traefik.http.routers.bugsink.tls.domains.main: skulpture.xyz
         traefik.http.routers.bugsink.tls.domains.sans: "*.skulpture.xyz"
-        traefik.http.routers.parseable.middlewares: cors, bugsink-inflightreq-limit, bugsink-service-limit
+        traefik.http.routers.bugsink.middlewares: cors, bugsink-inflightreq-limit, bugsink-service-limit
         traefik.http.services.bugsink-service.loadbalancer.server.port: 8000
         traefik.http.services.bugsink-service.loadbalancer.server.scheme: http
         traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.secure: "true"
