@@ -75,6 +75,7 @@ services:
         traefik.http.routers.parseable.rule: Host(`telemetry.skulpture.xyz`)
         traefik.http.routers.parseable.tls.domains.main: skulpture.xyz
         traefik.http.routers.parseable.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.parseable.middlewares: cors, parseable-inflightreq-limit, parseable-service-limit
         traefik.http.services.parseable-service.loadbalancer.server.port: 8000
         traefik.http.services.parseable-service.loadbalancer.server.scheme: http
         traefik.http.services.parseable-service.loadbalancer.sticky.cookie.secure: "true"
@@ -83,6 +84,11 @@ services:
         traefik.http.services.parseable-service.loadbalancer.healthcheck.path: /api/v1/liveness
         traefik.http.services.parseable-service.loadbalancer.healthcheck.status: 200
         traefik.http.services.parseable-service.loadbalancer.healthcheck.port: 8000
+        traefik.http.middlewares.cors.headers.accesscontrolallowmethods: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolallowheaders: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolmaxage: 100
+        traefik.http.middlewares.cors.headers.addvaryheader: "true"
         traefik.http.middlewares.parseable-inflightreq-limit.inflightreq.amount: 10
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies
@@ -118,11 +124,17 @@ services:
         traefik.http.routers.bugsink.rule: Host(`triage.skulpture.xyz`)
         traefik.http.routers.bugsink.tls.domains.main: skulpture.xyz
         traefik.http.routers.bugsink.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.bugsink.middlewares: cors, bugsink-inflightreq-limit, bugsink-service-limit
         traefik.http.services.bugsink-service.loadbalancer.server.port: 8000
         traefik.http.services.bugsink-service.loadbalancer.server.scheme: http
         traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.secure: "true"
         traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.httpOnly: "true"
         traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.domain: triage.skulpture.xyz
+        traefik.http.middlewares.cors.headers.accesscontrolallowmethods: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolallowheaders: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolmaxage: 100
+        traefik.http.middlewares.cors.headers.addvaryheader: "true"
         traefik.http.middlewares.bugsink-inflightreq-limit.inflightreq.amount: 10
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies

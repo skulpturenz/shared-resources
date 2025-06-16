@@ -80,6 +80,7 @@ services:
         traefik.http.routers.authnz.rule: Host(`authnz.skulpture.xyz`)
         traefik.http.routers.authnz.tls.domains.main: skulpture.xyz
         traefik.http.routers.authnz.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.authnz.middlewares: authnz-inflightreq-limit, authnz-service-limit
         traefik.http.services.authnz-service.loadbalancer.server.port: 8080
         traefik.http.services.authnz-service.loadbalancer.server.scheme: http
         traefik.http.services.authnz-service.loadbalancer.healthcheck.path: /health/ready
