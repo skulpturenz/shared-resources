@@ -90,12 +90,18 @@ services:
         traefik.http.routers.rollout.rule: Host(`rollout.skulpture.xyz`)
         traefik.http.routers.rollout.tls.domains.main: skulpture.xyz
         traefik.http.routers.rollout.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.rollout.middlewares: cors
         traefik.http.services.rollout-service.loadbalancer.server.port: 8080
         traefik.http.services.rollout-service.loadbalancer.server.scheme: http
         traefik.http.services.rollout-service.loadbalancer.healthcheck.path: /health
         traefik.http.services.rollout-service.loadbalancer.healthcheck.status: 200
         traefik.http.services.rollout-service.loadbalancer.healthcheck.port: 8080
         traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.amount: 5
+        traefik.http.middlewares.cors.headers.accesscontrolallowmethods: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolallowheaders: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolmaxage: 100
+        traefik.http.middlewares.cors.headers.addvaryheader: "true"
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies
         traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.sourcecriterion.ipstrategy.depth: 1
