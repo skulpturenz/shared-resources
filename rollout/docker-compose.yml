@@ -48,13 +48,17 @@ services:
   flipt:
     image: docker.flipt.io/flipt/flipt:${FLIPT_VERSION}
     environment:
-      FLIPT_LOG_LEVEL: "DEBUG"
+      FLIPT_LOG_LEVEL: ${FLIPT_LOG_LEVEL:-ERROR}
       FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
       FLIPT_CORS_ALLOWED_ORIGINS: "*"
       FLIPT_CORS_ENABLED: "true"
       FLIPT_META_CHECK_FOR_UPDATES: "true"
       FLIPT_TELEMETRY_ENABLED: "false"
-      FLIPT_AUTHENTICATION_REQUIRED: "true"
+      FLIPT_AUTHENTICATION_REQUIRED: ${FLIPT_AUTHENTICATION_REQUIRED}
+      FLIPT_AUTHENTICATION_EXCLUDE_EVALUATION: "true"
+      FLIPT_AUTHENTICATION_EXCLUDE_OFREP: "true"
+      FLIPT_AUTHENTICATION_SESSION_SECURE: "true"
+      FLIPT_AUTHORIZATION_REQUIRED: ${FLIPT_AUTHORIZATION_REQUIRED}
       FLIPT_AUTHENTICATION_METHODS_TOKEN_ENABLED: "true"
       FLIPT_AUTHENTICATION_METHODS_BOOTSTRAP_TOKEN: ${BOOTSTRAP_TOKEN}
       FLIPT_AUTHENTICATION_SESSION_DOMAIN: ${FLIPT_AUTHENTICATION_SESSION_DOMAIN}
@@ -72,10 +76,14 @@ services:
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_REDIRECT_ADDRESS: ${FLIPT_SKULPTURE_OIDC_REDIRECT_ADDRESS}
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_SCOPES: "email"
       FLIPT_CACHE_ENABLED: "true"
+      # Disabled for now, very noisy 60 requests per minute and unnecessary
+      FLIPT_METRICS_ENABLED: "false"
       FLIPT_METRICS_EXPORTER: "otlp"
       FLIPT_METRICS_OTLP_ENDPOINT: http://otel-collector:4318
       FLIPT_TRACING_ENABLED: "true"
       FLIPT_TRACING_EXPORTER: "otlp"
+      # TODO: reconsider later
+      FLIPT_TRACING_SAMPLING_RATIO: 0.25
       FLIPT_TRACING_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV},deployment.node={{.Task.Slot}}"
     deploy:
@@ -86,11 +94,26 @@ services:
         traefik.http.routers.rollout.rule: Host(`rollout.skulpture.xyz`)
         traefik.http.routers.rollout.tls.domains.main: skulpture.xyz
         traefik.http.routers.rollout.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.rollout.middlewares: cors, rollout-inflightreq-limit, rollout-service-limit
         traefik.http.services.rollout-service.loadbalancer.server.port: 8080
         traefik.http.services.rollout-service.loadbalancer.server.scheme: http
         traefik.http.services.rollout-service.loadbalancer.healthcheck.path: /health
         traefik.http.services.rollout-service.loadbalancer.healthcheck.status: 200
         traefik.http.services.rollout-service.loadbalancer.healthcheck.port: 8080
+        traefik.http.middlewares.cors.headers.accesscontrolallowmethods: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolallowheaders: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolmaxage: 100
+        traefik.http.middlewares.cors.headers.addvaryheader: "true"
+        traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.amount: 5
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.sourcecriterion.ipstrategy.depth: 1
+        traefik.http.middlewares.rollout-service-limit.ratelimit.average: 5
+        traefik.http.middlewares.rollout-service-limit.ratelimit.burst: 10
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.rollout-service-limit.ratelimit.sourcecriterion.ipstrategy.depth: 1
         traefik.swarm.lbswarm: "true"
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1" ]

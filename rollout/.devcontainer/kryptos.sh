@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker run --rm -it skulpture/kryptos:dev
+docker run --rm -it skulpture/kryptos:dev $@

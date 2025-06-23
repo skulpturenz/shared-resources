@@ -75,6 +75,7 @@ services:
         traefik.http.routers.parseable.rule: Host(`telemetry.skulpture.xyz`)
         traefik.http.routers.parseable.tls.domains.main: skulpture.xyz
         traefik.http.routers.parseable.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.parseable.middlewares: cors, parseable-inflightreq-limit, parseable-service-limit
         traefik.http.services.parseable-service.loadbalancer.server.port: 8000
         traefik.http.services.parseable-service.loadbalancer.server.scheme: http
         traefik.http.services.parseable-service.loadbalancer.sticky.cookie.secure: "true"
@@ -83,6 +84,20 @@ services:
         traefik.http.services.parseable-service.loadbalancer.healthcheck.path: /api/v1/liveness
         traefik.http.services.parseable-service.loadbalancer.healthcheck.status: 200
         traefik.http.services.parseable-service.loadbalancer.healthcheck.port: 8000
+        traefik.http.middlewares.cors.headers.accesscontrolallowmethods: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolallowheaders: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolmaxage: 100
+        traefik.http.middlewares.cors.headers.addvaryheader: "true"
+        traefik.http.middlewares.parseable-inflightreq-limit.inflightreq.amount: 10
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.parseable-inflightreq-limit.inflightreq.sourcecriterion.ipstrategy.depth: 1
+        traefik.http.middlewares.parseable-service-limit.ratelimit.average: 10
+        traefik.http.middlewares.parseable-service-limit.ratelimit.burst: 20
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.parseable-service-limit.ratelimit.sourcecriterion.ipstrategy.depth: 1
         traefik.swarm.lbswarm: "false"
 
   bugsink:
@@ -109,11 +124,26 @@ services:
         traefik.http.routers.bugsink.rule: Host(`triage.skulpture.xyz`)
         traefik.http.routers.bugsink.tls.domains.main: skulpture.xyz
         traefik.http.routers.bugsink.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.bugsink.middlewares: cors, bugsink-inflightreq-limit, bugsink-service-limit
         traefik.http.services.bugsink-service.loadbalancer.server.port: 8000
         traefik.http.services.bugsink-service.loadbalancer.server.scheme: http
         traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.secure: "true"
         traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.httpOnly: "true"
         traefik.http.services.bugsink-service.loadbalancer.sticky.cookie.domain: triage.skulpture.xyz
+        traefik.http.middlewares.cors.headers.accesscontrolallowmethods: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolallowheaders: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
+        traefik.http.middlewares.cors.headers.accesscontrolmaxage: 100
+        traefik.http.middlewares.cors.headers.addvaryheader: "true"
+        traefik.http.middlewares.bugsink-inflightreq-limit.inflightreq.amount: 10
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.bugsink-inflightreq-limit.inflightreq.sourcecriterion.ipstrategy.depth: 1
+        traefik.http.middlewares.bugsink-service-limit.ratelimit.average: 10
+        traefik.http.middlewares.bugsink-service-limit.ratelimit.burst: 20
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.bugsink-service-limit.ratelimit.sourcecriterion.ipstrategy.depth: 1
         traefik.swarm.lbswarm: "false"
     healthcheck:
       test: ["CMD-SHELL", "python -c 'import requests; requests.get(\"http://localhost:8000/\").raise_for_status()'"]

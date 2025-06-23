@@ -50,6 +50,7 @@ services:
     hostname: keycloak.{{.Task.Slot}}
     environment:
       KC_CACHE: ispn
+      KC_LOG_LEVEL: ${KC_LOG_LEVEL:-ERROR}
       KC_CACHE_STACK: kubernetes
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -60,6 +61,8 @@ services:
       KC_DB_POOL_MAX_SIZE: ${KC_DB_POOL_MAX_SIZE:-2}
       KC_DB_POOL_MIN_SIZE: ${KC_DB_POOL_MIN_SIZE:-0}
       KC_HOSTNAME: ${KC_HOSTNAME}
+      # TODO: reconsider later
+      KC_TRACING_SAMPLER_RATIO: 0.25
       KC_HTTP_ENABLED: "true"
       JAVA_OPTS_APPEND: "-Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
     command: >
@@ -80,6 +83,7 @@ services:
         traefik.http.routers.authnz.rule: Host(`authnz.skulpture.xyz`)
         traefik.http.routers.authnz.tls.domains.main: skulpture.xyz
         traefik.http.routers.authnz.tls.domains.sans: "*.skulpture.xyz"
+        traefik.http.routers.authnz.middlewares: authnz-inflightreq-limit, authnz-service-limit
         traefik.http.services.authnz-service.loadbalancer.server.port: 8080
         traefik.http.services.authnz-service.loadbalancer.server.scheme: http
         traefik.http.services.authnz-service.loadbalancer.healthcheck.path: /health/ready
@@ -87,7 +91,16 @@ services:
         traefik.http.services.authnz-service.loadbalancer.healthcheck.port: 9000
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.secure: "true"
         traefik.http.services.authnz-service.loadbalancer.sticky.cookie.httpOnly: "true"
-        traefik.http.services.authnz-service.loadbalancer.sticky.cookie.domain: authnz.skulpture.xyz        
+        traefik.http.services.authnz-service.loadbalancer.sticky.cookie.domain: authnz.skulpture.xyz
+        traefik.http.middlewares.authnz-inflightreq-limit.inflightreq.amount: 5
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.authnz-inflightreq-limit.inflightreq.sourcecriterion.ipstrategy.depth: 1
+        traefik.http.middlewares.authnz-service-limit.ratelimit.average: 5
+        traefik.http.middlewares.authnz-service-limit.ratelimit.burst: 10
+        # Proxied by CloudFlare only before reaching the VM
+        # Rate limiting from traefik happens before it proxies
+        traefik.http.middlewares.authnz-service-limit.ratelimit.sourcecriterion.ipstrategy.depth: 1   
         traefik.swarm.lbswarm: "false"
 
   otel-collector:

@@ -6,7 +6,7 @@ require (
 	github.com/dogmatiq/ferrite v1.4.0
 	github.com/pulumi/pulumi-cloudflare/sdk/v5 v5.49.0
 	github.com/pulumi/pulumi-gcp/sdk/v7 v7.38.0
-	github.com/pulumi/pulumi/sdk/v3 v3.175.0
+	github.com/pulumi/pulumi/sdk/v3 v3.178.0
 )
 
 require (
@@ -26,7 +26,7 @@ require (
 	github.com/charmbracelet/x/ansi v0.2.3 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/cheggaaa/pb v1.0.29 // indirect
-	github.com/cloudflare/circl v1.4.0 // indirect
+	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cyphar/filepath-securejoin v0.3.6 // indirect
 	github.com/djherbis/times v1.6.0 // indirect
 	github.com/dogmatiq/iago v0.4.0 // indirect
@@ -62,7 +62,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/term v1.1.0 // indirect
 	github.com/pulumi/appdash v0.0.0-20231130102222-75f619a67231 // indirect
-	github.com/pulumi/esc v0.14.2 // indirect
+	github.com/pulumi/esc v0.14.3 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
