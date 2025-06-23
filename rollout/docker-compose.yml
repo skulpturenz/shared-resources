@@ -82,6 +82,8 @@ services:
       FLIPT_METRICS_OTLP_ENDPOINT: http://otel-collector:4318
       FLIPT_TRACING_ENABLED: "true"
       FLIPT_TRACING_EXPORTER: "otlp"
+      # TODO: reconsider later
+      FLIPT_TRACING_SAMPLING_RATIO: 0.25
       FLIPT_TRACING_OTLP_ENDPOINT: http://otel-collector:4318
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV},deployment.node={{.Task.Slot}}"
     deploy:
