@@ -48,7 +48,7 @@ services:
   flipt:
     image: docker.flipt.io/flipt/flipt:${FLIPT_VERSION}
     environment:
-      FLIPT_LOG_LEVEL: ${FLIPT_LOG_LEVEL}
+      FLIPT_LOG_LEVEL: ${FLIPT_LOG_LEVEL:-ERROR}
       FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
       FLIPT_CORS_ALLOWED_ORIGINS: "*"
       FLIPT_CORS_ENABLED: "true"

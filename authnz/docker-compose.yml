@@ -50,6 +50,7 @@ services:
     hostname: keycloak.{{.Task.Slot}}
     environment:
       KC_CACHE: ispn
+      KC_LOG_LEVEL: ${KC_LOG_LEVEL:-ERROR}
       KC_CACHE_STACK: kubernetes
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
