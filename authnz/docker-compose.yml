@@ -61,6 +61,8 @@ services:
       KC_DB_POOL_MAX_SIZE: ${KC_DB_POOL_MAX_SIZE:-2}
       KC_DB_POOL_MIN_SIZE: ${KC_DB_POOL_MIN_SIZE:-0}
       KC_HOSTNAME: ${KC_HOSTNAME}
+      # TODO: reconsider later
+      KC_TRACING_SAMPLER_RATIO: 0.25
       KC_HTTP_ENABLED: "true"
       JAVA_OPTS_APPEND: "-Djgroups.dns.query=tasks.keycloak -Djgroups.bind_addr=match-address:10.0.2.*"
     command: >
