@@ -39,7 +39,7 @@ func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		static, err := compute.NewAddress(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.AddressArgs{
 			Name:   pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
-			Region: pulumi.String("us-central1"),
+			Region: pulumi.String("australia-southeast1"),
 		})
 		if err != nil {
 			return err
@@ -48,7 +48,7 @@ func main() {
 		instance, err := compute.NewInstance(ctx, COMPUTE_INSTANCE_NAME.Value(), &compute.InstanceArgs{
 			Name:        pulumi.String(COMPUTE_INSTANCE_NAME.Value()),
 			MachineType: pulumi.String("e2-custom-micro-2048"),
-			Zone:        pulumi.String("us-central1-a"),
+			Zone:        pulumi.String("australia-southeast1-a"),
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
 				"allow-ssh",
@@ -99,7 +99,7 @@ func main() {
 				InitializeParams: &compute.InstanceBootDiskInitializeParamsArgs{
 					Image: pulumi.String("debian-12-bookworm-v20240515"),
 					Type:  pulumi.String("pd-standard"),
-					Size:  pulumi.Int(100),
+					Size:  pulumi.Int(50),
 				},
 				AutoDelete: pulumi.Bool(false),
 			},
