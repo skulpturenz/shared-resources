@@ -1,4 +1,5 @@
-@import "tailwindcss" reference("../tailwind.config.js");
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
 	:root {
