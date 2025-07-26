@@ -228,7 +228,7 @@ const PasswordWrapper = (props: {
 	kcClsx: KcClsx;
 	i18n: I18n;
 	passwordInputId: string;
-	children: JSX.Element;
+	children: React.JSX.Element;
 }) => {
 	const { i18n, passwordInputId, children } = props;
 

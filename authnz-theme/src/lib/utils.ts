@@ -11,29 +11,29 @@ export const flattenChildren = (
 	currentDepth = 0,
 ): React.ReactNode[] => {
 	if (currentDepth >= maxDepth) {
-		return (node as React.ReactElement)?.props?.children ?? [];
+		return ((node as React.ReactElement)?.props as any)?.children ?? [];
 	}
 
 	if (
 		!node ||
 		typeof node !== "object" ||
-		!(node as React.ReactElement).props.children ||
-		typeof (node as React.ReactElement)?.props?.children !== "object"
+		!((node as React.ReactElement).props as any).children ||
+		typeof ((node as React.ReactElement)?.props as any)?.children !== "object"
 	) {
 		return [node];
 	}
 
 	const element = node as React.ReactElement;
 
-	if (!Array.isArray(element.props.children)) {
+	if (!Array.isArray((element.props as any).children)) {
 		return flattenChildren(
-			element.props.children,
+			(element.props as any).children,
 			maxDepth,
 			currentDepth + 1,
 		);
 	}
 
-	return (element.props.children as React.ReactNode[])
+	return ((element.props as any).children as React.ReactNode[])
 		.flatMap(child => flattenChildren(child, maxDepth, currentDepth + 1))
 		.filter(Boolean);
 };
