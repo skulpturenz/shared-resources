@@ -97,7 +97,7 @@ export const Login = (
 			}
 			socialProvidersNode={
 				<>
-					{realm.password && Number(social?.providers?.length) > 0 && (
+					{realm.password && social?.providers && Number(social?.providers?.length) > 0 && (
 						<>
 							<div className="flex flex-col items-center gap-4 w-full">
 								<H4>{msg("identity-provider-login-label")}</H4>
