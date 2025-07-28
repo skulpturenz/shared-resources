@@ -97,17 +97,17 @@ export const Login = (
 			}
 			socialProvidersNode={
 				<>
-					{realm.password && social?.providers?.length > 0 && (
+					{realm.password && Number(social?.providers?.length) > 0 && (
 						<>
 							<div className="flex flex-col items-center gap-4 w-full">
 								<H4>{msg("identity-provider-login-label")}</H4>
 								<div
 									className={
-										(social?.providers?.length ?? 0) < 3
+										social.providers.length < 3
 											? "flex flex-col gap-4 w-full"
 											: "grid grid-flow-row md:grid-cols-3 w-full gap-4"
 									}>
-									{social?.providers?.map(provider => {
+									{social.providers.map(provider => {
 										const Logo =
 											SSO_PROVIDERS_ICONS[
 												provider.providerId as keyof typeof SSO_PROVIDERS_ICONS
