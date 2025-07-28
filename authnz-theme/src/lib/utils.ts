@@ -18,7 +18,8 @@ export const flattenChildren = (
 		!node ||
 		typeof node !== "object" ||
 		!((node as React.ReactElement).props as any).children ||
-		typeof ((node as React.ReactElement)?.props as any)?.children !== "object"
+		typeof ((node as React.ReactElement)?.props as any)?.children !==
+			"object"
 	) {
 		return [node];
 	}

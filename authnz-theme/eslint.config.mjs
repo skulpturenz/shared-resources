@@ -49,10 +49,22 @@ export default [
 		},
 		rules: {
 			eqeqeq: ["error", "always"],
+			"no-duplicate-imports": "error",
 			"@typescript-eslint/no-unused-vars": [
 				"error",
-				{ argsIgnorePattern: "^_" },
+				{
+					args: "all",
+					argsIgnorePattern: "^_",
+					caughtErrors: "all",
+					caughtErrorsIgnorePattern: "^_",
+					destructuredArrayIgnorePattern: "^_",
+					varsIgnorePattern: "^_",
+					ignoreRestSiblings: true,
+				},
 			],
+			"@typescript-eslint/no-empty-object-type": "warn",
+			"@typescript-eslint/no-explicit-any": "off",
+			"import/no-unresolved": "off",
 		},
 	},
 	eslintPluginPrettierRecommended,

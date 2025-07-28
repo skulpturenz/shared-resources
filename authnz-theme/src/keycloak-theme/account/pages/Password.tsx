@@ -245,6 +245,7 @@ const PasswordWrapper = (props: {
 		assert(passwordInputElement instanceof HTMLInputElement);
 
 		passwordInputElement.type = isPasswordRevealed ? "text" : "password";
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [isPasswordRevealed]);
 
 	const onClickTogglePassword: React.MouseEventHandler<

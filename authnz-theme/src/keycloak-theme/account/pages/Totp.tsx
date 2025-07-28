@@ -115,7 +115,7 @@ export default function Totp(
 								</ul>
 							</li>
 
-							{mode && mode == "manual" ? (
+							{mode && mode === "manual" ? (
 								<>
 									<li>
 										<p>{msg("totpManualStep2")}</p>

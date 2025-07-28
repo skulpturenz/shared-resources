@@ -69,6 +69,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 	React.useEffect(() => {
 		document.title = msgStr("accountManagementTitle");
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, []);
 
 	useSetClassName({
