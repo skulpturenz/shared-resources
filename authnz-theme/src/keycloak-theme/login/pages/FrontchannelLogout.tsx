@@ -19,6 +19,7 @@ export default function FrontchannelLogout(
 		if (logout.logoutRedirectUri) {
 			window.location.replace(logout.logoutRedirectUri);
 		}
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, []);
 
 	return (
