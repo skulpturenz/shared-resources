@@ -11,7 +11,7 @@ type IdpReviewUserProfileProps = PageProps<
 	I18n
 > & {
 	UserProfileFormFields: LazyOrNot<
-		(props: UserProfileFormFieldsProps) => JSX.Element
+		(props: UserProfileFormFieldsProps) => React.JSX.Element
 	>;
 	doMakeUserConfirmPassword: boolean;
 };

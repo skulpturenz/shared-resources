@@ -38,6 +38,7 @@ export default function UserProfileFormFields(
 
 	useEffect(() => {
 		onIsFormSubmittableValueChange(isFormSubmittable);
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [isFormSubmittable]);
 
 	const groupNameRef = { current: "" };
@@ -317,7 +318,7 @@ function PasswordWrapper(props: {
 	kcClsx: KcClsx;
 	i18n: I18n;
 	passwordInputId: string;
-	children: JSX.Element;
+	children: React.JSX.Element;
 }) {
 	const { kcClsx, i18n, passwordInputId, children } = props;
 
@@ -334,6 +335,7 @@ function PasswordWrapper(props: {
 		assert(passwordInputElement instanceof HTMLInputElement);
 
 		passwordInputElement.type = isPasswordRevealed ? "text" : "password";
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [isPasswordRevealed]);
 
 	return (

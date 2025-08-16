@@ -1,7 +1,7 @@
 import type { DeepPartial } from "keycloakify/tools/DeepPartial";
-import type { KcContext } from "./KcContext";
 import { createGetKcContextMock } from "keycloakify/account/KcContext";
 import type {
+	KcContext,
 	KcContextExtension,
 	KcContextExtensionPerPage,
 } from "./KcContext";

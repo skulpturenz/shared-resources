@@ -97,46 +97,52 @@ export const Login = (
 			}
 			socialProvidersNode={
 				<>
-					{realm.password && social?.providers?.length && (
-						<>
-							<div className="flex flex-col items-center gap-4 w-full">
-								<H4>{msg("identity-provider-login-label")}</H4>
-								<div
-									className={
-										social.providers.length < 3
-											? "flex flex-col gap-4 w-full"
-											: "grid grid-flow-row md:grid-cols-3 w-full gap-4"
-									}>
-									{social.providers.map(provider => {
-										const Logo =
-											SSO_PROVIDERS_ICONS[
-												provider.providerId as keyof typeof SSO_PROVIDERS_ICONS
-											] ?? "span";
+					{realm.password &&
+						social?.providers &&
+						Number(social?.providers?.length) > 0 && (
+							<>
+								<div className="flex flex-col items-center gap-4 w-full">
+									<H4>
+										{msg("identity-provider-login-label")}
+									</H4>
+									<div
+										className={
+											social.providers.length < 3
+												? "flex flex-col gap-4 w-full"
+												: "grid grid-flow-row md:grid-cols-3 w-full gap-4"
+										}>
+										{social.providers.map(provider => {
+											const Logo =
+												SSO_PROVIDERS_ICONS[
+													provider.providerId as keyof typeof SSO_PROVIDERS_ICONS
+												] ?? "span";
 
-										return (
-											<Button
-												key={provider.providerId}
-												asChild
-												variant={
-													theme === "light"
-														? "default"
-														: "outline"
-												}
-												className="px-5 py-6 w-full">
-												<a
-													className="flex gap-2 items-center"
-													href={provider.loginUrl}>
-													<Logo className="w-5 h-auto text-foreground" />
+											return (
+												<Button
+													key={provider.providerId}
+													asChild
+													variant={
+														theme === "light"
+															? "default"
+															: "outline"
+													}
+													className="px-5 py-6 w-full">
+													<a
+														className="flex gap-2 items-center"
+														href={
+															provider.loginUrl
+														}>
+														<Logo className="w-5 h-auto text-foreground" />
 
-													{provider.displayName}
-												</a>
-											</Button>
-										);
-									})}
+														{provider.displayName}
+													</a>
+												</Button>
+											);
+										})}
+									</div>
 								</div>
-							</div>
-						</>
-					)}
+							</>
+						)}
 				</>
 			}>
 			{realm.password && (
@@ -260,7 +266,7 @@ const PasswordWrapper = (props: {
 	kcClsx: KcClsx;
 	i18n: I18n;
 	passwordInputId: string;
-	children: JSX.Element;
+	children: React.JSX.Element;
 }) => {
 	const { i18n, passwordInputId, children } = props;
 
@@ -277,6 +283,7 @@ const PasswordWrapper = (props: {
 		assert(passwordInputElement instanceof HTMLInputElement);
 
 		passwordInputElement.type = isPasswordRevealed ? "text" : "password";
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [isPasswordRevealed]);
 
 	const onClickTogglePassword: React.MouseEventHandler<

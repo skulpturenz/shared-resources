@@ -73,6 +73,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	React.useEffect(() => {
 		document.title =
 			documentTitle ?? msgStr("loginTitle", kcContext.realm.displayName);
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, []);
 
 	useSetClassName({

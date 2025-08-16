@@ -49,20 +49,20 @@ services:
     image: docker.flipt.io/flipt/flipt:${FLIPT_VERSION}
     environment:
       FLIPT_LOG_LEVEL: ${FLIPT_LOG_LEVEL:-ERROR}
-      FLIPT_DB_URL: ${POSTGRES_CONNECTION_STRING}
       FLIPT_CORS_ALLOWED_ORIGINS: "*"
       FLIPT_CORS_ENABLED: "true"
       FLIPT_META_CHECK_FOR_UPDATES: "true"
       FLIPT_TELEMETRY_ENABLED: "false"
+      FLIPT_AUTHORIZATION_REQUIRED: ${FLIPT_AUTHORIZATION_REQUIRED}
       FLIPT_AUTHENTICATION_REQUIRED: ${FLIPT_AUTHENTICATION_REQUIRED}
       FLIPT_AUTHENTICATION_EXCLUDE_EVALUATION: "true"
       FLIPT_AUTHENTICATION_EXCLUDE_OFREP: "true"
       FLIPT_AUTHENTICATION_SESSION_SECURE: "true"
-      FLIPT_AUTHORIZATION_REQUIRED: ${FLIPT_AUTHORIZATION_REQUIRED}
-      FLIPT_AUTHENTICATION_METHODS_TOKEN_ENABLED: "true"
-      FLIPT_AUTHENTICATION_METHODS_BOOTSTRAP_TOKEN: ${BOOTSTRAP_TOKEN}
       FLIPT_AUTHENTICATION_SESSION_DOMAIN: ${FLIPT_AUTHENTICATION_SESSION_DOMAIN}
       FLIPT_AUTHENTICATION_SESSION_CSRF_KEY: ${FLIPT_CSRF_KEY}
+      FLIPT_AUTHENTICATION_METHODS_TOKEN_ENABLED: "true"
+      FLIPT_AUTHENTICATION_METHODS_TOKEN_TOKENS: "bootstrap"
+      FLIPT_AUTHENTICATION_METHODS_TOKEN_TOKENS_BOOTSTRAP_CREDENTIAL: ${BOOTSTRAP_TOKEN}
       FLIPT_AUTHENTICATION_METHODS_OIDC_ENABLED: "true"
       FLIPT_AUTHENTICATION_METHODS_OIDC_EMAIL_MATCHES: ${FLIPT_ALLOWED_EMAILS_REGEX}
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_GOOGLE_ISSUER_URL: "https://accounts.google.com"
@@ -75,16 +75,38 @@ services:
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_CLIENT_SECRET: ${FLIPT_SKULPTURE_OIDC_CLIENT_SECRET}
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_REDIRECT_ADDRESS: ${FLIPT_SKULPTURE_OIDC_REDIRECT_ADDRESS}
       FLIPT_AUTHENTICATION_METHODS_OIDC_PROVIDERS_SKULPTURE_SCOPES: "email"
+      FLIPT_ENVIRONMENTS_MASTER_NAME: "master"
+      FLIPT_ENVIRONMENTS_MASTER_STORAGE: "master"
+      FLIPT_ENVIRONMENTS_STAGING_NAME: "staging"
+      FLIPT_ENVIRONMENTS_STAGING_STORAGE: "staging"
+      FLIPT_ENVIRONMENTS_DEV_NAME: "dev"
+      FLIPT_ENVIRONMENTS_DEV_STORAGE: "dev"
+      FLIPT_STORAGE_MASTER_NAME: "master"
+      FLIPT_STORAGE_MASTER_REMOTE: "https://github.com/skulpturenz/rollout-storage.git"
+      FLIPT_STORAGE_MASTER_BRANCH: "master"
+      FLIPT_STORAGE_MASTER_CREDENTIALS: "github"
+      FLIPT_STORAGE_STAGING_NAME: "staging"
+      FLIPT_STORAGE_STAGING_REMOTE: "https://github.com/skulpturenz/rollout-storage.git"
+      FLIPT_STORAGE_STAGING_BRANCH: "staging"
+      FLIPT_STORAGE_STAGING_CREDENTIALS: "github"
+      FLIPT_STORAGE_DEV_NAME: "dev"
+      FLIPT_STORAGE_DEV_REMOTE: "https://github.com/skulpturenz/rollout-storage.git"
+      FLIPT_STORAGE_DEV_BRANCH: "dev"
+      FLIPT_STORAGE_DEV_CREDENTIALS: "github"
+      FLIPT_CREDENTIALS_GITHUB_TYPE: "access_token"
+      FLIPT_CREDENTIALS_GITHUB_ACCESS_TOKEN: ${FLIPT_CREDENTIALS_GITHUB_ACCESS_TOKEN}
       FLIPT_CACHE_ENABLED: "true"
+      OTLP_LOGS_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: http://otel-collector:4318
       # Disabled for now, very noisy 60 requests per minute and unnecessary
       FLIPT_METRICS_ENABLED: "false"
       FLIPT_METRICS_EXPORTER: "otlp"
-      FLIPT_METRICS_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://otel-collector:4318
       FLIPT_TRACING_ENABLED: "true"
-      FLIPT_TRACING_EXPORTER: "otlp"
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://otel-collector:4318
       # TODO: reconsider later
-      FLIPT_TRACING_SAMPLING_RATIO: 0.25
-      FLIPT_TRACING_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_TRACES_SAMPLER: "parentbased_traceidratio"
+      OTEL_TRACES_SAMPLER_ARG: 0.25
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=${GO_ENV},deployment.node={{.Task.Slot}}"
     deploy:
       mode: replicated
@@ -100,6 +122,9 @@ services:
         traefik.http.services.rollout-service.loadbalancer.healthcheck.path: /health
         traefik.http.services.rollout-service.loadbalancer.healthcheck.status: 200
         traefik.http.services.rollout-service.loadbalancer.healthcheck.port: 8080
+        traefik.http.services.rollout-service.loadbalancer.sticky.cookie.secure: "true"
+        traefik.http.services.rollout-service.loadbalancer.sticky.cookie.httpOnly: "true"
+        traefik.http.services.rollout-service.loadbalancer.sticky.cookie.domain: rollout.skulpture.xyz
         traefik.http.middlewares.cors.headers.accesscontrolallowmethods: "*"
         traefik.http.middlewares.cors.headers.accesscontrolallowheaders: "*"
         traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
@@ -114,7 +139,7 @@ services:
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies
         traefik.http.middlewares.rollout-service-limit.ratelimit.sourcecriterion.ipstrategy.depth: 1
-        traefik.swarm.lbswarm: "true"
+        traefik.swarm.lbswarm: "false"
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1" ]
       interval: 1m30s

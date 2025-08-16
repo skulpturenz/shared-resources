@@ -32,6 +32,7 @@ export const SamlPostForm = (
 		}
 
 		htmlFormElement.submit();
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [htmlFormElement]);
 	return (
 		<Template

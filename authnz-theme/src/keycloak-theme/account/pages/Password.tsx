@@ -228,7 +228,7 @@ const PasswordWrapper = (props: {
 	kcClsx: KcClsx;
 	i18n: I18n;
 	passwordInputId: string;
-	children: JSX.Element;
+	children: React.JSX.Element;
 }) => {
 	const { i18n, passwordInputId, children } = props;
 
@@ -245,6 +245,7 @@ const PasswordWrapper = (props: {
 		assert(passwordInputElement instanceof HTMLInputElement);
 
 		passwordInputElement.type = isPasswordRevealed ? "text" : "password";
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [isPasswordRevealed]);
 
 	const onClickTogglePassword: React.MouseEventHandler<
