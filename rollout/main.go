@@ -49,7 +49,7 @@ func main() {
 			Tags: pulumi.ToStringArray([]string{
 				"allow-cloudflare",
 				"allow-ssh",
-				"default-allow-internal",
+				"allow-internal",
 			}),
 			NetworkInterfaces: compute.InstanceNetworkInterfaceArray{
 				&compute.InstanceNetworkInterfaceArgs{
