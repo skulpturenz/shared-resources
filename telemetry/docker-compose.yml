@@ -72,7 +72,9 @@ services:
       replicas: 2
       labels:
         traefik.enable: "true"
-        traefik.http.routers.parseable.rule: Host(`telemetry.skulpture.xyz`)
+        # 10.152.0.51 is the internal ip of the vm
+        # can't have both parseable and bugsink matching to the same host
+        traefik.http.routers.parseable.rule: Host(`telemetry.skulpture.xyz`) || Host(`10.152.0.51`)
         traefik.http.routers.parseable.tls.domains.main: skulpture.xyz
         traefik.http.routers.parseable.tls.domains.sans: "*.skulpture.xyz"
         traefik.http.routers.parseable.middlewares: cors, parseable-inflightreq-limit, parseable-service-limit
@@ -121,6 +123,7 @@ services:
       replicas: 2
       labels:
         traefik.enable: "true"
+        # don't match to internal ip while on same vm
         traefik.http.routers.bugsink.rule: Host(`triage.skulpture.xyz`)
         traefik.http.routers.bugsink.tls.domains.main: skulpture.xyz
         traefik.http.routers.bugsink.tls.domains.sans: "*.skulpture.xyz"
