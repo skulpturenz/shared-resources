@@ -119,6 +119,41 @@ func main() {
 			return err
 		}
 
+		_, err = compute.NewFirewall(ctx, "allow-internal", &compute.FirewallArgs{
+			Name:        pulumi.String("allow-internal"),
+			Network:     sharedResourcesNetwork.Name,
+			Description: pulumi.StringPtr("Allow internal connections"),
+			Allows: compute.FirewallAllowArray{
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("tcp"),
+					Ports: pulumi.StringArray{
+						pulumi.String("0-65535"),
+					},
+				},
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("udp"),
+					Ports: pulumi.StringArray{
+						pulumi.String("0-65535"),
+					},
+				},
+				&compute.FirewallAllowArgs{
+					Protocol: pulumi.String("icmp"),
+				},
+			},
+			SourceRanges: pulumi.ToStringArray([]string{
+				// gcp internal ip cidr block
+				// https://tehnoblog.org/ip-tools/ip-address-in-cidr-range/
+				"10.128.0.0/9",
+			},
+			),
+			TargetTags: pulumi.StringArray{
+				pulumi.String("allow-internal"),
+			},
+		})
+		if err != nil {
+			return err
+		}
+
 		_, err = compute.NewFirewall(ctx, "allow-icmp", &compute.FirewallArgs{
 			Name:        pulumi.String("allow-icmp"),
 			Network:     sharedResourcesNetwork.Name,
