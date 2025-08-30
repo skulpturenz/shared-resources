@@ -130,12 +130,12 @@ services:
         traefik.http.middlewares.cors.headers.accesscontrolalloworiginlist: "*"
         traefik.http.middlewares.cors.headers.accesscontrolmaxage: 100
         traefik.http.middlewares.cors.headers.addvaryheader: "true"
-        traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.amount: 5
+        traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.amount: 100
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies
         traefik.http.middlewares.rollout-inflightreq-limit.inflightreq.sourcecriterion.ipstrategy.depth: 1
-        traefik.http.middlewares.rollout-service-limit.ratelimit.average: 5
-        traefik.http.middlewares.rollout-service-limit.ratelimit.burst: 10
+        traefik.http.middlewares.rollout-service-limit.ratelimit.average: 100
+        traefik.http.middlewares.rollout-service-limit.ratelimit.burst: 150
         # Proxied by CloudFlare only before reaching the VM
         # Rate limiting from traefik happens before it proxies
         traefik.http.middlewares.rollout-service-limit.ratelimit.sourcecriterion.ipstrategy.depth: 1
