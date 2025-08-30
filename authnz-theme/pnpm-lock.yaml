@@ -57,8 +57,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       oidc-spa:
-        specifier: ^6.1.2
-        version: 6.1.2(@types/react@19.1.9)(react@19.1.1)
+        specifier: ^7.1.8
+        version: 7.1.8(@types/react@19.1.9)(react@19.1.1)
       react:
         specifier: ^19.1.1
         version: 19.1.1
@@ -3132,8 +3132,8 @@ packages:
     resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
     engines: {node: '>= 0.4'}
 
-  oidc-spa@6.1.2:
-    resolution: {integrity: sha512-v1qOlUwRcmgZsQw37NKHBIj2varcSBt9M0NFLBTef7ZsiMe/p3NzPXeZlYfKtiaCPHnv6rekYxFfk1meJHsGSQ==}
+  oidc-spa@7.1.8:
+    resolution: {integrity: sha512-yZV8UFvYAdF4cWIOFkm+uAqGQevoK7IXztjfpLpR9w1PCTHUgCTG68sZ8/TtKOLFpAcuS6ItS6GQaL3jkgJZaQ==}
     peerDependencies:
       '@types/react': '*'
       react: '*'
@@ -6856,7 +6856,7 @@ snapshots:
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
 
-  oidc-spa@6.1.2(@types/react@19.1.9)(react@19.1.1):
+  oidc-spa@7.1.8(@types/react@19.1.9)(react@19.1.1):
     optionalDependencies:
       '@types/react': 19.1.9
       react: 19.1.1
