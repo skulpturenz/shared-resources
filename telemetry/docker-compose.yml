@@ -49,7 +49,7 @@ services:
         hard: 20000
 
   parseable:
-    image: containers.parseable.com/parseable/parseable
+    image: parseable/parseable:latest
     command: parseable s3-store
     volumes:
       - parseable-staging:/parseable/staging
