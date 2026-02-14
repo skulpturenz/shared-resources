@@ -15,7 +15,7 @@ volumes:
 
 services:
   proxy:
-    image: traefik:v3.4
+    image: traefik:v3.6
     ports:
       - target: 443
         published: 443
