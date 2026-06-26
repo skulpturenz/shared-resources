@@ -31,7 +31,7 @@ import {
 	MoonStar,
 	Check,
 } from "lucide-react";
-import { LogoLight, LogoDark } from "@/components/assets";
+import { LogoDark } from "@/components/assets";
 import { Label } from "@/components/ui/label";
 import { cn, toPlainText } from "@/lib/utils";
 import { useInitialize } from "keycloakify/login/Template.useInitialize";
@@ -62,18 +62,53 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	} = props;
 
 	const { theme, setTheme } = useTheme();
-	const Logo = theme === "light" ? LogoLight : LogoDark;
+	const Logo = LogoDark;
 
 	const { kcClsx } = getKcClsx({ doUseDefaultCss, classes });
 
 	const { msg, msgStr, currentLanguage, enabledLanguages } = i18n;
 
 	const { realm, auth, url, message, isAppInitiatedAction } = kcContext;
+	const authThemeStyle = {
+		"--primary": "67 90% 56%",
+		"--primary-foreground": "0 0% 0%",
+		"--ring": "67 90% 56%",
+	} as React.CSSProperties;
 
 	React.useEffect(() => {
 		document.title =
 			documentTitle ?? msgStr("loginTitle", kcContext.realm.displayName);
 		/* eslint-disable react-hooks/exhaustive-deps */
+	}, []);
+
+	React.useEffect(() => {
+		if (theme !== "dark") {
+			setTheme("dark");
+		}
+	}, [setTheme, theme]);
+
+	React.useEffect(() => {
+		const previousHtmlBackgroundColor =
+			document.documentElement.style.backgroundColor;
+		const previousHtmlBackgroundImage =
+			document.documentElement.style.backgroundImage;
+		const previousBodyBackgroundColor = document.body.style.backgroundColor;
+		const previousBodyBackgroundImage = document.body.style.backgroundImage;
+
+		document.documentElement.style.backgroundColor =
+			"hsl(var(--background))";
+		document.documentElement.style.backgroundImage = "none";
+		document.body.style.backgroundColor = "hsl(var(--background))";
+		document.body.style.backgroundImage = "none";
+
+		return () => {
+			document.documentElement.style.backgroundColor =
+				previousHtmlBackgroundColor;
+			document.documentElement.style.backgroundImage =
+				previousHtmlBackgroundImage;
+			document.body.style.backgroundColor = previousBodyBackgroundColor;
+			document.body.style.backgroundImage = previousBodyBackgroundImage;
+		};
 	}, []);
 
 	useSetClassName({
@@ -83,7 +118,10 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 
 	useSetClassName({
 		qualifiedName: "body",
-		className: bodyClassName ?? kcClsx("kcBodyClass"),
+		className: cn(
+			bodyClassName ?? kcClsx("kcBodyClass"),
+			"bg-background bg-none text-foreground",
+		),
 	});
 
 	const { isReadyToRender } = useInitialize({ kcContext, doUseDefaultCss });
@@ -115,12 +153,11 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 			<div className="flex flex-col gap-2">
 				<Label>{auth?.attemptedUsername}</Label>
 				<a
+					className="inline-flex items-center gap-2 !text-primary hover:!text-primary/90"
 					href={url.loginRestartFlowUrl}
 					aria-label={msgStr("restartLoginTooltip")}>
-					<div className="flex items-center gap-2">
-						<RotateCcw className="h-4 w-4" />
-						<span>{msg("restartLoginTooltip")}</span>
-					</div>
+					<RotateCcw className="h-4 w-4" />
+					<span>{msg("restartLoginTooltip")}</span>
 				</a>
 			</div>
 		);
@@ -133,7 +170,9 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 	};
 
 	return (
-		<div className="my-20 mx-8 md:mx-0 flex flex-col items-center justify-center">
+		<div
+			className="sk-auth-theme min-h-screen w-full bg-background px-8 py-20 text-foreground md:px-0 flex flex-col items-center justify-center"
+			style={authThemeStyle}>
 			<div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 m-4 md:mb-12">
 				<Logo className="w-full md:mt-3 h-auto" />
 				<span className="hidden md:block font-light text-2xl md:text-6xl ">
@@ -158,7 +197,7 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 								<DropdownMenuTrigger asChild>
 									<Button variant="outline" size="icon">
 										<Sun className="h-5 w-auto aspect-square rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-										<MoonStar className="absolute h-5 w-auto aspect-square rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-primary" />
+										<MoonStar className="absolute h-5 w-auto aspect-square rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 !text-primary" />
 										<span className="sr-only">
 											{msg("toggleTheme")}
 										</span>
@@ -219,14 +258,16 @@ const TemplateWithoutTheme = (props: TemplateProps<KcContext, I18n>) => {
 							{!displayRequiredFields && <PageHeader />}
 
 							{displayRequiredFields && (
-								<div>
-									<div className="subtitle">
-										<span className="subtitle">
-											<span className="required">*</span>
+								<div className="flex flex-col gap-2">
+									<div className="flex justify-end text-sm text-muted-foreground">
+										<span>
+											<span className="!text-primary">
+												*
+											</span>
 											{msg("requiredFields")}
 										</span>
 									</div>
-									<div className="col-md-10">
+									<div>
 										<PageHeader />
 									</div>
 								</div>

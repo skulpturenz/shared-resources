@@ -5,6 +5,8 @@ import type { PageProps } from "keycloakify/login/pages/PageProps";
 import type { UserProfileFormFieldsProps } from "keycloakify/login/UserProfileFormFieldsProps";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
+import { Button } from "@/components/ui/button";
+import { Form, FormGroup } from "@/components/ui/form";
 
 type IdpReviewUserProfileProps = PageProps<
 	Extract<KcContext, { pageId: "idp-review-user-profile.ftl" }>,
@@ -16,7 +18,7 @@ type IdpReviewUserProfileProps = PageProps<
 	doMakeUserConfirmPassword: boolean;
 };
 
-export default function IdpReviewUserProfile(props: IdpReviewUserProfileProps) {
+export function IdpReviewUserProfile(props: IdpReviewUserProfileProps) {
 	const {
 		kcContext,
 		i18n,
@@ -45,11 +47,10 @@ export default function IdpReviewUserProfile(props: IdpReviewUserProfileProps) {
 			doUseDefaultCss={doUseDefaultCss}
 			classes={classes}
 			displayMessage={messagesPerField.exists("global")}
-			displayRequiredFields
+			displayRequiredFields={false}
 			headerNode={msg("loginIdpReviewProfileTitle")}>
-			<form
+			<Form
 				id="kc-idp-review-profile-form"
-				className={kcClsx("kcFormClass")}
 				action={url.loginAction}
 				method="post">
 				<UserProfileFormFields
@@ -59,29 +60,19 @@ export default function IdpReviewUserProfile(props: IdpReviewUserProfileProps) {
 					kcClsx={kcClsx}
 					doMakeUserConfirmPassword={doMakeUserConfirmPassword}
 				/>
-				<div className={kcClsx("kcFormGroupClass")}>
-					<div
-						id="kc-form-options"
-						className={kcClsx("kcFormOptionsClass")}>
-						<div className={kcClsx("kcFormOptionsWrapperClass")} />
-					</div>
-					<div
-						id="kc-form-buttons"
-						className={kcClsx("kcFormButtonsClass")}>
+				<FormGroup>
+					<Button
+						className="w-full cursor-pointer"
+						disabled={!isFomSubmittable}
+						asChild>
 						<input
-							className={kcClsx(
-								"kcButtonClass",
-								"kcButtonPrimaryClass",
-								"kcButtonBlockClass",
-								"kcButtonLargeClass",
-							)}
 							type="submit"
 							value={msgStr("doSubmit")}
 							disabled={!isFomSubmittable}
 						/>
-					</div>
-				</div>
-			</form>
+					</Button>
+				</FormGroup>
+			</Form>
 		</Template>
 	);
 }
