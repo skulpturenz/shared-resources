@@ -4,4 +4,4 @@ Custom Keycloak theme
 
 Related resources:
 
--   https://docs.keycloakify.dev
+- https://docs.keycloakify.dev

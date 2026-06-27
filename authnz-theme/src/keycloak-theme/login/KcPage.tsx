@@ -20,8 +20,15 @@ import { LoginResetPassword } from "./pages/LoginResetPassword";
 import { LoginUsername } from "./pages/LoginUsername";
 import { LoginVerifyEmail } from "./pages/LoginVerifyEmail";
 import { LoginRecoveryAuthnCodeConfig } from "./pages/LoginRecoveryAuthnCodeConfig";
+import { Register } from "./pages/Register";
+import { UpdateEmail } from "./pages/UpdateEmail";
+import { IdpReviewUserProfile } from "./pages/IdpReviewUserProfile";
 
-const UserProfileFormFields = lazy(() => import("./UserProfileFormFields"));
+const UserProfileFormFields = lazy(() =>
+	import("./UserProfileFormFields").then(({ UserProfileFormFields }) => ({
+		default: UserProfileFormFields,
+	})),
+);
 
 const doMakeUserConfirmPassword = true;
 
@@ -207,6 +214,51 @@ export default function KcPage(props: { kcContext: KcContext }) {
 								classes={classes}
 								Template={Template}
 								doUseDefaultCss={false}
+							/>
+						);
+					}
+					case "register.ftl": {
+						return (
+							<Register
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+								UserProfileFormFields={UserProfileFormFields}
+								doMakeUserConfirmPassword={
+									doMakeUserConfirmPassword
+								}
+							/>
+						);
+					}
+					case "update-email.ftl": {
+						return (
+							<UpdateEmail
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+								UserProfileFormFields={UserProfileFormFields}
+								doMakeUserConfirmPassword={
+									doMakeUserConfirmPassword
+								}
+							/>
+						);
+					}
+					case "idp-review-user-profile.ftl": {
+						return (
+							<IdpReviewUserProfile
+								kcContext={kcContext}
+								i18n={i18n}
+								classes={classes}
+								Template={Template}
+								doUseDefaultCss={false}
+								UserProfileFormFields={UserProfileFormFields}
+								doMakeUserConfirmPassword={
+									doMakeUserConfirmPassword
+								}
 							/>
 						);
 					}
